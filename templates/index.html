@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏢 HRIS System</h1>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/employees">Data Karyawan</a>
+            </nav>
+        </header>
+        
+        <main>
+            <div class="hero">
+                <h2>{{ .message }}</h2>
+                <p>Sistem manajemen database karyawan untuk HC Department</p>
+                <a href="/employees" class="btn">Lihat Data Karyawan</a>
+            </div>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <h3>👥 Manajemen Karyawan</h3>
+                    <p>Kelola data karyawan dengan mudah</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📊 Dashboard Analytics</h3>
+                    <p>Monitoring data HC secara real-time</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔒 Secure & Fast</h3>
+                    <p>Dibangun dengan Golang untuk performa optimal</p>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 HRIS System - Powered by Golang & Gin</p>
+        </footer>
+    </div>
+</body>
+</html>
