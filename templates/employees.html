@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ .title }}</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -15,46 +17,51 @@
                 <a href="/employees" class="active">Data Karyawan</a>
             </nav>
         </header>
-        
+
         <main>
             <h2>📋 Data Karyawan</h2>
-            
+
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Nama</th>
-                            <th>Department</th>
-                            <th>Position</th>
                             <th>Email</th>
+                            <th>Unit</th>
+                            <th>Tanggal Dibuat</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {{ range .employees }}
                         <tr>
-                            <td>{{ .id }}</td>
-                            <td>{{ .name }}</td>
-                            <td>{{ .department }}</td>
-                            <td>{{ .position }}</td>
-                            <td>{{ .email }}</td>
+                            <td>{{ .ID }}</td>
+                            <td>{{ .Nama }}</td>
+                            <td>{{ .Email }}</td>
+                            <td>{{ .Unit }}</td>
+                            <td>{{ .CreatedAt.Format "02 Jan 2006 15:04" }}</td>
                             <td>
                                 <button class="btn-small btn-edit">Edit</button>
                                 <button class="btn-small btn-delete">Delete</button>
                             </td>
                         </tr>
+                        {{ else }}
+                        <tr>
+                            <td colspan="6" style="text-align: center;">Belum ada data karyawan</td>
+                        </tr>
                         {{ end }}
                     </tbody>
                 </table>
             </div>
-            
+
             <button class="btn btn-add">+ Tambah Karyawan</button>
         </main>
-        
+
         <footer>
             <p>&copy; 2025 HRIS System - Powered by Golang & Gin</p>
         </footer>
     </div>
 </body>
+
 </html>
