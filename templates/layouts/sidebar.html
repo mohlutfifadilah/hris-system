@@ -1,0 +1,23 @@
+{{ define "sidebar" }}
+<div class="main-sidebar sidebar-style-2">
+    <aside id="sidebar-wrapper">
+    <div class="sidebar-brand">
+        <a href="/dashboard">PLUS Advisor</a>
+    </div>
+    <div class="sidebar-brand sidebar-brand-sm">
+        <a href="/dashboard">PA</a>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="menu-header">Dashboard</li>
+        <li class="{{ if eq .activePage "dashboard" }}active{{ end }}">
+            <a href="/dashboard" class="nav-link"><i class="fas fa-fire"></i><span>Dashboard</span></a>
+        </li>
+    </ul>
+    <div class="mt-4 mb-4 p-3 hide-sidebar-mini">
+        <a href="https://getstisla.com/docs" class="btn btn-primary btn-lg btn-block btn-icon-split">
+        <i class="fas fa-rocket"></i> Documentation
+        </a>
+    </div>        
+    </aside>
+</div>
+{{ end }}

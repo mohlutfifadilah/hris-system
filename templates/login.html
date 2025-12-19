@@ -4,65 +4,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .title }} - HRIS System</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="/static/css/login.css">
-    <!-- Font Awesome untuk icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Login - HRIS System</title>
+    
+    <!-- General CSS Files -->
+    <link rel="stylesheet" href="/static/assets/modules/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/assets/modules/fontawesome/css/all.min.css">
+
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="/static/assets/css/style.css">
+    <link rel="stylesheet" href="/static/assets/css/components.css">
+
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .login-brand {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .login-brand img {
+            margin-bottom: 10px;
+        }
+        .login-brand h4 {
+            color: #6777ef;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 
-<body class="login-page">
-    <div class="login-container">
-        <div class="login-box">
-            <div class="login-header">
-                <h1>🏢 HRIS System</h1>
-                <p>Sistem Manajemen Karyawan</p>
-            </div>
+<body>
+    <div id="app">
+        <section class="section">
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
+                        <div class="login-brand">
+                            <img src="/static/img/logo.png" alt="logo" width="100" class="shadow-light rounded-circle">
+                        </div>
 
-            <form id="loginForm" novalidate>
-                <div class="form-group">
-                    <label for="email">📧 Email</label>
-                    <input type="email" id="email" name="email" placeholder="contoh@company.com" autocomplete="email">
-                    <span class="error-message" id="emailError"></span>
-                </div>
+                        <div class="card card-primary">
+                            <div class="card-body">
+                                <form method="POST" id="loginForm" novalidate>
+                                    <!-- Email Input -->
+                                    <div class="form-group">
+                                        <label for="email">Email</label>
+                                        <input id="email" 
+                                               type="email" 
+                                               class="form-control" 
+                                               name="email" 
+                                               tabindex="1" 
+                                               autofocus
+                                               placeholder="Masukkan email Anda">
+                                        <div class="invalid-feedback" id="emailError"></div>
+                                    </div>
 
-                <div class="form-group">
-                    <label for="password">🔒 Password</label>
-                    <div class="password-wrapper">
-                        <input type="password" id="password" name="password" placeholder="Masukkan password"
-                            autocomplete="current-password">
-                        <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                                    <!-- Password Input -->
+                                    <div class="form-group">
+                                        <div class="d-block">
+                                            <label for="password" class="control-label">Password</label>
+                                        </div>
+                                        <div class="input-group">
+                                            <input id="password" 
+                                                   type="password" 
+                                                   class="form-control" 
+                                                   name="password" 
+                                                   tabindex="2"
+                                                   placeholder="Masukkan password Anda">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text" style="cursor: pointer;" id="togglePassword">
+                                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                                </span>
+                                            </div>
+                                            <div class="invalid-feedback" id="passwordError"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <div class="form-group">
+                                        <button type="submit" 
+                                                class="btn btn-primary btn-lg btn-block" 
+                                                tabindex="4" 
+                                                id="btnLogin">
+                                            Login
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="simple-footer">
+                            Copyright &copy; HRIS System 2025
+                        </div>
                     </div>
-                    <span class="error-message" id="passwordError"></span>
                 </div>
-
-                <button type="submit" class="btn-login" id="btnLogin">
-                    Login
-                </button>
-            </form>
-
-            <div class="login-footer">
-                <p>© 2025 HRIS System</p>
             </div>
-        </div>
+        </section>
     </div>
 
+    <!-- General JS Scripts -->
+    <script src="/static/assets/modules/jquery.min.js"></script>
+    <script src="/static/assets/modules/popper.js"></script>
+    <script src="/static/assets/modules/tooltip.js"></script>
+    <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
+    <script src="/static/assets/modules/moment.min.js"></script>
+    <script src="/static/assets/js/stisla.js"></script>
+    <script src="/static/assets/js/scripts.js"></script>
+
     <script>
-        // Flash message dari server
+        // ============================================
+        // FLASH MESSAGE DARI SERVER
+        // ============================================
         const flashMessage = "{{ .flashMessage }}";
         if (flashMessage) {
             Swal.fire({
                 icon: 'info',
                 title: 'Informasi',
                 text: flashMessage,
-                confirmButtonColor: '#667eea',
+                confirmButtonColor: '#6777ef',
                 timer: 3000
             });
         }
+
+        // ============================================
+        // TOGGLE PASSWORD VISIBILITY
+        // ============================================
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            toggleIcon.classList.toggle('fa-eye');
+            toggleIcon.classList.toggle('fa-eye-slash');
+        });
+
+        // ============================================
+        // FORM ELEMENTS
+        // ============================================
+        const loginForm = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const btnLogin = document.getElementById('btnLogin');
+
+        // ============================================
+        // VALIDATION FUNCTIONS
+        // ============================================
+        function validateEmail(email) {
+            email = email.trim();
+            
+            if (email === '') {
+                emailError.textContent = 'Email tidak boleh kosong';
+                emailInput.classList.add('is-invalid');
+                emailInput.classList.remove('is-valid');
+                return false;
+            }
+            
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                emailError.textContent = 'Format email tidak valid';
+                emailInput.classList.add('is-invalid');
+                emailInput.classList.remove('is-valid');
+                return false;
+            }
+            
+            emailError.textContent = '';
+            emailInput.classList.remove('is-invalid');
+            emailInput.classList.add('is-valid');
+            return true;
+        }
+
+        function validatePassword(password) {
+            if (password === '') {
+                passwordError.textContent = 'Password tidak boleh kosong';
+                passwordInput.classList.add('is-invalid');
+                passwordInput.classList.remove('is-valid');
+                return false;
+            }
+            
+            if (password.length < 3) {
+                passwordError.textContent = 'Password minimal 3 karakter';
+                passwordInput.classList.add('is-invalid');
+                passwordInput.classList.remove('is-valid');
+                return false;
+            }
+            
+            passwordError.textContent = '';
+            passwordInput.classList.remove('is-invalid');
+            passwordInput.classList.add('is-valid');
+            return true;
+        }
+
+        // ============================================
+        // LIVE VALIDATION
+        // ============================================
+        emailInput.addEventListener('input', function() {
+            if (this.value.length >= 5) {
+                validateEmail(this.value);
+            }
+        });
+
+        emailInput.addEventListener('blur', function() {
+            validateEmail(this.value);
+        });
+
+        passwordInput.addEventListener('input', function() {
+            if (this.value.length >= 3) {
+                validatePassword(this.value);
+            }
+        });
+
+        passwordInput.addEventListener('blur', function() {
+            validatePassword(this.value);
+        });
+
+        // ============================================
+        // FORM SUBMIT
+        // ============================================
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            
+            // Validate before submit
+            const isEmailValid = validateEmail(email);
+            const isPasswordValid = validatePassword(password);
+            
+            if (!isEmailValid || !isPasswordValid) {
+                return;
+            }
+            
+            // Disable button saat loading
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email.toLowerCase(),
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Redirect ke dashboard
+                    window.location.href = '/dashboard';
+                } else {
+                    // Error handling berdasarkan field
+                    if (data.field === 'email') {
+                        emailError.textContent = data.message;
+                        emailInput.classList.add('is-invalid');
+                        emailInput.focus();
+                    } else if (data.field === 'password') {
+                        passwordError.textContent = data.message;
+                        passwordInput.classList.add('is-invalid');
+                        passwordInput.value = ''; // Reset password
+                        passwordInput.focus();
+                    } else {
+                        // General error
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Login Gagal!',
+                            text: data.message,
+                            confirmButtonColor: '#6777ef'
+                        });
+                        
+                        // Reset hanya password
+                        passwordInput.value = '';
+                        passwordInput.classList.remove('is-invalid', 'is-valid');
+                        passwordError.textContent = '';
+                    }
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Terjadi kesalahan pada server!',
+                    confirmButtonColor: '#6777ef'
+                });
+                
+                // Reset password
+                passwordInput.value = '';
+            } finally {
+                // Enable button kembali
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = 'Login';
+            }
+        });
     </script>
-    <script src="/static/js/login.js"></script>
 </body>
 
 </html>
