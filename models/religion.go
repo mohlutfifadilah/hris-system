@@ -13,4 +13,6 @@ type Religion struct {
 	UpdatedAt time.Time
 }
 
-func (Religion) TableName() string { return "religion" }
+func (Religion) TableName() string {
+	return "religion"
+}

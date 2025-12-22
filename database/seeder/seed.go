@@ -33,7 +33,7 @@ func seedBloods(tx *gorm.DB) error {
 	var count int64
 	tx.Model(&models.Blood{}).Count(&count)
 	if count > 0 {
-		return nil
+		return nil // sudah ada data, skip
 	}
 
 	bloods := []models.Blood{
@@ -94,13 +94,13 @@ func Seed() error {
 	db := config.DB
 
 	return db.Transaction(func(tx *gorm.DB) error {
+		if err := seedAdminEmployee(tx); err != nil {
+			return err
+		}
 		if err := seedReligions(tx); err != nil {
 			return err
 		}
 		if err := seedBloods(tx); err != nil {
-			return err
-		}
-		if err := seedAdminEmployee(tx); err != nil {
 			return err
 		}
 		return nil

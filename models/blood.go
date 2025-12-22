@@ -13,4 +13,6 @@ type Blood struct {
 	UpdatedAt time.Time
 }
 
-func (Blood) TableName() string { return "blood" }
+func (Blood) TableName() string {
+	return "blood"
+}

@@ -9,7 +9,9 @@ import (
 	"hris-system/config"
 	"hris-system/internal/middleware"
 	"hris-system/models"
+	"hris-system/utils"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -80,17 +82,15 @@ func (ac *AuthController) Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
 			"message": "Email atau password salah",
-			"field":   "email",
 		})
 		return
 	}
 
-	// 5. Verify password with pgcrypto
-	if !verifyPassword(email, input.Password) {
+	// Bukan pakai pgcrypto
+	if !utils.CheckPassword(employee.Password, input.Password) {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
-			"message": "Email atau password salah",
-			"field":   "password",
+			"message": "Email atau password salah!",
 		})
 		return
 	}
@@ -106,6 +106,10 @@ func (ac *AuthController) Login(c *gin.Context) {
 	}
 
 	c.SetCookie("token", tokenString, 3600, "/", "", false, true) // 24 hours
+
+	session := sessions.Default(c)
+	session.Set("employee_id", employee.ID.String())
+	session.Save()
 
 	// 7. Return success response
 	c.JSON(http.StatusOK, gin.H{

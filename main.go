@@ -2,28 +2,30 @@ package main
 
 import (
 	"html/template"
-	"log"
 
 	"hris-system/config"
-	migrations "hris-system/database/migration"
-	seeders "hris-system/database/seeder"
 	"hris-system/internal/controllers"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	config.ConnectDatabase()
 
-	if err := migrations.RunMigrations(); err != nil {
-		log.Fatal("Failed to migrate:", err)
-	}
+	// if err := migrations.RunMigrations(); err != nil {
+	// 	log.Fatal("Failed to migrate:", err)
+	// }
 
-	if err := seeders.Seed(); err != nil {
-		log.Fatal("Seeding failed:", err)
-	}
+	// if err := seeders.Seed(); err != nil {
+	// 	log.Fatal("Seeding failed:", err)
+	// }
 
 	r := gin.Default()
+
+	store := cookie.NewStore([]byte("very-secret-key"))
+	r.Use(sessions.Sessions("hris-session", store))
 
 	// Load Templates
 	r.SetHTMLTemplate(loadTemplates())

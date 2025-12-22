@@ -261,7 +261,7 @@
                     window.location.href = '/dashboard';
                 } else {
                     // Error handling berdasarkan field
-                    if (data.field === 'email') {
+                    if (data.field === 'work_email') {
                         emailError.textContent = data.message;
                         emailInput.classList.add('is-invalid');
                         emailInput.focus();

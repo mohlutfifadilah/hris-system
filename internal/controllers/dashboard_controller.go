@@ -3,6 +3,10 @@ package controllers
 import (
 	"net/http"
 
+	"hris-system/config"
+	auth "hris-system/internal/auth"
+	"hris-system/models"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,40 +18,18 @@ func NewDashboardController() *DashboardController {
 
 // Index - Tampilkan halaman dashboard
 func (dc *DashboardController) Index(c *gin.Context) {
-	// Ambil user info dari context (di-set oleh middleware setelah login)
-	// Untuk development, pakai dummy data jika belum ada session
-	// userName, exists := c.Get("userName")
-	// if !exists {
-	// 	userName = "Guest User" // Default jika belum login
-	// }
+	// Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
 
-	// userEmail, exists := c.Get("userEmail")
-	// if !exists {
-	// 	userEmail = "guest@hris.com" // Default jika belum login
-	// }
+	// Hitung total karyawan
+	var totalEmployees int64
+	config.DB.Model(&models.Employee{}).Count(&totalEmployees)
 
-	// // Hitung total karyawan
-	// var totalEmployees int64
-	// config.DB.Model(&models.Employee{}).Count(&totalEmployees)
-
-	// // Hitung karyawan per unit
-	// var unitStats []struct {
-	// 	Unit  string
-	// 	Count int64
-	// }
-	// config.DB.Model(&models.Employee{}).
-	// 	Select("unit, COUNT(*) as count").
-	// 	Group("unit").
-	// 	Order("count DESC").
-	// 	Scan(&unitStats)
-
-	// Render dashboard
+	// Render dashboard menggunakan layout main.html
 	c.HTML(http.StatusOK, "main.html", gin.H{
-		"title": "Dashboard",
-		// "userName":       userName,
-		// "userEmail":      userEmail,
-		"activePage": "dashboard",
-		// "totalEmployees": totalEmployees,
-		// "unitStats":      unitStats,
+		"title":          "Dashboard",
+		"user":           currentUser, // seluruh row employee yang login (boleh nil)
+		"activePage":     "dashboard",
+		"totalEmployees": totalEmployees,
 	})
 }
