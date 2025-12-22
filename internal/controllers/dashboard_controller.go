@@ -26,7 +26,7 @@ func (dc *DashboardController) Index(c *gin.Context) {
 	config.DB.Model(&models.Employee{}).Count(&totalEmployees)
 
 	// Render dashboard menggunakan layout main.html
-	c.HTML(http.StatusOK, "main.html", gin.H{
+	c.HTML(http.StatusOK, "dashboard", gin.H{
 		"title":          "Dashboard",
 		"user":           currentUser, // seluruh row employee yang login (boleh nil)
 		"activePage":     "dashboard",

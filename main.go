@@ -36,6 +36,7 @@ func main() {
 	// Initialize controllers
 	authController := controllers.NewAuthController()
 	dashboardController := controllers.NewDashboardController()
+	profileController := controllers.NewProfileController()
 
 	// ===== PUBLIC ROUTES (tidak perlu login) =====
 	r.GET("/", authController.ShowLoginForm)
@@ -43,6 +44,9 @@ func main() {
 	// Auth
 	r.POST("/login", authController.Login)
 	r.GET("/logout", authController.Logout)
+
+	// Dashboard routes
+	r.GET("/profile", profileController.Index)
 
 	// Dashboard routes
 	r.GET("/dashboard", dashboardController.Index)
