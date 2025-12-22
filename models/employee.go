@@ -3,20 +3,35 @@ package models
 import (
 	"time"
 
-	"gorm.io/gorm"
+	"github.com/google/uuid"
 )
 
 type Employee struct {
-	ID        uint           `gorm:"primaryKey" json:"id"`
-	Nama      string         `gorm:"column:nama" json:"nama"`
-	Email     string         `gorm:"column:email" json:"email"`
-	Unit      string         `gorm:"column:unit" json:"unit"`
-	Password  string         `gorm:"column:password" json:"-"`
-	CreatedAt time.Time      `gorm:"column:created_at" json:"created_at"`
-	UpdatedAt time.Time      `gorm:"column:updated_at" json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+	ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	IDEducation *uuid.UUID
+	IDCareer    *uuid.UUID
+	IDStaffing  *uuid.UUID
+	IDContact   *uuid.UUID
+	IDIdentity  *uuid.UUID
+	IDReligion  *uuid.UUID
+	IDBlood     *uuid.UUID
+
+	WorkEmail string `gorm:"size:100;uniqueIndex;not null"` // ← untuk login
+	Password  string `gorm:"size:255;not null"`
+
+	Name         string `gorm:"size:150;not null"`
+	Photo        string `gorm:"size:255"`
+	IDEmployee   string `gorm:"size:50;uniqueIndex"`
+	Gender       string `gorm:"size:10"`
+	Citizenship  string `gorm:"size:50"`
+	PlaceOfBirth string `gorm:"size:100"`
+	DateOfBirth  time.Time
+	Married      bool
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (Employee) TableName() string {
-	return "employees"
+	return "employee"
 }

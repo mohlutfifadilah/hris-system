@@ -76,7 +76,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 
 	// 4. Check email exists in database
 	var employee models.Employee
-	if err := config.DB.Where("email = ?", email).First(&employee).Error; err != nil {
+	if err := config.DB.Where("work_email = ?", email).First(&employee).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
 			"message": "Email atau password salah",
@@ -96,7 +96,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 	}
 
 	// 6. Generate JWT token & set cookie
-	tokenString, err := generateToken(employee.Email, employee.Nama)
+	tokenString, err := generateToken(employee.WorkEmail, employee.Name)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -111,11 +111,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "Login berhasil!",
-		"user": gin.H{
-			"nama":  employee.Nama,
-			"email": employee.Email,
-			"unit":  employee.Unit,
-		},
+		"user":    employee,
 	})
 }
 
@@ -144,7 +140,7 @@ func isValidEmail(email string) bool {
 // verifyPassword - Verifikasi password dengan pgcrypto
 func verifyPassword(email, password string) bool {
 	var match bool
-	query := "SELECT password = crypt(?, password) FROM employees WHERE email = ?"
+	query := "SELECT password = crypt(?, password) FROM employee WHERE work_email = ?"
 	config.DB.Raw(query, password, email).Scan(&match)
 	return match
 }

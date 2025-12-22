@@ -2,8 +2,11 @@ package main
 
 import (
 	"html/template"
+	"log"
 
 	"hris-system/config"
+	migrations "hris-system/database/migration"
+	seeders "hris-system/database/seeder"
 	"hris-system/internal/controllers"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +14,14 @@ import (
 
 func main() {
 	config.ConnectDatabase()
+
+	if err := migrations.RunMigrations(); err != nil {
+		log.Fatal("Failed to migrate:", err)
+	}
+
+	if err := seeders.Seed(); err != nil {
+		log.Fatal("Seeding failed:", err)
+	}
 
 	r := gin.Default()
 
