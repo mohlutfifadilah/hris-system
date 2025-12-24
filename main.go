@@ -38,6 +38,7 @@ func main() {
 	dashboardController := controllers.NewDashboardController()
 	profileController := controllers.NewProfileController()
 	departmentController := controllers.NewDepartmentController()
+	rankController := controllers.NewRankController()
 
 	// ===== PUBLIC ROUTES (tidak perlu login) =====
 	r.GET("/", authController.ShowLoginForm)
@@ -49,12 +50,21 @@ func main() {
 	// Dashboard routes
 	r.GET("/profile", profileController.Index)
 
+	// Department routes
 	r.GET("/department", departmentController.Index)
 	r.GET("/departments/create", departmentController.Create)
 	r.POST("/departments", departmentController.Store)
 	r.GET("/departments/:id/edit", departmentController.Edit)
 	r.POST("/departments/:id", departmentController.Update)
 	r.POST("/departments/:id/delete", departmentController.Delete)
+
+	// Rank routes
+	r.GET("/rank", rankController.Index)
+	r.GET("/ranks/create", rankController.Create)
+	r.POST("/ranks", rankController.Store)
+	r.GET("/ranks/:id/edit", rankController.Edit)
+	r.POST("/ranks/:id", rankController.Update)
+	r.POST("/ranks/:id/delete", rankController.Delete)
 
 	// Dashboard routes
 	r.GET("/dashboard", dashboardController.Index)

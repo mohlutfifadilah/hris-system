@@ -1,4 +1,4 @@
-{{ define "department" }}
+{{ define "rank" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,10 +49,10 @@
         <div class="main-content">
             <section class="section">
           <div class="section-header">
-            <h1>Department</h1>
+            <h1>Rank</h1>
             <div class="section-header-breadcrumb">
-              <div class="breadcrumb-item active"><a href="/department">Department</a></div>
-              <div class="breadcrumb-item">Data Department</div>
+              <div class="breadcrumb-item active"><a href="/rank">Rank</a></div>
+              <div class="breadcrumb-item">Data Rank</div>
             </div>
           </div>
           <div class="section-body">
@@ -60,11 +60,11 @@
               <div class="col-12">
                 <div class="card">
                   <div class="card-header mb-0">
-                    <h4>Data Department</h4>
+                    <h4>Data Rank</h4>
                   </div>
                   <div class="card-body">
                     <div class="section-header-button d-flex justify-content-end mt-0 pt-0 mb-4">
-                      <a href="/departments/create" class="btn btn-success">Add</a>
+                      <a href="/ranks/create" class="btn btn-success">Add</a>
                     </div>
                     <div class="table-responsive">
                       <table class="table table-striped" id="table-1">
@@ -78,13 +78,13 @@
                           </tr>
                         </thead>
                         <tbody>
-                          {{ range $i, $dept := .departments }}
+                          {{ range $i, $rank := .ranks }}
                           <tr>
                             <td class="text-center">{{ add $i 1 }}</td>
-                            <td>{{ $dept.Department }}</td>
+                            <td>{{ $rank.Rank }}</td>
                             <td>
-                              <a href="/departments/{{ $dept.ID }}/edit" class="btn btn-warning btn-sm">Edit</a>
-                              <form action="/departments/{{ $dept.ID }}/delete" method="POST" style="display:inline;" class="form-delete-dept">
+                              <a href="/ranks/{{ $rank.ID }}/edit" class="btn btn-warning btn-sm">Edit</a>
+                              <form action="/ranks/{{ $rank.ID }}/delete" method="POST" style="display:inline;" class="form-delete-rank">
                                 <button type="submit" class="btn btn-danger btn-sm">
                                   Delete
                                 </button>
@@ -145,7 +145,7 @@
       $('#table-1').DataTable();
     });
     document.addEventListener('DOMContentLoaded', function () {
-      const forms = document.querySelectorAll('.form-delete-dept');
+      const forms = document.querySelectorAll('.form-delete-rank');
 
       forms.forEach(function (form) {
         form.addEventListener('submit', function (e) {
@@ -153,7 +153,7 @@
 
           Swal.fire({
             title: 'Are you sure?',
-            text: 'Data department will deleted permanently',
+            text: 'Data Rank will deleted permanently',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',

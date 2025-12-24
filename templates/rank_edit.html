@@ -1,4 +1,4 @@
-{{ define "department_add" }}
+{{ define "rank_edit" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,11 +49,11 @@
         <div class="main-content">
             <section class="section">
           <div class="section-header">
-            <h1>Department</h1>
+            <h1>Rank</h1>
             <div class="section-header-breadcrumb">
-              <div class="breadcrumb-item active"><a href="/department">Department</a></div>
-              <div class="breadcrumb-item">Data Department</div>
-              <div class="breadcrumb-item">Add Department</div>
+              <div class="breadcrumb-item active"><a href="/rank">Rank</a></div>
+              <div class="breadcrumb-item">Data Rank</div>
+              <div class="breadcrumb-item">Edit Rank</div>
             </div>
           </div>
           <div class="section-body">
@@ -61,19 +61,19 @@
               <div class="col-12">
                 <div class="card">
                   <div class="card-header">
-                    <h4>Add Department</h4>
+                    <h4>Edit Rank</h4>
                   </div>
-                  <form id="deptForm" action="{{ .action }}" method="POST">
+                  <form id="rankForm" action="{{ .action }}" method="POST">
                     <div class="card-body">
                       <div class="form-group">
-                        <label>Name Department</label>
-                        <input type="text" name="department" class="form-control"
-                              value="{{ if .data }}{{ .data.Department }}{{ end }}">
+                        <label>Name Rank</label>
+                        <input type="text" name="rank" class="form-control"
+                              value="{{ if .data }}{{ .data.Rank }}{{ end }}">
                       </div>
                     </div>
                     <div class="card-footer text-right">
-                      <a href="/department" class="btn btn-secondary">Back</a>
-                      <button type="submit" class="btn btn-success">Add</button>
+                      <a href="/rank" class="btn btn-secondary">Back</a>
+                      <button type="submit" class="btn btn-success">Edit</button>
                     </div>
                   </form>
                 </div>
@@ -121,14 +121,14 @@
   <script src="/static/assets/js/scripts.js"></script>
   <script src="/static/assets/js/custom.js"></script>
   <script>
-  document.getElementById('deptForm').addEventListener('submit', function (e) {
-    const dept = this.department.value.trim();
-    if (!dept) {
+  document.getElementById('rankForm').addEventListener('submit', function (e) {
+    const rank = this.rank.value.trim();
+    if (!rank) {
       e.preventDefault();
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Name Department required',
+        text: 'Name Rank required',
       });
     }
   });
