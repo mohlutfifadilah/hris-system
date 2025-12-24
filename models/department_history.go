@@ -8,7 +8,7 @@ import (
 
 type DepartmentHistory struct {
 	ID         uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Department string    `gorm:"size:100;not null"` // department
+	Department string    `form:"department" binding:"required" gorm:"size:100;not null"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 }

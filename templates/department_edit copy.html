@@ -1,4 +1,4 @@
-{{ define "department" }}
+{{ define "department_edit" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,53 +53,29 @@
             <div class="section-header-breadcrumb">
               <div class="breadcrumb-item active"><a href="/department">Department</a></div>
               <div class="breadcrumb-item">Data Department</div>
+              <div class="breadcrumb-item">Edit Department</div>
             </div>
           </div>
           <div class="section-body">
             <div class="row">
               <div class="col-12">
                 <div class="card">
-                  <div class="card-header mb-0">
-                    <h4>Data Department</h4>
+                  <div class="card-header">
+                    <h4>Edit Department</h4>
                   </div>
-                  <div class="card-body">
-                    <div class="section-header-button d-flex justify-content-end mt-0 pt-0 mb-4">
-                      <a href="/departments/create" class="btn btn-success">Add</a>
+                  <form id="deptForm" action="{{ .action }}" method="POST">
+                    <div class="card-body">
+                      <div class="form-group">
+                        <label>Name Department</label>
+                        <input type="text" name="department" class="form-control"
+                              value="{{ if .data }}{{ .data.Department }}{{ end }}">
+                      </div>
                     </div>
-                    <div class="table-responsive">
-                      <table class="table table-striped" id="table-1">
-                        <thead>                                 
-                          <tr>
-                            <th class="text-center">
-                              No
-                            </th>
-                            <th>Name</th>
-                            <th>Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {{ range $i, $dept := .departments }}
-                          <tr>
-                            <td class="text-center">{{ add $i 1 }}</td>
-                            <td>{{ $dept.Department }}</td>
-                            <td>
-                              <a href="/departments/{{ $dept.ID }}/edit" class="btn btn-warning btn-sm">Edit</a>
-                              <form action="/departments/{{ $dept.ID }}/delete" method="POST" style="display:inline;" class="form-delete-dept">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                  Delete
-                                </button>
-                              </form>
-                            </td>
-                          </tr>
-                          {{ else }}
-                          <tr>
-                            <td colspan="3" class="text-center">Belum ada data</td>
-                          </tr>
-                          {{ end }}
-                        </tbody>
-                      </table>
+                    <div class="card-footer text-right">
+                      <a href="/department" class="btn btn-secondary">Back</a>
+                      <button type="submit" class="btn btn-success">Edit</button>
                     </div>
-                  </div>
+                  </form>
                 </div>
               </div>
             </div>
@@ -139,39 +115,24 @@
   <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
 
   <!-- Page Specific JS File -->
-  <!-- <script src="/static/assets/js/page/modules-datatables.js"></script> -->
-  <script>
-    $(function () {
-      $('#table-1').DataTable();
-    });
-    document.addEventListener('DOMContentLoaded', function () {
-      const forms = document.querySelectorAll('.form-delete-dept');
+  <script src="/static/assets/js/page/modules-datatables.js"></script>
 
-      forms.forEach(function (form) {
-        form.addEventListener('submit', function (e) {
-          e.preventDefault(); // blokir submit default
-
-          Swal.fire({
-            title: 'Are you sure?',
-            text: 'Data department will deleted permanently',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel'
-          }).then((result) => {
-            if (result.isConfirmed) {
-              form.submit(); // submit beneran ke server
-            }
-          });
-        });
-      });
-    });
-  </script>
   <!-- Template JS File -->
   <script src="/static/assets/js/scripts.js"></script>
   <script src="/static/assets/js/custom.js"></script>
+  <script>
+  document.getElementById('deptForm').addEventListener('submit', function (e) {
+    const dept = this.department.value.trim();
+    if (!dept) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Name Department required',
+      });
+    }
+  });
+  </script>
 </body>
 </html>
 {{ end }}

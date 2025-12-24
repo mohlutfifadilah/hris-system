@@ -50,6 +50,11 @@ func main() {
 	r.GET("/profile", profileController.Index)
 
 	r.GET("/department", departmentController.Index)
+	r.GET("/departments/create", departmentController.Create)
+	r.POST("/departments", departmentController.Store)
+	r.GET("/departments/:id/edit", departmentController.Edit)
+	r.POST("/departments/:id", departmentController.Update)
+	r.POST("/departments/:id/delete", departmentController.Delete)
 
 	// Dashboard routes
 	r.GET("/dashboard", dashboardController.Index)
@@ -60,7 +65,14 @@ func main() {
 
 // loadTemplates - Load all templates dengan layout
 func loadTemplates() *template.Template {
-	tmpl := template.Must(template.ParseFiles(
+	funcMap := template.FuncMap{
+		"add": func(a, b int) int { return a + b },
+	}
+
+	// Mulai dari template kosong + funcMap
+	tmpl := template.New("").Funcs(funcMap)
+
+	tmpl = template.Must(tmpl.ParseFiles(
 		"templates/layouts/main.html",
 		"templates/layouts/header.html",
 		"templates/layouts/sidebar.html",

@@ -8,7 +8,7 @@ import (
 
 type RankHistory struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Rank      string    `gorm:"size:50;not null"` // rank
+	Rank      string    `form:"rank" binding:"required" gorm:"size:50;not null"` // rank
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
