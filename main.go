@@ -39,6 +39,8 @@ func main() {
 	profileController := controllers.NewProfileController()
 	departmentController := controllers.NewDepartmentController()
 	rankController := controllers.NewRankController()
+	statusController := controllers.NewStatusController()
+	typeAchievementController := controllers.NewTypeAchievement()
 
 	// ===== PUBLIC ROUTES (tidak perlu login) =====
 	r.GET("/", authController.ShowLoginForm)
@@ -65,6 +67,22 @@ func main() {
 	r.GET("/ranks/:id/edit", rankController.Edit)
 	r.POST("/ranks/:id", rankController.Update)
 	r.POST("/ranks/:id/delete", rankController.Delete)
+
+	// Status routes
+	r.GET("/status", statusController.Index)
+	r.GET("/status/create", statusController.Create)
+	r.POST("/status", statusController.Store)
+	r.GET("/status/:id/edit", statusController.Edit)
+	r.POST("/status/:id", statusController.Update)
+	r.POST("/status/:id/delete", statusController.Delete)
+
+	// Type Achievement routes
+	r.GET("/typeAchievement", typeAchievementController.Index)
+	r.GET("/typeAchievement/create", typeAchievementController.Create)
+	r.POST("/typeAchievement", typeAchievementController.Store)
+	r.GET("/typeAchievement/:id/edit", typeAchievementController.Edit)
+	r.POST("/typeAchievement/:id", typeAchievementController.Update)
+	r.POST("/typeAchievement/:id/delete", typeAchievementController.Delete)
 
 	// Dashboard routes
 	r.GET("/dashboard", dashboardController.Index)

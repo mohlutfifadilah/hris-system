@@ -8,7 +8,7 @@ import (
 
 type StatusHistory struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Status    string    `gorm:"size:50;not null"` // status
+	Status    string    `form:"status" binding:"required" gorm:"size:50;not null"` // status
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
