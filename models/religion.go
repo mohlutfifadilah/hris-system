@@ -8,7 +8,7 @@ import (
 
 type Religion struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Religion  string    `gorm:"size:255;uniqueIndex;not null"`
+	Religion  string    `form:"religion" binding:"required" gorm:"size:255;uniqueIndex;not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

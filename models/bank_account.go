@@ -8,8 +8,8 @@ import (
 
 type BankAccount struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Bank      string    `gorm:"size:100;not null"` // bank
-	NoAccount string    `gorm:"size:100;not null"` // no_account
+	Bank      string    `form:"bank" binding:"required" gorm:"size:100;not null"`       // bank
+	NoAccount string    `form:"no_account" binding:"required" gorm:"size:100;not null"` // no_account
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

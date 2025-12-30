@@ -7,17 +7,14 @@ import (
 )
 
 type Contact struct {
-	ID                  uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	IDAddress           *uuid.UUID // id_address
-	IDBankAccount       *uuid.UUID // id_address
-	No                  string     `gorm:"size:50"`  // no (telepon utama)
-	Email               string     `gorm:"size:100"` // email pribadi
-	EmergencyConnection string     `gorm:"size:100"` // emergency_connection (nama)
-	EmergencyContact    string     `gorm:"size:50"`  // emergency_contact (no hp)
-	NoEmergencyContact  string     `gorm:"size:50"`  // no_emergency_contact
-	BankAccount         string     `gorm:"size:100"` // bank_account (no rekening utama, kalau mau simple)
-	CreatedAt           time.Time
-	UpdatedAt           time.Time
+	ID                   uuid.UUID  `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	IDAddress            *uuid.UUID // id_address
+	NoHp                 string     `form:"no_hp" binding:"required" gorm:"size:100"`                  // no (telepon utama)
+	EmergencyRelation    string     `form:"emergency_relation" binding:"required" gorm:"size:100"`     // emergency_relation (hubungan)
+	EmergencyContactName string     `form:"emergency_contact_name" binding:"required" gorm:"size:100"` // emergency_contact_name (nama)
+	NoEmergencyContact   string     `form:"no_emergency_contact" binding:"required" gorm:"size:100"`   // no_emergency_contact
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
 }
 
 func (Contact) TableName() string {

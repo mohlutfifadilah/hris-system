@@ -6,13 +6,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type RankHistory struct {
+type Status struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Rank      string    `form:"rank" binding:"required" gorm:"size:50;not null"` // rank
+	Status    string    `form:"status" binding:"required" gorm:"size:50;not null"` // status
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func (RankHistory) TableName() string {
-	return "rank_history"
+func (Status) TableName() string {
+	return "status"
 }

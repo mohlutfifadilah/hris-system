@@ -8,8 +8,8 @@ import (
 
 type Address struct {
 	ID              uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	AddressIdentity string    `gorm:"size:255"` // address_identity
-	AddressDomicile string    `gorm:"size:255"` // address_domicile
+	AddressIdentity string    `form:"address_identity" binding:"required" gorm:"size:255"` // address_identity
+	AddressDomicile string    `form:"address_domicile" binding:"required" gorm:"size:255"` // address_domicile
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 }

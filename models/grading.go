@@ -6,13 +6,13 @@ import (
 	"github.com/google/uuid"
 )
 
-type StatusHistory struct {
+type Grading struct {
 	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Status    string    `form:"status" binding:"required" gorm:"size:50;not null"` // status
+	Grading   string    `form:"grading" binding:"required" gorm:"size:50;not null"` // grading
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func (StatusHistory) TableName() string {
-	return "status_history"
+func (Grading) TableName() string {
+	return "grading"
 }
