@@ -28,7 +28,42 @@
 
   gtag('config', 'UA-94034622-3');
 </script>
-<!-- /END GA --></head>
+<!-- /END GA -->
+<style>
+.profile-photo-wrapper {
+    position: relative;
+    z-index: 1;
+    display: inline-block !important;
+}
+
+.profile-widget-picture {
+    width: 110px !important;
+    height: 110px !important;
+    object-fit: cover !important;
+}
+
+.edit-camera-btn {
+    position: absolute !important;
+    top: -15px !important;
+    right: -5px !important;
+    transform: translate(30%, -30%);
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    z-index: 5 !important;
+    background: #6777ef !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+    font-size: 12px !important;
+}
+
+.edit-camera-btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(103,119,239,0.25) !important;
+}
+
+</style>
+</head>
 
 <body>
   <div id="app">
@@ -59,42 +94,98 @@
             <div class="row mt-sm-4">
               <div class="col-12 col-md-12 col-lg-6">
                 <div class="card profile-widget">
-                  <div class="profile-widget-header">                     
-                    <img alt="image" src="static/assets/img/avatar/avatar-1.png" class="rounded-circle profile-widget-picture">
-                    <!-- <div class="profile-widget-items">
-                      <div class="profile-widget-item">
-                        <div class="profile-widget-item-label">Posts</div>
-                        <div class="profile-widget-item-value">187</div>
-                      </div>
-                      <div class="profile-widget-item">
-                        <div class="profile-widget-item-label">Followers</div>
-                        <div class="profile-widget-item-value">6,8K</div>
-                      </div>
-                      <div class="profile-widget-item">
-                        <div class="profile-widget-item-label">Following</div>
-                        <div class="profile-widget-item-value">2,1K</div>
-                      </div>
-                    </div> -->
-                  </div>
-                  <div class="profile-widget-description">
-                    <div class="profile-widget-name">{{ .user.Name }} <div class="text-muted d-inline font-weight-normal"><div class="slash"></div> Web Developer</div></div>
-                  </div>
+                  <div class="profile-widget-header">
+        <div class="profile-photo-wrapper">
+            <img alt="image" 
+                 src="{{ if .user.Photo }}{{ .user.Photo }}{{ else }}/static/assets/img/avatar/avatar-1.png{{ end }}" 
+                 class="rounded-circle profile-widget-picture" 
+                 id="profileImage">
+            
+            <!-- BUTTON SELALU ADA -->
+            <button type="button" 
+                    class="btn btn-primary btn-sm edit-camera-btn" 
+                    data-toggle="modal" 
+                    data-target="#editPhotoModal"
+                    title="Ubah Foto">
+                <i class="fas fa-camera"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="profile-widget-description">
+        <div class="profile-widget-name">{{ .user.Name }} 
+            <div class="text-muted d-inline font-weight-normal">
+                <div class="slash"></div> Web Developer
+            </div>
+        </div>
+    </div>
+                  
                   <div class="card-footer text-center">
-                    <div class="font-weight-bold mb-2">Follow Ujang On</div>
-                    <a href="#" class="btn btn-social-icon btn-facebook mr-1">
-                      <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="btn btn-social-icon btn-twitter mr-1">
-                      <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="btn btn-social-icon btn-github mr-1">
-                      <i class="fab fa-github"></i>
-                    </a>
-                    <a href="#" class="btn btn-social-icon btn-instagram">
-                      <i class="fab fa-instagram"></i>
-                    </a>
+                      <div class="font-weight-bold mb-2">Follow Ujang On</div>
+                      <a href="#" class="btn btn-social-icon btn-facebook mr-1">
+                          <i class="fab fa-facebook-f"></i>
+                      </a>
+                      <a href="#" class="btn btn-social-icon btn-twitter mr-1">
+                          <i class="fab fa-twitter"></i>
+                      </a>
+                      <a href="#" class="btn btn-social-icon btn-github mr-1">
+                          <i class="fab fa-github"></i>
+                      </a>
+                      <a href="#" class="btn btn-social-icon btn-instagram">
+                          <i class="fab fa-instagram"></i>
+                      </a>
                   </div>
-                </div>
+              </div>
+
+              <!-- Modal Edit Photo -->
+              <div class="modal fade" id="editPhotoModal" tabindex="-1" role="dialog" aria-labelledby="editPhotoModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                          <div class="modal-header">
+                              <h5 class="modal-title" id="editPhotoModalLabel">Ubah Foto Profile</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                              </button>
+                          </div>
+                          <div class="modal-body">
+                              <form id="uploadPhotoForm" enctype="multipart/form-data">
+                                  <div class="form-group">
+                                      <label>Pilih Foto Baru</label>
+                                      <div class="custom-file">
+                                          <input type="file" 
+                                                class="custom-file-input" 
+                                                id="photoInput" 
+                                                name="photo" 
+                                                accept="image/jpeg,image/png,image/jpg,image/gif">
+                                          <label class="custom-file-label" for="photoInput">Pilih file</label>
+                                      </div>
+                                      <small class="form-text text-muted">
+                                          Format: JPG, PNG, GIF. Maksimal 2MB.
+                                      </small>
+                                  </div>
+                                  
+                                  <!-- Preview Image -->
+                                  <div class="form-group text-center">
+                                      <img id="photoPreview" 
+                                          src="" 
+                                          alt="Preview" 
+                                          class="img-thumbnail" 
+                                          style="max-width: 200px; display: none;">
+                                  </div>
+                              </form>
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-danger" id="btnDeletePhoto">
+                                  <i class="fas fa-trash"></i> Hapus Foto
+                              </button>
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                              <button type="button" class="btn btn-primary" id="btnUploadPhoto">
+                                  <i class="fas fa-upload"></i> Upload
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
                 <div class="card">
                   <form method="post" class="needs-validation" novalidate="">
                     <div class="card-header">
@@ -248,6 +339,122 @@
   <!-- Template JS File -->
   <script src="/static/assets/js/scripts.js"></script>
   <script src="/static/assets/js/custom.js"></script>
+  <script>
+  // Preview image sebelum upload
+  $('#photoInput').on('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+          // Update label
+          $('.custom-file-label').text(file.name);
+          
+          // Show preview
+          const reader = new FileReader();
+          reader.onload = function(e) {
+              $('#photoPreview').attr('src', e.target.result).show();
+          }
+          reader.readAsDataURL(file);
+      }
+  });
+
+  // Upload photo
+  $('#btnUploadPhoto').on('click', function() {
+      const formData = new FormData($('#uploadPhotoForm')[0]);
+      const fileInput = $('#photoInput')[0];
+      
+      if (!fileInput.files.length) {
+          iziToast.warning({
+              title: 'Peringatan',
+              message: 'Pilih foto terlebih dahulu',
+              position: 'topRight'
+          });
+          return;
+      }
+      
+      $.ajax({
+          url: '/profile/upload-photo',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          beforeSend: function() {
+              $('#btnUploadPhoto').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Uploading...');
+          },
+          success: function(response) {
+              iziToast.success({
+                  title: 'Berhasil',
+                  message: response.message,
+                  position: 'topRight'
+              });
+              
+              // Update gambar profile
+              $('#profileImage').attr('src', response.photo + '?t=' + new Date().getTime());
+              
+              // Reset form dan tutup modal
+              $('#uploadPhotoForm')[0].reset();
+              $('#photoPreview').hide();
+              $('.custom-file-label').text('Pilih file');
+              $('#editPhotoModal').modal('hide');
+          },
+          error: function(xhr) {
+              const error = xhr.responseJSON?.error || 'Gagal upload foto';
+              iziToast.error({
+                  title: 'Error',
+                  message: error,
+                  position: 'topRight'
+              });
+          },
+          complete: function() {
+              $('#btnUploadPhoto').prop('disabled', false).html('<i class="fas fa-upload"></i> Upload');
+          }
+      });
+  });
+
+  // Delete photo
+  $('#btnDeletePhoto').on('click', function() {
+      if (!confirm('Yakin ingin menghapus foto profile?')) {
+          return;
+      }
+      
+      $.ajax({
+          url: '/profile/delete-photo',
+          type: 'DELETE',
+          beforeSend: function() {
+              $('#btnDeletePhoto').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Menghapus...');
+          },
+          success: function(response) {
+              iziToast.success({
+                  title: 'Berhasil',
+                  message: response.message,
+                  position: 'topRight'
+              });
+              
+              // Update ke default avatar
+              $('#profileImage').attr('src', response.photo + '?t=' + new Date().getTime());
+              
+              // Tutup modal
+              $('#editPhotoModal').modal('hide');
+          },
+          error: function(xhr) {
+              const error = xhr.responseJSON?.error || 'Gagal menghapus foto';
+              iziToast.error({
+                  title: 'Error',
+                  message: error,
+                  position: 'topRight'
+              });
+          },
+          complete: function() {
+              $('#btnDeletePhoto').prop('disabled', false).html('<i class="fas fa-trash"></i> Hapus Foto');
+          }
+      });
+  });
+
+  // Reset modal saat ditutup
+  $('#editPhotoModal').on('hidden.bs.modal', function () {
+      $('#uploadPhotoForm')[0].reset();
+      $('#photoPreview').hide();
+      $('.custom-file-label').text('Pilih file');
+  });
+</script>
 </body>
 </html>
 {{ end }}

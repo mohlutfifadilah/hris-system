@@ -49,8 +49,10 @@ func main() {
 	r.POST("/login", authController.Login)
 	r.GET("/logout", authController.Logout)
 
-	// Dashboard routes
+	// Profile routes
 	r.GET("/profile", profileController.Index)
+	r.POST("/profile/upload-photo", profileController.UploadProfilePhoto)
+	r.DELETE("/profile/delete-photo", profileController.DeleteProfilePhoto)
 
 	// Department routes
 	r.GET("/department", departmentController.Index)
