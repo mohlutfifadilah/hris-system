@@ -10,6 +10,28 @@ import (
 	"gorm.io/gorm"
 )
 
+func seedCompany(tx *gorm.DB) error {
+
+	emp := models.Employee{
+		Name:         "admin@plusadvisor.co.id",
+		NoNpwp:       passwordHash,
+		Name:         "Admin",
+		Photo:        "null",
+		IDEmployee:   "0000.00.0.000",
+		Gender:       "Laki-laki",
+		Citizenship:  "Indonesia",
+		PlaceOfBirth: "Ciamis",
+		DateOfBirth:  time.Date(2003, 6, 17, 0, 0, 0, 0, time.UTC),
+		Married:      false,
+		IDReligion:   &religion.ID,
+		IDBlood:      &blood.ID,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+	}
+
+	return tx.Create(&emp).Error
+}
+
 func seedAdminEmployee(tx *gorm.DB) error {
 	// cek apakah admin sudah ada
 	var count int64

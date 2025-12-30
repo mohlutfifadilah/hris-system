@@ -23,12 +23,11 @@ func RunMigrations() error {
 		&models.Identity{},
 		&models.Education{},
 		&models.Staffing{},
-		&models.StatusHistory{},
-		&models.RankHistory{},
-		&models.DepartmentHistory{},
-		&models.CareerHistory{},
+		&models.Status{},
+		&models.Grading{},
+		&models.Department{},
 		&models.TypeAchievement{},
-		&models.CareerAchievement{},
+		&models.Achievement{},
 		&models.Career{},
 	)
 
