@@ -12,64 +12,15 @@ import (
 
 func seedCompany(tx *gorm.DB) error {
 
-	emp := models.Employee{
-		Name:         "admin@plusadvisor.co.id",
-		NoNpwp:       passwordHash,
-		Name:         "Admin",
-		Photo:        "null",
-		IDEmployee:   "0000.00.0.000",
-		Gender:       "Laki-laki",
-		Citizenship:  "Indonesia",
-		PlaceOfBirth: "Ciamis",
-		DateOfBirth:  time.Date(2003, 6, 17, 0, 0, 0, 0, time.UTC),
-		Married:      false,
-		IDReligion:   &religion.ID,
-		IDBlood:      &blood.ID,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
-	}
-
-	return tx.Create(&emp).Error
-}
-
-func seedAdminEmployee(tx *gorm.DB) error {
-	// cek apakah admin sudah ada
-	var count int64
-	tx.Model(&models.Employee{}).
-		Where("work_email = ?", "admin@plusadvisor.co.id").
-		Count(&count)
-	if count > 0 {
-		return nil
-	}
-
-	// ambil 1 religion dan 1 blood (optional, boleh nil)
-	var religion models.Religion
-	tx.First(&religion)
-
-	var blood models.Blood
-	tx.First(&blood)
-
-	// hash password
-	passwordHash, err := utils.HashPassword("admin123")
-	if err != nil {
-		return err
-	}
-
-	emp := models.Employee{
-		WorkEmail:    "admin@plusadvisor.co.id",
-		Password:     passwordHash,
-		Name:         "Admin",
-		Photo:        "null",
-		IDEmployee:   "0000.00.0.000",
-		Gender:       "Laki-laki",
-		Citizenship:  "Indonesia",
-		PlaceOfBirth: "Ciamis",
-		DateOfBirth:  time.Date(2003, 6, 17, 0, 0, 0, 0, time.UTC),
-		Married:      false,
-		IDReligion:   &religion.ID,
-		IDBlood:      &blood.ID,
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
+	emp := models.Company{
+		Name:          "PT. Trinitas Strategis Solusi",
+		NoNpwp:        "516376123456789",
+		TaxPersonName: "Admin",
+		TaxPersonNpwp: "Admin",
+		Logo:          "/static/img/logo.png",
+		Address:       "Jakarta Selatan",
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 
 	return tx.Create(&emp).Error
@@ -111,6 +62,53 @@ func seedBloods(tx *gorm.DB) error {
 	return tx.Create(&bloods).Error
 }
 
+func seedAdminEmployee(tx *gorm.DB) error {
+	// cek apakah admin sudah ada
+	var count int64
+	tx.Model(&models.Employee{}).
+		Where("work_email = ?", "admin@plusadvisor.co.id").
+		Count(&count)
+	if count > 0 {
+		return nil
+	}
+
+	// ambil 1 religion dan 1 blood (optional, boleh nil)
+	var religion models.Religion
+	tx.First(&religion)
+
+	var blood models.Blood
+	tx.First(&blood)
+
+	var company models.Company
+	tx.First(&company)
+
+	// hash password
+	passwordHash, err := utils.HashPassword("admin123")
+	if err != nil {
+		return err
+	}
+
+	emp := models.Employee{
+		IDCompany:    &company.ID,
+		IDBlood:      &blood.ID,
+		IDReligion:   &religion.ID,
+		WorkEmail:    "admin@plusadvisor.co.id",
+		Password:     passwordHash,
+		Name:         "Admin",
+		Photo:        "/static/img/logo.png",
+		IDEmployee:   "0000.00.0.000",
+		Gender:       "Male",
+		Citizenship:  "Indonesia",
+		PlaceOfBirth: "Ciamis",
+		DateOfBirth:  time.Date(2003, 6, 17, 0, 0, 0, 0, time.UTC),
+		MarialStatus: false,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+	}
+
+	return tx.Create(&emp).Error
+}
+
 // Seed menjalankan semua seeder (idempotent)
 func Seed() error {
 	db := config.DB
@@ -123,6 +121,9 @@ func Seed() error {
 			return err
 		}
 		if err := seedBloods(tx); err != nil {
+			return err
+		}
+		if err := seedCompany(tx); err != nil {
 			return err
 		}
 		return nil
