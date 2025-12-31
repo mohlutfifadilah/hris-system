@@ -11,14 +11,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RankController struct{}
+type GradingController struct{}
 
-func NewRankController() *RankController {
-	return &RankController{}
+func NewGradingController() *GradingController {
+	return &GradingController{}
 }
 
 // Index - Tampilkan halaman
-func (dc *RankController) Index(c *gin.Context) {
+func (dc *GradingController) Index(c *gin.Context) {
 	// Ambil user dari session (helper, tanpa middleware)
 	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
 
@@ -62,8 +62,8 @@ func (dc *RankController) Index(c *gin.Context) {
 	// 	return
 	// }
 
-	var ranks []models.RankHistory
-	if err := config.DB.Order("created_at desc").Find(&ranks).Error; err != nil {
+	var grading []models.Grading
+	if err := config.DB.Order("created_at desc").Find(&grading).Error; err != nil {
 		c.String(http.StatusInternalServerError, "Error: %v", err)
 		return
 	}
@@ -75,38 +75,38 @@ func (dc *RankController) Index(c *gin.Context) {
 		_ = session.Save()
 	}
 
-	// Render rank menggunakan layout main.html
-	c.HTML(http.StatusOK, "rank", gin.H{
-		"title":      "Rank",
+	// Render grading menggunakan layout main.html
+	c.HTML(http.StatusOK, "grading", gin.H{
+		"title":      "Grading",
 		"user":       employee, // seluruh row employee yang login (boleh nil)
-		"ranks":      ranks,    // seluruh row employee yang login (boleh nil)
-		"activePage": "rank",
+		"grading":    grading,  // seluruh row employee yang login (boleh nil)
+		"activePage": "grading",
 		"success":    success,
 	})
 }
 
-// GET /ranks/create
-func (dc *RankController) Create(c *gin.Context) {
-	c.HTML(http.StatusOK, "rank_add", gin.H{
-		"title":      "Add Rank",
-		"activePage": "rank",
-		"action":     "/ranks",
+// GET /grading/create
+func (dc *GradingController) Create(c *gin.Context) {
+	c.HTML(http.StatusOK, "grading_add", gin.H{
+		"title":      "Add Grading",
+		"activePage": "grading",
+		"action":     "/grading",
 		"method":     "POST",
 	})
 }
 
-// POST /ranks
-func (dc *RankController) Store(c *gin.Context) {
-	var input models.RankHistory
+// POST /grading
+func (dc *GradingController) Store(c *gin.Context) {
+	var input models.Grading
 
-	// ambil field "rank" dari form
+	// ambil field "grading" dari form
 	if err := c.ShouldBind(&input); err != nil {
-		c.HTML(http.StatusBadRequest, "rank_add", gin.H{
-			"title":      "Add Rank",
-			"activePage": "rank",
-			"error":      "Name rank required",
+		c.HTML(http.StatusBadRequest, "grading_add", gin.H{
+			"title":      "Add Grading",
+			"activePage": "grading",
+			"error":      "Name grading required",
 			"data":       input,
-			"action":     "/ranks",
+			"action":     "/grading",
 			"method":     "POST",
 		})
 		return
@@ -119,92 +119,92 @@ func (dc *RankController) Store(c *gin.Context) {
 
 	// set flash
 	session := sessions.Default(c)
-	session.Set("flash_success", "Rank success added")
+	session.Set("flash_success", "Grading success added")
 	_ = session.Save()
 
-	c.Redirect(http.StatusFound, "/rank")
+	c.Redirect(http.StatusFound, "/grading")
 }
 
-// GET /ranks/:id/rank
-func (dc *RankController) Edit(c *gin.Context) {
+// GET /grading/:id/grading
+func (dc *GradingController) Edit(c *gin.Context) {
 	id := c.Param("id")
 
-	var rank models.RankHistory
-	if err := config.DB.First(&rank, "id = ?", id).Error; err != nil {
-		c.String(http.StatusNotFound, "Rank not found")
+	var grading models.Grading
+	if err := config.DB.First(&grading, "id = ?", id).Error; err != nil {
+		c.String(http.StatusNotFound, "Grading not found")
 		return
 	}
 
-	c.HTML(http.StatusOK, "rank_edit", gin.H{
-		"title":      "Edit Rank",
-		"activePage": "rank",
-		"data":       rank,
-		"action":     "/ranks/" + id,
+	c.HTML(http.StatusOK, "grading_edit", gin.H{
+		"title":      "Edit Grading",
+		"activePage": "grading",
+		"data":       grading,
+		"action":     "/grading/" + id,
 		"method":     "POST",
 		"isEdit":     true,
 	})
 }
 
-// POST /ranks/:id
-func (dc *RankController) Update(c *gin.Context) {
+// POST /grading/:id
+func (dc *GradingController) Update(c *gin.Context) {
 	id := c.Param("id")
 
-	var rank models.RankHistory
-	if err := config.DB.First(&rank, "id = ?", id).Error; err != nil {
-		c.String(http.StatusNotFound, "Rank not found")
+	var grading models.Grading
+	if err := config.DB.First(&grading, "id = ?", id).Error; err != nil {
+		c.String(http.StatusNotFound, "Grading not found")
 		return
 	}
 
 	var input struct {
-		Rank string `form:"rank" binding:"required"`
+		Grading string `form:"grading" binding:"required"`
 	}
 
 	if err := c.ShouldBind(&input); err != nil {
-		c.HTML(http.StatusBadRequest, "rank_edit", gin.H{
-			"title":      "Edit Rank",
-			"activePage": "rank",
-			"error":      "Name rank required",
-			"data":       rank,
-			"action":     "/ranks/" + id,
+		c.HTML(http.StatusBadRequest, "grading_edit", gin.H{
+			"title":      "Edit Grading",
+			"activePage": "grading",
+			"error":      "Name grading required",
+			"data":       grading,
+			"action":     "/grading/" + id,
 			"method":     "POST",
 			"isEdit":     true,
 		})
 		return
 	}
 
-	rank.Rank = input.Rank
+	grading.Grading = input.Grading
 
-	if err := config.DB.Save(&rank).Error; err != nil {
+	if err := config.DB.Save(&grading).Error; err != nil {
 		c.String(http.StatusInternalServerError, "Gagal mengupdate: %v", err)
 		return
 	}
 
 	// set flash
 	session := sessions.Default(c)
-	session.Set("flash_success", "Rank success edited")
+	session.Set("flash_success", "Grading success edited")
 	_ = session.Save()
 
-	c.Redirect(http.StatusFound, "/rank")
+	c.Redirect(http.StatusFound, "/grading")
 }
 
-func (dc *RankController) Delete(c *gin.Context) {
+func (dc *GradingController) Delete(c *gin.Context) {
 	id := c.Param("id")
 
-	var rank models.RankHistory
-	if err := config.DB.First(&rank, "id = ?", id).Error; err != nil {
-		c.String(http.StatusNotFound, "Rank not found")
+	var grading models.Grading
+	if err := config.DB.First(&grading, "id = ?", id).Error; err != nil {
+		c.String(http.StatusNotFound, "Grading not found")
 		return
 	}
 
-	if err := config.DB.Delete(&rank).Error; err != nil {
+	if err := config.DB.Delete(&grading).Error; err != nil {
 		c.String(http.StatusInternalServerError, "Gagal menghapus: %v", err)
 		return
 	}
 
 	// set flash
 	session := sessions.Default(c)
-	session.Set("flash_success", "Rank success deleted")
+	session.Set("flash_success", "Grading success deleted")
 	_ = session.Save()
 
-	c.Redirect(http.StatusFound, "/rank")
+	c.Redirect(http.StatusFound, "/grading")
 }

@@ -62,7 +62,7 @@ func (dc *DepartmentController) Index(c *gin.Context) {
 	// 	return
 	// }
 
-	var departments []models.DepartmentHistory
+	var departments []models.Department
 	if err := config.DB.Order("created_at desc").Find(&departments).Error; err != nil {
 		c.String(http.StatusInternalServerError, "Error: %v", err)
 		return
@@ -97,7 +97,7 @@ func (dc *DepartmentController) Create(c *gin.Context) {
 
 // POST /departments
 func (dc *DepartmentController) Store(c *gin.Context) {
-	var input models.DepartmentHistory
+	var input models.Department
 
 	// ambil field "department" dari form
 	if err := c.ShouldBind(&input); err != nil {
@@ -129,7 +129,7 @@ func (dc *DepartmentController) Store(c *gin.Context) {
 func (dc *DepartmentController) Edit(c *gin.Context) {
 	id := c.Param("id")
 
-	var dept models.DepartmentHistory
+	var dept models.Department
 	if err := config.DB.First(&dept, "id = ?", id).Error; err != nil {
 		c.String(http.StatusNotFound, "Department not found")
 		return
@@ -149,7 +149,7 @@ func (dc *DepartmentController) Edit(c *gin.Context) {
 func (dc *DepartmentController) Update(c *gin.Context) {
 	id := c.Param("id")
 
-	var dept models.DepartmentHistory
+	var dept models.Department
 	if err := config.DB.First(&dept, "id = ?", id).Error; err != nil {
 		c.String(http.StatusNotFound, "Department not found")
 		return
@@ -190,7 +190,7 @@ func (dc *DepartmentController) Update(c *gin.Context) {
 func (dc *DepartmentController) Delete(c *gin.Context) {
 	id := c.Param("id")
 
-	var dept models.DepartmentHistory
+	var dept models.Department
 	if err := config.DB.First(&dept, "id = ?", id).Error; err != nil {
 		c.String(http.StatusNotFound, "Department not found")
 		return

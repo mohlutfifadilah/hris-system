@@ -62,7 +62,7 @@ func (dc *StatusController) Index(c *gin.Context) {
 	// 	return
 	// }
 
-	var status []models.StatusHistory
+	var status []models.Status
 	if err := config.DB.Order("created_at desc").Find(&status).Error; err != nil {
 		c.String(http.StatusInternalServerError, "Error: %v", err)
 		return
@@ -97,7 +97,7 @@ func (dc *StatusController) Create(c *gin.Context) {
 
 // POST /status
 func (dc *StatusController) Store(c *gin.Context) {
-	var input models.StatusHistory
+	var input models.Status
 
 	// ambil field "status" dari form
 	if err := c.ShouldBind(&input); err != nil {
@@ -129,7 +129,7 @@ func (dc *StatusController) Store(c *gin.Context) {
 func (dc *StatusController) Edit(c *gin.Context) {
 	id := c.Param("id")
 
-	var status models.StatusHistory
+	var status models.Status
 	if err := config.DB.First(&status, "id = ?", id).Error; err != nil {
 		c.String(http.StatusNotFound, "Status not found")
 		return
@@ -149,7 +149,7 @@ func (dc *StatusController) Edit(c *gin.Context) {
 func (dc *StatusController) Update(c *gin.Context) {
 	id := c.Param("id")
 
-	var status models.StatusHistory
+	var status models.Status
 	if err := config.DB.First(&status, "id = ?", id).Error; err != nil {
 		c.String(http.StatusNotFound, "Status not found")
 		return
@@ -190,7 +190,7 @@ func (dc *StatusController) Update(c *gin.Context) {
 func (dc *StatusController) Delete(c *gin.Context) {
 	id := c.Param("id")
 
-	var status models.StatusHistory
+	var status models.Status
 	if err := config.DB.First(&status, "id = ?", id).Error; err != nil {
 		c.String(http.StatusNotFound, "Status not found")
 		return

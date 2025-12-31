@@ -26,7 +26,7 @@ type Employee struct {
 	Citizenship   string    `form:"citizenship" binding:"required" gorm:"size:50"`
 	PlaceOfBirth  string    `form:"place_of_birth" binding:"required" gorm:"size:100"`
 	DateOfBirth   time.Time `form:"date_of_birth" binding:"required"`
-	MarialStatus  string    `form:"marial_status" binding:"required" gorm:"size:10"`
+	MarialStatus  bool      `form:"marial_status" binding:"required" gorm:"size:10"`
 	JoinDate      string    `form:"join_date" binding:"required" gorm:"size:10"`
 	EvidenceLink  string    `form:"evidence_link" binding:"required" gorm:"size:10"`
 	CreatedAt     time.Time
