@@ -19,5 +19,5 @@ type Company struct {
 }
 
 func (Company) TableName() string {
-	return "address"
+	return "company"
 }

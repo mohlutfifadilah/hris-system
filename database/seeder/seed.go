@@ -114,9 +114,6 @@ func Seed() error {
 	db := config.DB
 
 	return db.Transaction(func(tx *gorm.DB) error {
-		if err := seedAdminEmployee(tx); err != nil {
-			return err
-		}
 		if err := seedReligions(tx); err != nil {
 			return err
 		}
@@ -124,6 +121,9 @@ func Seed() error {
 			return err
 		}
 		if err := seedCompany(tx); err != nil {
+			return err
+		}
+		if err := seedAdminEmployee(tx); err != nil {
 			return err
 		}
 		return nil

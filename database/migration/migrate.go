@@ -29,6 +29,8 @@ func RunMigrations() error {
 		&models.TypeAchievement{},
 		&models.Achievement{},
 		&models.Career{},
+		&models.Company{},
+		&models.Family{},
 	)
 
 }

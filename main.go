@@ -2,8 +2,11 @@ package main
 
 import (
 	"html/template"
+	"log"
 
 	"hris-system/config"
+	migrations "hris-system/database/migration"
+	seeders "hris-system/database/seeder"
 	"hris-system/internal/controllers"
 
 	"github.com/gin-contrib/sessions"
@@ -14,13 +17,13 @@ import (
 func main() {
 	config.ConnectDatabase()
 
-	// if err := migrations.RunMigrations(); err != nil {
-	// 	log.Fatal("Failed to migrate:", err)
-	// }
+	if err := migrations.RunMigrations(); err != nil {
+		log.Fatal("Failed to migrate:", err)
+	}
 
-	// if err := seeders.Seed(); err != nil {
-	// 	log.Fatal("Seeding failed:", err)
-	// }
+	if err := seeders.Seed(); err != nil {
+		log.Fatal("Seeding failed:", err)
+	}
 
 	r := gin.Default()
 
@@ -38,7 +41,7 @@ func main() {
 	dashboardController := controllers.NewDashboardController()
 	profileController := controllers.NewProfileController()
 	departmentController := controllers.NewDepartmentController()
-	rankController := controllers.NewRankController()
+	gradingController := controllers.NewGradingController()
 	statusController := controllers.NewStatusController()
 	typeAchievementController := controllers.NewTypeAchievement()
 
@@ -62,13 +65,13 @@ func main() {
 	r.POST("/departments/:id", departmentController.Update)
 	r.POST("/departments/:id/delete", departmentController.Delete)
 
-	// Rank routes
-	r.GET("/rank", rankController.Index)
-	r.GET("/ranks/create", rankController.Create)
-	r.POST("/ranks", rankController.Store)
-	r.GET("/ranks/:id/edit", rankController.Edit)
-	r.POST("/ranks/:id", rankController.Update)
-	r.POST("/ranks/:id/delete", rankController.Delete)
+	// Grading routes
+	r.GET("/grading", gradingController.Index)
+	r.GET("/gradings/create", gradingController.Create)
+	r.POST("/gradings", gradingController.Store)
+	r.GET("/gradings/:id/edit", gradingController.Edit)
+	r.POST("/gradings/:id", gradingController.Update)
+	r.POST("/gradings/:id/delete", gradingController.Delete)
 
 	// Status routes
 	r.GET("/status", statusController.Index)
