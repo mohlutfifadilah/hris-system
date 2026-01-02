@@ -14,7 +14,6 @@ type Employee struct {
 	IDIdentity    *uuid.UUID
 	IDBankAccount *uuid.UUID
 	IDBlood       *uuid.UUID
-	IDFamily      *uuid.UUID
 	IDReligion    *uuid.UUID
 	WorkEmail     string    `form:"work_email" binding:"required" gorm:"size:100;uniqueIndex;not null"` // ← email kantor
 	Email         string    `form:"email" binding:"required" gorm:"size:100;uniqueIndex;not null"`      // ← email pribadi

@@ -62,6 +62,39 @@ func seedBloods(tx *gorm.DB) error {
 	return tx.Create(&bloods).Error
 }
 
+func seedTypeBanks(tx *gorm.DB) error {
+	var count int64
+	tx.Model(&models.TypeBank{}).Count(&count)
+	if count > 0 {
+		return nil // sudah ada data, skip
+	}
+
+	typeBanks := []models.TypeBank{
+		{Type: "BCA"},
+		{Type: "BNI"},
+		{Type: "BRI"},
+		{Type: "Mandiri"},
+	}
+
+	return tx.Create(&typeBanks).Error
+}
+
+func seedTypeIdentity(tx *gorm.DB) error {
+	var count int64
+	tx.Model(&models.TypeIdentity{}).Count(&count)
+	if count > 0 {
+		return nil // sudah ada data, skip
+	}
+
+	typeIdentities := []models.TypeIdentity{
+		{Type: "KTP"},
+		{Type: "SIM"},
+		{Type: "Passport"},
+	}
+
+	return tx.Create(&typeIdentities).Error
+}
+
 func seedAdminEmployee(tx *gorm.DB) error {
 	// cek apakah admin sudah ada
 	var count int64

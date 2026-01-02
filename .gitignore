@@ -1,5 +1,7 @@
 # Environment variables - PENTING!
 .env
+.air.toml
+tmp/
 
 # Binaries
 *.exe

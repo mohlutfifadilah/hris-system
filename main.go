@@ -15,14 +15,24 @@ import (
 )
 
 func main() {
-	config.ConnectDatabase()
-
-	if err := migrations.RunMigrations(); err != nil {
-		log.Fatal("Failed to migrate:", err)
+	// ===== CONNECT DATABASE (akan di-skip jika USE_DATABASE=false) =====
+	if err := config.ConnectDatabase(); err != nil {
+		log.Println("⚠️  Running without database - some features may not work")
 	}
 
-	if err := seeders.Seed(); err != nil {
-		log.Fatal("Seeding failed:", err)
+	// ===== RUN MIGRATIONS & SEEDERS (hanya jika DB aktif) =====
+	if config.DB != nil {
+		log.Println("🔄 Running migrations...")
+		if err := migrations.RunMigrations(); err != nil {
+			log.Println("⚠️  Migration failed:", err)
+		}
+
+		log.Println("🌱 Running seeders...")
+		if err := seeders.Seed(); err != nil {
+			log.Println("⚠️  Seeding failed:", err)
+		}
+	} else {
+		log.Println("⏭️  Skipping migrations & seeders (database disabled)")
 	}
 
 	r := gin.Default()

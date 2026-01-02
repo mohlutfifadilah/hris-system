@@ -31,6 +31,8 @@ func RunMigrations() error {
 		&models.Career{},
 		&models.Company{},
 		&models.Family{},
+		&models.TypeBank{},
+		&models.TypeIdentity{},
 	)
 
 }
