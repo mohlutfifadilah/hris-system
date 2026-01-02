@@ -13,12 +13,12 @@
             <a href="/dashboard" class="nav-link"><i class="fas fa-fire"></i><span>Dashboard</span></a>
         </li>
     </ul>
-    <!-- <ul class="sidebar-menu">
+    <ul class="sidebar-menu">
         <li class="menu-header">Company</li>
         <li class="{{ if eq .activePage "company" }}active{{ end }}">
             <a href="/company" class="nav-link"><i class="fas fa-fire"></i><span>Company</span></a>
         </li>
-    </ul> -->
+    </ul>
     <ul class="sidebar-menu">
         <li class="menu-header">Employee</li>
         <li class="{{ if eq .activePage "employee" }}active{{ end }}">
@@ -36,6 +36,9 @@
     </ul>
     <ul class="sidebar-menu">
         <li class="menu-header">Career</li>
+        <li class="{{ if eq .activePage "career" }}active{{ end }}">
+            <a href="/career" class="nav-link"><i class="fas fa-fire"></i><span>Career</span></a>
+        </li>
         <li class="{{ if eq .activePage "department" }}active{{ end }}">
             <a href="/department" class="nav-link"><i class="fas fa-fire"></i><span>Department</span></a>
         </li>
@@ -48,6 +51,9 @@
     </ul>
     <ul class="sidebar-menu">
         <li class="menu-header">Achievement</li>
+        <li class="{{ if eq .activePage "achievement" }}active{{ end }}">
+            <a href="/achievement" class="nav-link"><i class="fas fa-fire"></i><span>Achievement</span></a>
+        </li>
         <li class="{{ if eq .activePage "typeAchievement" }}active{{ end }}">
             <a href="/typeAchievement" class="nav-link"><i class="fas fa-fire"></i><span>Type Achievement</span></a>
         </li>

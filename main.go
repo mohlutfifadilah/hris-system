@@ -49,6 +49,7 @@ func main() {
 	// Initialize controllers
 	authController := controllers.NewAuthController()
 	dashboardController := controllers.NewDashboardController()
+	EmployeeController := controllers.NewEmployeeController()
 	profileController := controllers.NewProfileController()
 	departmentController := controllers.NewDepartmentController()
 	gradingController := controllers.NewGradingController()
@@ -61,6 +62,17 @@ func main() {
 	// Auth
 	r.POST("/login", authController.Login)
 	r.GET("/logout", authController.Logout)
+
+	// Dashboard routes
+	r.GET("/dashboard", dashboardController.Index)
+
+	// Employee routes
+	r.GET("/employee", EmployeeController.Index)
+	r.GET("/employee/create", EmployeeController.Create)
+	r.POST("/employee", EmployeeController.Store)
+	r.GET("/employee/:id/edit", EmployeeController.Edit)
+	r.POST("/employee/:id", EmployeeController.Update)
+	r.POST("/employee/:id/delete", EmployeeController.Delete)
 
 	// Profile routes
 	r.GET("/profile", profileController.Index)
@@ -98,9 +110,6 @@ func main() {
 	r.GET("/typeAchievement/:id/edit", typeAchievementController.Edit)
 	r.POST("/typeAchievement/:id", typeAchievementController.Update)
 	r.POST("/typeAchievement/:id/delete", typeAchievementController.Delete)
-
-	// Dashboard routes
-	r.GET("/dashboard", dashboardController.Index)
 
 	println("🚀 Server running on http://localhost:8080")
 	r.Run(":8080")

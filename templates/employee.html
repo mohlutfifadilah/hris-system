@@ -1,0 +1,190 @@
+{{ define "employee" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>{{ .title }} | HRIS System</title>
+
+  <!-- General CSS Files -->
+  <link rel="stylesheet" href="/static/assets/modules/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/assets/modules/fontawesome/css/all.min.css">
+
+  <!-- CSS Libraries -->
+  <link rel="stylesheet" href="/static/assets/modules/jqvmap/dist/jqvmap.min.css">
+  <link rel="stylesheet" href="/static/assets/modules/weather-icon/css/weather-icons.min.css">
+  <link rel="stylesheet" href="/static/assets/modules/weather-icon/css/weather-icons-wind.min.css">
+  <link rel="stylesheet" href="/static/assets/modules/summernote/summernote-bs4.css">
+
+  <link rel="stylesheet" href="/static/assets/modules/datatables/datatables.min.css">
+  <link rel="stylesheet" href="/static/assets/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
+  <link rel="stylesheet" href="/static/assets/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css">
+
+  <!-- Template CSS -->
+  <link rel="stylesheet" href="/static/assets/css/style.css">
+  <link rel="stylesheet" href="/static/assets/css/components.css">
+<!-- Start GA -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-94034622-3');
+</script>
+<!-- /END GA --></head>
+
+<body>
+  <div id="app">
+    <div class="main-wrapper main-wrapper-1">
+      <div class="navbar-bg"></div>
+      
+        <!-- Header -->
+        {{ template "header" . }}
+
+        <!-- Sidebar -->
+        {{ template "sidebar" . }}
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <section class="section">
+          <div class="section-header">
+            <h1>Employee</h1>
+            <div class="section-header-breadcrumb">
+              <div class="breadcrumb-item active"><a href="/employee">Employee</a></div>
+              <div class="breadcrumb-item">Data Employee</div>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header mb-0">
+                    <h4>Data Employee</h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="section-header-button d-flex justify-content-end mt-0 pt-0 mb-4">
+                      <a href="/employee/create" class="btn btn-success">Add</a>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-striped" id="table-1">
+                        <thead>                                 
+                          <tr>
+                            <th class="text-center">
+                              No
+                            </th>
+                            <th>Name</th>
+                            <th>Gender</th>
+                            <th>No Hp</th>
+                            <th>Email</th>
+                            <th>Position</th>
+                            <th>Department</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {{ range $i, $emp := .users }}
+                          <tr>
+                            <td class="text-center">{{ add $i 1 }}</td>
+                            <td>
+                              <img alt="image" src="{{ $emp.Photo }}" class="rounded-circle" width="60" data-toggle="tooltip" title="{{ $emp.Name }}"> {{ $emp.Name }}
+                            </td>
+                            <td>{{ $emp.Gender }}</td>
+                            <td>{{ $emp.NoHp }}</td>
+                            <td>{{ $emp.WorkEmail }}</td>
+                            <td>{{ $emp.Position }}</td>
+                            <td>{{ $emp.Department }}</td>
+                            <td>
+                              <a href="/employee/{{ $emp.ID }}/info" class="btn btn-warning btn-sm">Info</a>
+                              <a href="/employee/{{ $emp.ID }}/edit" class="btn btn-warning btn-sm">Edit</a>
+                              <form action="/employee/{{ $emp.ID }}/delete" method="POST" style="display:inline;" class="form-delete-dept">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                  Delete
+                                </button>
+                              </form>
+                            </td>
+                          </tr>
+                          {{ else }}
+                          <tr>
+                            <td colspan="3" class="text-center">Belum ada data</td>
+                          </tr>
+                          {{ end }}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        </div>
+        
+        <!-- Footer -->
+        {{ template "footer" . }}
+
+    </div>
+  </div>
+
+  <!-- General JS Scripts -->
+  <script src="/static/assets/modules/jquery.min.js"></script>
+  <script src="/static/assets/modules/popper.js"></script>
+  <script src="/static/assets/modules/tooltip.js"></script>
+  <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
+  <script src="/static/assets/modules/moment.min.js"></script>
+  <script src="/static/assets/js/stisla.js"></script>
+  
+  <!-- JS Libraies -->
+  <script src="/static/assets/modules/simple-weather/jquery.simpleWeather.min.js"></script>
+  <script src="/static/assets/modules/chart.min.js"></script>
+  <script src="/static/assets/modules/jqvmap/dist/jquery.vmap.min.js"></script>
+  <script src="/static/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+  <script src="/static/assets/modules/summernote/summernote-bs4.js"></script>
+  <script src="/static/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+
+  <!-- Page Specific JS File -->
+  <script src="/static/assets/js/page/index-0.js"></script>
+  
+  <script src="/static/assets/modules/datatables/datatables.min.js"></script>
+  <script src="/static/assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+  <script src="/static/assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
+  <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
+
+  <!-- Page Specific JS File -->
+  <!-- <script src="/static/assets/js/page/modules-datatables.js"></script> -->
+  <script>
+    $(function () {
+      $('#table-1').DataTable();
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+      const forms = document.querySelectorAll('.form-delete-dept');
+
+      forms.forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault(); // blokir submit default
+
+          Swal.fire({
+            title: 'Are you sure?',
+            text: 'Data department will deleted permanently',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              form.submit(); // submit beneran ke server
+            }
+          });
+        });
+      });
+    });
+  </script>
+  <!-- Template JS File -->
+  <script src="/static/assets/js/scripts.js"></script>
+  <script src="/static/assets/js/custom.js"></script>
+</body>
+</html>
+{{ end }}
