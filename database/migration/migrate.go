@@ -1,6 +1,7 @@
 package migrations
 
 import (
+	"fmt"
 	"hris-system/config"
 	"hris-system/models"
 )
@@ -13,26 +14,34 @@ func RunMigrations() error {
 		return err
 	}
 
-	return db.AutoMigrate(
-		&models.Employee{},
-		&models.Religion{},
-		&models.Blood{},
-		&models.BankAccount{},
-		&models.Address{},
-		&models.Contact{},
-		&models.Identity{},
-		&models.Education{},
-		&models.Staffing{},
-		&models.Status{},
-		&models.Grading{},
-		&models.Department{},
-		&models.TypeAchievement{},
-		&models.Achievement{},
-		&models.Career{},
-		&models.Company{},
-		&models.Family{},
-		&models.TypeBank{},
-		&models.TypeIdentity{},
-	)
+	models := []interface{}{
+        &models.Company{},
+        &models.Religion{},
+        &models.Blood{},
+        &models.TypeBank{},
+        &models.TypeIdentity{},
+        &models.Status{},
+        &models.Grading{},
+        &models.Department{},
+        &models.TypeAchievement{},
+        &models.BankAccount{},
+        &models.Address{},
+        &models.Contact{},
+        &models.Identity{},
+        &models.Education{},
+        &models.Staffing{},
+        &models.Employee{},
+        &models.Achievement{},
+        &models.Career{},
+        &models.Family{},
+    }
+
+    for _, model := range models {
+        if err := db.AutoMigrate(model); err != nil {
+            return fmt.Errorf("failed to migrate %T: %w", model, err)
+        }
+    }
+
+    return nil
 
 }

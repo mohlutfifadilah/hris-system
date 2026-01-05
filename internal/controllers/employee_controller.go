@@ -15,12 +15,25 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type EmployeeController struct{}
 
 func NewEmployeeController() *EmployeeController {
 	return &EmployeeController{}
+}
+
+// Parse UUID dan return pointer (nil jika kosong/error)
+func parseUUIDPtr(s string) (*uuid.UUID, error) {
+    if s == "" {
+        return nil, nil
+    }
+    parsed, err := uuid.Parse(s)
+    if err != nil {
+        return nil, err
+    }
+    return &parsed, nil
 }
 
 // Index - Tampilkan halaman profile
@@ -140,139 +153,161 @@ func (dc *EmployeeController) Create(c *gin.Context) {
 
 // POST /employee
 func (dc *EmployeeController) Store(c *gin.Context) {
-	form := map[string]string{
-		"id_employee":      c.PostForm("id_employee"),
-		"name":             c.PostForm("name"),
-		"email":            c.PostForm("email"),
-		"gender":           c.PostForm("gender"),
-		"work_email":       c.PostForm("work_email"),
-		"place_of_birth":   c.PostForm("place_of_birth"),
-		"date_of_birth":    c.PostForm("date_of_birth"),
-		"id_type_bank":     c.PostForm("id_type_bank"),
-		"no_account":       c.PostForm("no_account"),
-		"id_type_identity": c.PostForm("id_type_identity"),
-		"no":               c.PostForm("no"),
+    form := map[string]string{
+        "id_employee":      c.PostForm("id_employee"),
+        "name":             c.PostForm("name"),
+        "email":            c.PostForm("email"),
+        "gender":           c.PostForm("gender"),
+        "work_email":       c.PostForm("work_email"),
+        "place_of_birth":   c.PostForm("place_of_birth"),
+        "date_of_birth":    c.PostForm("date_of_birth"),
+        "join_date":        c.PostForm("join_date"),
+        "blood_type":       c.PostForm("blood_type"),
+        "religion":         c.PostForm("religion"),
+        "citizenship":      c.PostForm("citizenship"),
+        "marial_status":    c.PostForm("marial_status"),
+        "id_type_bank":     c.PostForm("id_type_bank"),
+        "no_account":       c.PostForm("no_account"),
+        "id_type_identity": c.PostForm("id_type_identity"),
+        "no":               c.PostForm("no"),
+        "evidence_link":    c.PostForm("evidence_link"),
+    }
+
+    errors := map[string]string{}
+
+    // Validasi
+    if strings.TrimSpace(form["name"]) == "" {
+        errors["name"] = "Full Name wajib diisi"
+    }
+    if strings.TrimSpace(form["email"]) == "" {
+        errors["email"] = "Email wajib diisi"
+    }
+
+    // Validasi photo
+    file, fileErr := c.FormFile("photo")
+    if fileErr == nil {
+        ct := file.Header.Get("Content-Type")
+        if !strings.HasPrefix(ct, "image/") {
+            errors["photo"] = "Photo harus berupa gambar (image/*)"
+        }
+        if file.Size > 2*1024*1024 {
+            errors["photo"] = "Photo maksimal 2MB"
+        }
+    }
+
+    // Parse UUID (return pointer)
+	bloodType, err := parseUUIDPtr(form["blood_type"])
+	if err != nil {
+		errors["blood_type"] = "Blood type UUID tidak valid"
 	}
 
-	errors := map[string]string{}
-	c.Request.ParseMultipartForm(32 << 20) // 32MB
-
-	dump := gin.H{
-		"form": c.Request.PostForm, // map[string][]string
+	idReligion, err := parseUUIDPtr(form["religion"])
+	if err != nil {
+		errors["religion"] = "Religion UUID tidak valid"
 	}
 
-	file, err := c.FormFile("photo")
-	if err == nil {
-		dump["photo"] = gin.H{
-			"filename": file.Filename,
-			"size":     file.Size,
-			"header":   file.Header,
-		}
-	} else {
-		dump["photo"] = nil
+	idTypeIdentity, err := parseUUIDPtr(form["id_type_identity"])
+	if err != nil {
+		errors["id_type_identity"] = "Identity type UUID tidak valid"
 	}
 
-	c.JSON(200, dump)
-	return
-
-	// server-side validation minimal
-	if strings.TrimSpace(form["name"]) == "" {
-		errors["name"] = "Full Name wajib diisi"
-	}
-	if strings.TrimSpace(form["email"]) == "" {
-		errors["email"] = "Email wajib diisi"
+	idTypeBank, err := parseUUIDPtr(form["id_type_bank"])
+	if err != nil {
+		errors["id_type_bank"] = "Bank type UUID tidak valid"
 	}
 
-	// photo optional (kalau ada harus image & <=2MB)
-	file, fileErr := c.FormFile("photo")
-	if fileErr == nil {
-		ct := file.Header.Get("Content-Type")
-		if !strings.HasPrefix(ct, "image/") {
-			errors["photo"] = "Photo harus berupa gambar (image/*)"
-		}
-		if file.Size > 2*1024*1024 {
-			errors["photo"] = "Photo maksimal 2MB"
-		}
-	}
+    // Parse date
+    var dateOfBirth time.Time
+    if form["date_of_birth"] != "" {
+        dateOfBirth, err = time.Parse("2006-01-02", form["date_of_birth"])
+        if err != nil {
+            errors["date_of_birth"] = "Format tanggal lahir tidak valid"
+        }
+    }
 
-	// if error -> render ulang dan retain form
-	if len(errors) > 0 {
-		var banks []models.TypeBank
-		var identities []models.TypeIdentity
-		config.DB.Find(&banks)
-		config.DB.Find(&identities)
+    // Parse MaritalStatus (boolean)
+    maritalStatus := form["marial_status"] == "Married"
 
-		c.HTML(http.StatusBadRequest, "employee_add", gin.H{
-			"title":      "Add Employee",
-			"action":     "/employee",
-			"form":       form,
-			"errors":     errors,
-			"swalError":  "Ada input yang belum valid.",
-			"banks":      banks,
-			"identities": identities,
-		})
-		return
-	}
+    // Kalau ada error, render ulang
+    if len(errors) > 0 {
+        var bloods []models.Blood
+        var religions []models.Religion
+        var banks []models.TypeBank
+        var identities []models.TypeIdentity
 
-	// save photo if provided
-	photoURL := ""
-	if fileErr == nil {
-		_ = os.MkdirAll("./static/assets/employee_photo", 0755)
+        config.DB.Order("created_at desc").Find(&bloods)
+        config.DB.Order("created_at desc").Find(&religions)
+        config.DB.Order("created_at desc").Find(&banks)
+        config.DB.Order("created_at desc").Find(&identities)
 
-		ext := strings.ToLower(filepath.Ext(file.Filename))
-		if ext == "" {
-			ext = ".jpg"
-		}
+        c.HTML(http.StatusBadRequest, "employee_add", gin.H{
+            "title":      "Add Employee",
+            "action":     "/employee",
+            "form":       form,
+            "errors":     errors,
+            "swalError":  "Ada input yang belum valid.",
+            "bloods":     bloods,
+            "religions":  religions,
+            "banks":      banks,
+            "identities": identities,
+        })
+        return
+    }
 
-		filename := fmt.Sprintf("emp_%d%s", time.Now().UnixNano(), ext)
-		dst := filepath.Join("./static/assets/employee_photo", filename)
+    // Upload photo
+    photoURL := ""
+    if fileErr == nil {
+        _ = os.MkdirAll("./static/assets/employee_photo", 0755)
 
-		if err := c.SaveUploadedFile(file, dst); err != nil {
-			c.String(http.StatusInternalServerError, "upload failed: "+err.Error())
-			return
-		}
+        ext := strings.ToLower(filepath.Ext(file.Filename))
+        if ext == "" {
+            ext = ".jpg"
+        }
 
-		photoURL = "/static/assets/employee_photo/" + filename
-	}
+        filename := fmt.Sprintf("emp_%d%s", time.Now().UnixNano(), ext)
+        dst := filepath.Join("./static/assets/employee_photo", filename)
 
-	var company models.Company
-	config.DB.First(&company)
+        if err := c.SaveUploadedFile(file, dst); err != nil {
+            c.String(http.StatusInternalServerError, "upload failed: "+err.Error())
+            return
+        }
 
-	// TODO: mapping ke model kamu
-	emp := models.Employee{
-		IDCompany:     &company.ID,
-		IDStaffing:    nil,
-		IDContact:     nil,
-		IDIdentity:    form["id_type_identity"],
-		IDBankAccount: form["id_type_bank"],
-		IDBlood:       form["blood_type"],
-		IDReligion:    form["religion"],
-		WorkEmail:     form["work_email"],
-		Email:         form["email"],
-		Name:          form["name"],
-		Photo:         photoURL,
-		IDEmployee:    form["id_employee"],
-		Gender:        form["gender"],
-		Citizenship:   form["citizenship"],
-		PlaceOfBirth:  form["place_of_birth"],
-		// konversi date_of_birth dari string ke time.Time
-		DateOfBirth: func() time.Time {
-			t, err := time.Parse("2006-01-02", form["date_of_birth"])
-			if err != nil {
-				return time.Time{}
-			}
-			return t
-		}(),
-		MarialStatus: form["marial_status"].Boolean(),
-		JoinDate:     form["join_date"],
-		CreatedAt:    time.Now(),
-		UpdatedAt:    time.Now(),
-	}
+        photoURL = "/static/assets/employee_photo/" + filename
+    }
 
-	if err := config.DB.Create(&emp).Error; err != nil {
-		c.String(http.StatusInternalServerError, "create employee failed: "+err.Error())
-		return
-	}
+    // Get company
+    var company models.Company
+    config.DB.First(&company)
+
+    // Create employee
+    emp := models.Employee{
+        IDCompany:     &company.ID,
+        IDStaffing:    nil,
+        IDContact:     nil,
+        IDIdentity:    idTypeIdentity,
+        IDBankAccount: idTypeBank,
+        IDBlood:       bloodType,
+        IDReligion:    idReligion,
+        WorkEmail:     form["work_email"],
+        Email:         form["email"],
+        Name:          form["name"],
+        Photo:         photoURL,
+        IDEmployee:    form["id_employee"],
+        Gender:        form["gender"],
+        Citizenship:   form["citizenship"],
+        PlaceOfBirth:  form["place_of_birth"],
+        DateOfBirth:   dateOfBirth,
+        MarialStatus:  maritalStatus,
+        JoinDate:      form["join_date"],
+        EvidenceLink:  form["evidence_link"],
+        CreatedAt:     time.Now(),
+        UpdatedAt:     time.Now(),
+    }
+
+    if err := config.DB.Create(&emp).Error; err != nil {
+        c.String(http.StatusInternalServerError, "create employee failed: "+err.Error())
+        return
+    }
 
 	session := sessions.Default(c)
 	success := session.Get("flash_success")
@@ -281,7 +316,7 @@ func (dc *EmployeeController) Store(c *gin.Context) {
 		_ = session.Save()
 	}
 
-	c.Redirect(http.StatusSeeOther, "/employee")
+    c.Redirect(http.StatusSeeOther, "/employee")
 }
 
 // GET /departments/:id/edit

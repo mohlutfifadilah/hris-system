@@ -8,13 +8,13 @@ import (
 
 type Employee struct {
 	ID            uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	IDCompany     *uuid.UUID
-	IDStaffing    *uuid.UUID
-	IDContact     *uuid.UUID
-	IDIdentity    *uuid.UUID
-	IDBankAccount *uuid.UUID
-	IDBlood       *uuid.UUID
-	IDReligion    *uuid.UUID
+	IDCompany     *uuid.UUID `form:"id_company"`
+	IDStaffing    *uuid.UUID `form:"id_staffing"`
+	IDContact     *uuid.UUID `form:"id_contact"`
+	IDIdentity    *uuid.UUID `form:"id_type_identity"`
+	IDBankAccount *uuid.UUID `form:"id_type_bank"`
+	IDBlood       *uuid.UUID `form:"id_blood"`
+	IDReligion    *uuid.UUID `form:"id_religion"`
 	WorkEmail     string    `form:"work_email" binding:"required" gorm:"size:100;uniqueIndex;not null"` // ← email kantor
 	Email         string    `form:"email" binding:"required" gorm:"size:100;uniqueIndex;not null"`      // ← email pribadi
 	Password      string    `form:"password" binding:"required" gorm:"size:255;not null"`

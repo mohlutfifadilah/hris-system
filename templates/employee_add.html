@@ -158,35 +158,38 @@
                         <label>Work Email</label>
                         <input id="work_email" type="text" name="work_email" class="form-control"
                           value="{{ old .form "work_email" }}">
+                        <div class="invalid-feedback" id="err-work_email">{{ err .errors "work_email" }}</div>
                       </div>
-
+                      
                       <div class="form-group">
                         <label>Evidence Link</label>
                         <input id="evidence_link" type="text" name="evidence_link" class="form-control"
                           value="{{ old .form "evidence_link" }}">
+                        <div class="invalid-feedback" id="err-evidence_link">{{ err .errors "evidence_link" }}</div>
                       </div>
-
+                      
                       <div class="form-group">
                         <label>Place of Birth</label>
                         <input id="place_of_birth" type="text" name="place_of_birth" class="form-control"
                           value="{{ old .form "place_of_birth" }}">
+                        <div class="invalid-feedback" id="err-place_of_birth">{{ err .errors "place_of_birth" }}</div>
                       </div>
-
+                      
                       <div class="form-group">
                         <label>Date of Birth</label>
                         <input id="date_of_birth" type="date" name="date_of_birth" class="form-control"
                           value="{{ old .form "date_of_birth" }}">
+                        <div class="invalid-feedback" id="err-date_of_birth">{{ err .errors "date_of_birth" }}</div>
                       </div>
-
+                      
                       <div class="form-group">
                         <label>Join Date</label>
                         <input id="join_date" type="date" name="join_date" class="form-control"
                           value="{{ old .form "join_date" }}">
+                        <div class="invalid-feedback" id="err-join_date">{{ err .errors "join_date" }}</div>
                       </div>
-
                     </div>
                   </div>
-
                   <!-- Bank Account -->
                   <div class="card">
                     <div class="card-header"><h4>Bank Account</h4></div>
@@ -200,17 +203,18 @@
                               {{ $bnk.Type }}
                             </option>
                           {{ end }}
-                        </select>
+                        </select> 
+                        <div class="invalid-feedback" id="err-id_type_bank">{{ err .errors "id_type_bank" }}</div>
                       </div>
-
+                      
                       <div class="form-group">
                         <label>No Bank</label>
                         <input id="no_account" type="text" name="no_account" class="form-control"
                           value="{{ old .form "no_account" }}">
+                        <div class="invalid-feedback" id="err-no_account">{{ err .errors "no_account" }}</div>
                       </div>
                     </div>
                   </div>
-
                 </div>
 
                 <!-- RIGHT -->
@@ -220,43 +224,49 @@
                   <div class="card">
                     <div class="card-header"><h4>Staffing</h4></div>
                     <div class="card-body">
-
+                  
                       <div class="form-group">
                         <label>No KPJ BPJS</label>
-                        <input type="text" name="no_kjp_bpjs" class="form-control"
+                        <input id="no_kjp_bpjs" type="text" name="no_kjp_bpjs" class="form-control"
                           value="{{ old .form "no_kjp_bpjs" }}">
+                        <div class="invalid-feedback" id="err-no_kjp_bpjs">{{ err .errors "no_kjp_bpjs" }}</div>
                       </div>
-
+                  
                       <div class="form-group">
                         <label>No BPJS Kesehatan</label>
-                        <input type="text" name="no_bpjs_kes" class="form-control"
+                        <input id="no_bpjs_kes" type="text" name="no_bpjs_kes" class="form-control"
                           value="{{ old .form "no_bpjs_kes" }}">
+                        <div class="invalid-feedback" id="err-no_bpjs_kes">{{ err .errors "no_bpjs_kes" }}</div>
                       </div>
-
+                  
                       <div class="form-group">
                         <label>No BPJS Ketenagakerjaan</label>
-                        <input type="text" name="no_bpjs_jk" class="form-control"
+                        <input id="no_bpjs_jk" type="text" name="no_bpjs_jk" class="form-control"
                           value="{{ old .form "no_bpjs_jk" }}">
+                        <div class="invalid-feedback" id="err-no_bpjs_jk">{{ err .errors "no_bpjs_jk" }}</div>
                       </div>
-
+                  
                       <div class="form-group">
                         <label>No NPWP (15 digit)</label>
-                        <input type="text" name="no_npwp_limabelas" class="form-control"
+                        <input id="no_npwp_limabelas" type="text" name="no_npwp_limabelas" class="form-control"
                           value="{{ old .form "no_npwp_limabelas" }}">
+                        <div class="invalid-feedback" id="err-no_npwp_limabelas">{{ err .errors "no_npwp_limabelas" }}</div>
                       </div>
-
+                  
                       <div class="form-group">
                         <label>No NPWP (16 digit)</label>
-                        <input type="text" name="no_npwp_enambelas" class="form-control"
+                        <input id="no_npwp_enambelas" type="text" name="no_npwp_enambelas" class="form-control"
                           value="{{ old .form "no_npwp_enambelas" }}">
+                        <div class="invalid-feedback" id="err-no_npwp_enambelas">{{ err .errors "no_npwp_enambelas" }}</div>
                       </div>
-
+                  
                       <div class="form-group">
                         <label>PTKP</label>
-                        <input type="text" name="ptkp" class="form-control"
+                        <input id="ptkp" type="text" name="ptkp" class="form-control"
                           value="{{ old .form "ptkp" }}">
+                        <div class="invalid-feedback" id="err-ptkp">{{ err .errors "ptkp" }}</div>
                       </div>
-
+                  
                     </div>
                   </div>
 
@@ -274,12 +284,14 @@
                             </option>
                           {{ end }}
                         </select>
+                        <div class="invalid-feedback" id="err-id_type_identity">{{ err .errors "id_type_identity" }}</div>
                       </div>
-
+                  
                       <div class="form-group">
                         <label>No Identity</label>
-                        <input type="text" name="no" class="form-control"
+                        <input id="no" type="text" name="no" class="form-control"
                           value="{{ old .form "no" }}">
+                        <div class="invalid-feedback" id="err-no">{{ err .errors "no" }}</div>
                       </div>
                     </div>
                   </div>
@@ -288,43 +300,49 @@
                   <div class="card">
                     <div class="card-header"><h4>Contact</h4></div>
                     <div class="card-body">
-
+                  
                       <div class="form-group">
                         <label>Address (According Identity)</label>
-                        <input type="text" name="address_identity" class="form-control"
+                        <input id="address_identity" type="text" name="address_identity" class="form-control"
                           value="{{ old .form "address_identity" }}">
+                        <div class="invalid-feedback" id="err-address_identity">{{ err .errors "address_identity" }}</div>
                       </div>
-
+                  
                       <div class="form-group">
                         <label>Address (Domicile)</label>
-                        <input type="text" name="address_domicile" class="form-control"
+                        <input id="address_domicile" type="text" name="address_domicile" class="form-control"
                           value="{{ old .form "address_domicile" }}">
+                        <div class="invalid-feedback" id="err-address_domicile">{{ err .errors "address_domicile" }}</div>
                       </div>
-
+                  
                       <div class="form-group">
                         <label>No Handphone</label>
-                        <input type="text" name="no_hp" class="form-control"
+                        <input id="no_hp" type="text" name="no_hp" class="form-control"
                           value="{{ old .form "no_hp" }}">
+                        <div class="invalid-feedback" id="err-no_hp">{{ err .errors "no_hp" }}</div>
                       </div>
-
+                  
                       <div class="form-group">
                         <label>Emergency Contact Name</label>
-                        <input type="text" name="emergency_contact_name" class="form-control"
+                        <input id="emergency_contact_name" type="text" name="emergency_contact_name" class="form-control"
                           value="{{ old .form "emergency_contact_name" }}">
+                        <div class="invalid-feedback" id="err-emergency_contact_name">{{ err .errors "emergency_contact_name" }}</div>
                       </div>
-
+                  
                       <div class="form-group">
                         <label>No Handphone Emergency Contact</label>
-                        <input type="text" name="no_emergency_contact" class="form-control"
+                        <input id="no_emergency_contact" type="text" name="no_emergency_contact" class="form-control"
                           value="{{ old .form "no_emergency_contact" }}">
+                        <div class="invalid-feedback" id="err-no_emergency_contact">{{ err .errors "no_emergency_contact" }}</div>
                       </div>
-
+                  
                       <div class="form-group">
                         <label>Emergency Relation</label>
-                        <input type="text" name="emergency_relation" class="form-control"
+                        <input id="emergency_relation" type="text" name="emergency_relation" class="form-control"
                           value="{{ old .form "emergency_relation" }}">
+                        <div class="invalid-feedback" id="err-emergency_relation">{{ err .errors "emergency_relation" }}</div>
                       </div>
-
+                  
                     </div>
                   </div>
 
@@ -351,41 +369,73 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
-    
+    // Show SweetAlert if error exists
     if (window.__SWAL_ERROR__) {
       Swal.fire({ icon: 'error', title: 'Error', text: window.__SWAL_ERROR__ });
     }
-
+  
     // Photo preview
     var photo = document.getElementById('photo');
     var preview = document.getElementById('photoPreview');
-
+  
     if (photo) {
       photo.addEventListener('change', function(){
         var f = photo.files && photo.files[0];
         if (!f) return;
-
+  
         if (!f.type || f.type.indexOf('image/') !== 0) {
           photo.value = '';
-          Swal.fire({ icon:'error', title:'Invalid file', text:'Photo harus berupa gambar.' });
+          Swal.fire({ icon:'error', title:'Invalid file', text:'Photo must be an image file.' });
           return;
         }
-
+  
         if (f.size > 2 * 1024 * 1024) {
           photo.value = '';
-          Swal.fire({ icon:'error', title:'File terlalu besar', text:'Maksimal 2MB.' });
+          Swal.fire({ icon:'error', title:'File too large', text:'Maximum file size is 2MB.' });
           return;
         }
-
+  
         preview.src = URL.createObjectURL(f);
       });
     }
-
+  
+    // Restrict numeric input only for specific fields
+    function restrictToNumbers(inputId) {
+      var input = document.getElementById(inputId);
+      if (input) {
+        input.addEventListener('keypress', function(e) {
+          if (e.which < 48 || e.which > 57) {
+            e.preventDefault();
+          }
+        });
+  
+        input.addEventListener('paste', function(e) {
+          e.preventDefault();
+          var pasteData = e.clipboardData.getData('text');
+          if (/^\d+$/.test(pasteData)) {
+            document.execCommand('insertText', false, pasteData);
+          }
+        });
+      }
+    }
+  
+    // Apply numeric restriction
+    restrictToNumbers('no_kjp_bpjs');
+    restrictToNumbers('no_bpjs_kes');
+    restrictToNumbers('no_bpjs_jk');
+    restrictToNumbers('no_npwp_limabelas');
+    restrictToNumbers('no_npwp_enambelas');
+    restrictToNumbers('no_account');
+    restrictToNumbers('no');
+    restrictToNumbers('no_hp');
+    restrictToNumbers('no_emergency_contact');
+  
+    // Validation helper
     function setErr(id, msg) {
       var el = document.getElementById(id);
       var err = document.getElementById('err-' + id);
       if (!el || !err) return;
-
+  
       if (msg) {
         el.classList.add('is-invalid');
         err.textContent = msg;
@@ -394,47 +444,223 @@
         err.textContent = '';
       }
     }
-
+  
+    // Email validation
+    function isValidEmail(email) {
+      var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+  
+    // NPWP validation
+    function isValidNPWP(npwp, length) {
+      if (!npwp) return true;
+      return npwp.length === length && /^\d+$/.test(npwp);
+    }
+  
+    // Phone validation
+    function isValidPhone(phone) {
+      if (!phone) return true;
+      return phone.length >= 10 && /^\d+$/.test(phone);
+    }
+  
+    // Main validation
     function validate() {
       var errors = [];
-
+  
+      // Name
       var name = document.getElementById('name');
-      var email = document.getElementById('email');
-
       var nameVal = name ? name.value.trim() : '';
+      if (!nameVal) {
+        errors.push('Full Name is required');
+        setErr('name', 'Full Name is required');
+      } else if (nameVal.length < 3) {
+        errors.push('Full Name must be at least 3 characters');
+        setErr('name', 'Full Name must be at least 3 characters');
+      } else {
+        setErr('name', '');
+      }
+  
+      // Email
+      var email = document.getElementById('email');
       var emailVal = email ? email.value.trim() : '';
-
-      if (!nameVal) { errors.push('Full Name wajib diisi'); setErr('name', 'Full Name wajib diisi'); }
-      else setErr('name', '');
-
-      if (!emailVal) { errors.push('Email wajib diisi'); setErr('email', 'Email wajib diisi'); }
-      else setErr('email', '');
-
+      if (!emailVal) {
+        errors.push('Email is required');
+        setErr('email', 'Email is required');
+      } else if (!isValidEmail(emailVal)) {
+        errors.push('Email format is invalid');
+        setErr('email', 'Email format is invalid');
+      } else {
+        setErr('email', '');
+      }
+  
+      // Work Email
+      var workEmail = document.getElementById('work_email');
+      var workEmailVal = workEmail ? workEmail.value.trim() : '';
+      if (workEmailVal && !isValidEmail(workEmailVal)) {
+        errors.push('Work Email format is invalid');
+        setErr('work_email', 'Work Email format is invalid');
+      } else {
+        setErr('work_email', '');
+      }
+  
+      // Gender
+      var gender = document.getElementById('gender');
+      var genderVal = gender ? gender.value : '';
+      if (!genderVal) {
+        errors.push('Please select gender');
+        setErr('gender', 'Please select gender');
+      } else {
+        setErr('gender', '');
+      }
+  
+      // Date of Birth
+      var dateOfBirth = document.getElementById('date_of_birth');
+      var dobVal = dateOfBirth ? dateOfBirth.value : '';
+      if (dobVal) {
+        var dob = new Date(dobVal);
+        var today = new Date();
+        var age = today.getFullYear() - dob.getFullYear();
+        var monthDiff = today.getMonth() - dob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+          age--;
+        }
+        if (age < 17) {
+          errors.push('Employee must be at least 17 years old');
+          setErr('date_of_birth', 'Employee must be at least 17 years old');
+        } else if (age > 100) {
+          errors.push('Invalid date of birth');
+          setErr('date_of_birth', 'Invalid date of birth');
+        } else {
+          setErr('date_of_birth', '');
+        }
+      }
+  
+      // NPWP 15
+      var npwp15 = document.getElementById('no_npwp_limabelas');
+      var npwp15Val = npwp15 ? npwp15.value.trim() : '';
+      if (npwp15Val && !isValidNPWP(npwp15Val, 15)) {
+        errors.push('NPWP (15 digit) must be exactly 15 digits');
+        setErr('no_npwp_limabelas', 'NPWP must be exactly 15 digits');
+      } else {
+        setErr('no_npwp_limabelas', '');
+      }
+  
+      // NPWP 16
+      var npwp16 = document.getElementById('no_npwp_enambelas');
+      var npwp16Val = npwp16 ? npwp16.value.trim() : '';
+      if (npwp16Val && !isValidNPWP(npwp16Val, 16)) {
+        errors.push('NPWP (16 digit) must be exactly 16 digits');
+        setErr('no_npwp_enambelas', 'NPWP must be exactly 16 digits');
+      } else {
+        setErr('no_npwp_enambelas', '');
+      }
+  
+      // Phone
+      var phone = document.getElementById('no_hp');
+      var phoneVal = phone ? phone.value.trim() : '';
+      if (phoneVal && !isValidPhone(phoneVal)) {
+        errors.push('Phone number must be at least 10 digits');
+        setErr('no_hp', 'Phone number must be at least 10 digits');
+      } else {
+        setErr('no_hp', '');
+      }
+  
+      // Emergency phone
+      var emergencyPhone = document.getElementById('no_emergency_contact');
+      var emergencyPhoneVal = emergencyPhone ? emergencyPhone.value.trim() : '';
+      if (emergencyPhoneVal && !isValidPhone(emergencyPhoneVal)) {
+        errors.push('Emergency phone number must be at least 10 digits');
+        setErr('no_emergency_contact', 'Emergency phone number must be at least 10 digits');
+      } else {
+        setErr('no_emergency_contact', '');
+      }
+  
+      // Emergency name (required if phone filled)
+      var emergencyName = document.getElementById('emergency_contact_name');
+      var emergencyNameVal = emergencyName ? emergencyName.value.trim() : '';
+      if (emergencyPhoneVal && !emergencyNameVal) {
+        errors.push('Emergency contact name is required when phone number is provided');
+        setErr('emergency_contact_name', 'Emergency contact name is required');
+      } else {
+        setErr('emergency_contact_name', '');
+      }
+  
+      // Bank validation
+      var noAccount = document.getElementById('no_account');
+      var noAccountVal = noAccount ? noAccount.value.trim() : '';
+      var idTypeBank = document.getElementById('id_type_bank');
+      var idTypeBankVal = idTypeBank ? idTypeBank.value : '';
+      
+      if (noAccountVal && !idTypeBankVal) {
+        errors.push('Please select bank type when account number is provided');
+        setErr('id_type_bank', 'Bank type is required');
+      } else {
+        setErr('id_type_bank', '');
+      }
+  
+      if (idTypeBankVal && !noAccountVal) {
+        errors.push('Bank account number is required when bank type is selected');
+        setErr('no_account', 'Account number is required');
+      } else {
+        setErr('no_account', '');
+      }
+  
+      // Identity validation
+      var noIdentity = document.getElementById('no');
+      var noIdentityVal = noIdentity ? noIdentity.value.trim() : '';
+      var idTypeIdentity = document.getElementById('id_type_identity');
+      var idTypeIdentityVal = idTypeIdentity ? idTypeIdentity.value : '';
+      
+      if (noIdentityVal && !idTypeIdentityVal) {
+        errors.push('Please select identity type when identity number is provided');
+        setErr('id_type_identity', 'Identity type is required');
+      } else {
+        setErr('id_type_identity', '');
+      }
+  
+      if (idTypeIdentityVal && !noIdentityVal) {
+        errors.push('Identity number is required when identity type is selected');
+        setErr('no', 'Identity number is required');
+      } else {
+        setErr('no', '');
+      }
+  
       return errors;
     }
-
+  
+    // Attach validation
     var form = document.getElementById('empForm');
     if (form) {
-      ['name','email'].forEach(function(id){
+      var fieldsToValidate = [
+        'name', 'email', 'work_email', 'gender', 'date_of_birth',
+        'no_npwp_limabelas', 'no_npwp_enambelas', 'no_hp', 
+        'no_emergency_contact', 'emergency_contact_name',
+        'no_account', 'id_type_bank', 'no', 'id_type_identity'
+      ];
+  
+      fieldsToValidate.forEach(function(id){
         var el = document.getElementById(id);
-        if (el) el.addEventListener('input', validate);
+        if (el) {
+          el.addEventListener('input', validate);
+          el.addEventListener('change', validate);
+        }
       });
-
+  
       form.addEventListener('submit', function(e){
         var errs = validate();
         if (errs.length) {
           e.preventDefault();
           Swal.fire({
             icon:'error',
-            title:'Validasi gagal',
-            html:'<ul style="text-align:left;margin:0;">' +
+            title:'Validation Failed',
+            html:'<ul style="text-align:left;margin:0;padding-left:20px;">' +
               errs.map(function(x){ return '<li>'+x+'</li>'; }).join('') +
-              '</ul>'
+              '</ul>' 
           });
         }
       });
     }
-  </script>
+  </script>    
 </body>
 </html>
 {{ end }}
