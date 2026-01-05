@@ -156,6 +156,12 @@ func Seed() error {
 		if err := seedCompany(tx); err != nil {
 			return err
 		}
+		if err := seedTypeBanks(tx); err != nil {
+			return err
+		}
+		if err := seedTypeIdentity(tx); err != nil {
+			return err
+		}
 		if err := seedAdminEmployee(tx); err != nil {
 			return err
 		}

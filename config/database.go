@@ -1,7 +1,9 @@
 package config
 
 import (
+	"fmt"
 	"log"
+	"net/url"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -12,56 +14,44 @@ import (
 var DB *gorm.DB
 
 func ConnectDatabase() error {
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("⚠️  .env file not found, using environment variables")
-	} else {
-		log.Println("✅ .env file loaded")
+	// Pastikan selalu pakai .env (override env yang sudah ada)
+	_ = godotenv.Overload(".env")
+
+	host := mustEnv("DB_HOST")
+	port := mustEnv("DB_PORT")
+	user := mustEnv("DB_USER")
+	pass := os.Getenv("DB_PASSWORD") // boleh kosong
+	dbname := mustEnv("DB_NAME")
+
+	u := &url.URL{
+		Scheme: "postgres",
+		User:   url.UserPassword(user, pass),
+		Host:   fmt.Sprintf("%s:%s", host, port),
+		Path:   dbname,
 	}
+	q := u.Query()
+	q.Set("sslmode", "disable")
+	u.RawQuery = q.Encode()
 
-	// ===== CEK MODE DATABASE =====
-	useDB := getEnv("USE_DATABASE", "true")
+	// Log tanpa password
+	log.Printf("DB_URL=%s://%s@%s/%s?sslmode=disable", u.Scheme, user, u.Host, dbname)
 
-	// Skip database jika USE_DATABASE = false
-	if useDB == "false" {
-		log.Println("⚠️  Database DISABLED - Running in Frontend Only Mode")
-		log.Println("💡 Set USE_DATABASE=true di .env untuk enable database")
-		DB = nil // Set DB ke nil supaya bisa dicek di tempat lain
-		return nil
-	}
-
-	// ===== CONNECT TO DATABASE =====
 	log.Println("🔌 Connecting to database...")
-
-	// Get configuration from environment variables
-	host := getEnv("DB_HOST", "localhost")
-	port := getEnv("DB_PORT", "5432")
-	user := getEnv("DB_USER", "postgres")
-	password := getEnv("DB_PASSWORD", "")
-	dbname := getEnv("DB_NAME", "hris_db")
-
-	// Build connection string
-	dsn := "host=" + host + " port=" + port + " user=" + user + " password=" + password + " dbname=" + dbname + " sslmode=disable"
-
-	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(u.String()), &gorm.Config{})
 	if err != nil {
-		log.Println("❌ Failed to connect to database:", err)
-		log.Println("⚠️  Server will run WITHOUT database")
 		DB = nil
-		return err // Return error tapi jangan Fatal
+		return fmt.Errorf("failed to connect database: %w", err)
 	}
 
-	DB = database
+	DB = db
 	log.Println("✅ Database connected successfully!")
 	return nil
 }
 
-// Helper function to get environment variable with default value
-func getEnv(key string, defaultValue string) string {
-	value := os.Getenv(key)
-	if value == "" {
-		return defaultValue
+func mustEnv(key string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		log.Fatalf("❌ Missing required env: %s (check .env)", key)
 	}
-	return value
+	return v
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 
@@ -119,9 +120,26 @@ func main() {
 func loadTemplates() *template.Template {
 	funcMap := template.FuncMap{
 		"add": func(a, b int) int { return a + b },
+		"old": func(form map[string]string, key string) string {
+			if form == nil {
+				return ""
+			}
+			return form[key]
+		},
+		"err": func(errors map[string]string, key string) string {
+			if errors == nil {
+				return ""
+			}
+			return errors[key]
+		},
+		"selected": func(oldValue string, optionValue any) string {
+			if oldValue == fmt.Sprint(optionValue) {
+				return "selected"
+			}
+			return ""
+		},
 	}
 
-	// Mulai dari template kosong + funcMap
 	tmpl := template.New("").Funcs(funcMap)
 
 	tmpl = template.Must(tmpl.ParseFiles(
@@ -131,10 +149,7 @@ func loadTemplates() *template.Template {
 		"templates/layouts/footer.html",
 	))
 
-	// Parse dashboard templates
 	tmpl = template.Must(tmpl.ParseGlob("templates/*.html"))
-
-	// Parse login template
 	tmpl = template.Must(tmpl.ParseFiles("templates/login.html"))
 
 	return tmpl

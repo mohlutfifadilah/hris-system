@@ -1,4 +1,4 @@
-{{ define "department_add" }}
+{{ define "employee_add" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,132 +6,434 @@
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
   <title>{{ .title }} | HRIS System</title>
 
-  <!-- General CSS Files -->
   <link rel="stylesheet" href="/static/assets/modules/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="/static/assets/modules/fontawesome/css/all.min.css">
-
-  <!-- CSS Libraries -->
-  <link rel="stylesheet" href="/static/assets/modules/jqvmap/dist/jqvmap.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/weather-icon/css/weather-icons.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/weather-icon/css/weather-icons-wind.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/summernote/summernote-bs4.css">
-
-  <link rel="stylesheet" href="/static/assets/modules/datatables/datatables.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css">
-
-  <!-- Template CSS -->
   <link rel="stylesheet" href="/static/assets/css/style.css">
   <link rel="stylesheet" href="/static/assets/css/components.css">
-<!-- Start GA -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'UA-94034622-3');
-</script>
-<!-- /END GA --></head>
+  <style>
+    .photo-frame{
+      width:150px;
+      aspect-ratio:3/4;
+      border:1px dashed #ced4da;
+      border-radius:14px;
+      overflow:hidden;
+      background:#f8f9fa;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+    .photo-frame img{ width:100%; height:100%; object-fit:cover; }
+    .photo-badge{
+      position:absolute; left:8px; bottom:8px;
+      background:rgba(0,0,0,.55); color:#fff;
+      font-size:12px; padding:3px 8px; border-radius:10px;
+    }
+  </style>
+</head>
 
 <body>
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
       <div class="navbar-bg"></div>
-      
-        <!-- Header -->
-        {{ template "header" . }}
 
-        <!-- Sidebar -->
-        {{ template "sidebar" . }}
-        
-        <!-- Main Content -->
-        <div class="main-content">
-            <section class="section">
+      {{ template "header" . }}
+      {{ template "sidebar" . }}
+
+      <div class="main-content">
+        <section class="section">
           <div class="section-header">
-            <h1>Department</h1>
+            <h1>Employee</h1>
             <div class="section-header-breadcrumb">
-              <div class="breadcrumb-item active"><a href="/department">Department</a></div>
-              <div class="breadcrumb-item">Data Department</div>
-              <div class="breadcrumb-item">Add Department</div>
+              <div class="breadcrumb-item active"><a href="/employee">Employee</a></div>
+              <div class="breadcrumb-item">Data Employee</div>
+              <div class="breadcrumb-item">Add Employee</div>
             </div>
           </div>
-          <div class="section-body">
-            <div class="row">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-header">
-                    <h4>Add Department</h4>
+
+          <form id="empForm" action="{{ .action }}" method="POST" enctype="multipart/form-data">
+            <div class="section-body">
+              <div class="row">
+
+                <!-- LEFT -->
+                <div class="col-12 col-md-6 col-lg-6">
+
+                  <!-- Employee -->
+                  <div class="card">
+                    <div class="card-header"><h4>Employee</h4></div>
+                    <div class="card-body">
+
+                      <div class="form-group">
+                        <label>ID Employee</label>
+                        <input id="id_employee" type="text" name="id_employee" class="form-control"
+                          value="{{ old .form "id_employee" }}">
+                        <div class="invalid-feedback" id="err-id_employee">{{ err .errors "id_employee" }}</div>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Photo</label>
+                        <div class="d-flex" style="gap:16px;align-items:flex-start;">
+                          <div class="photo-frame">
+                            <img id="photoPreview" src="/static/assets/img/avatar/avatar-1.png" alt="Preview">
+                            <div class="photo-badge">3x4</div>
+                          </div>
+                          <div style="flex:1;">
+                            <input id="photo" type="file" name="photo" class="form-control" accept="image/*">
+                            <small class="text-muted">PNG/JPG, max 2MB.</small>
+                            <div class="invalid-feedback d-block" id="err-photo">{{ err .errors "photo" }}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Full Name <span class="text-danger">*</span></label>
+                        <input id="name" type="text" name="name" class="form-control"
+                          value="{{ old .form "name" }}">
+                        <div class="invalid-feedback" id="err-name">{{ err .errors "name" }}</div>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Email <span class="text-danger">*</span></label>
+                        <input id="email" type="text" name="email" class="form-control"
+                          value="{{ old .form "email" }}">
+                        <div class="invalid-feedback" id="err-email">{{ err .errors "email" }}</div>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Gender</label>
+                        <select id="gender" name="gender" class="form-control">
+                          <option value="" disabled {{ selected (old .form "gender") "" }}>Select Gender</option>
+                          <option value="0" {{ selected (old .form "gender") "0" }}>Male</option>
+                          <option value="1" {{ selected (old .form "gender") "1" }}>Female</option>
+                        </select>
+                        <div class="invalid-feedback" id="err-gender">{{ err .errors "gender" }}</div>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Citizenship</label>
+                        <select id="citizenship" name="citizenship" class="form-control">
+                          <option value="" disabled {{ selected (old .form "citizenship") "" }}>Select Citizenship</option>
+                          <option value="Indonesia" {{ selected (old .form "citizenship") "Indonesia" }}>Indonesia</option>
+                          <option value="Singapore" {{ selected (old .form "citizenship") "Singapore" }}>Singapore</option>
+                          <option value="Malaysia" {{ selected (old .form "citizenship") "Malaysia" }}>Malaysia</option>
+                          <!-- Kalau kamu mau list panjang (yang kemarin), paste aja di sini -->
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Marial Status</label>
+                        <select id="marial_status" name="marial_status" class="form-control">
+                          <option value="" disabled {{ selected (old .form "marial_status") "" }}>Select Marial Status</option>
+                          <option value="Married" {{ selected (old .form "marial_status") "Married" }}>Married</option>
+                          <option value="Not Married" {{ selected (old .form "marial_status") "Not Married" }}>Not Married</option>
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Blood</label>
+                        <select id="blood_type" name="blood_type" class="form-control">
+                          <option value="" disabled {{ selected (old .form "blood_type") "" }}>Select Blood</option>
+                          {{ range $i, $bld := .bloods }}
+                            <option value="{{ $bld.ID.String }}" {{ selected (old $.form "blood_type") ($bld.ID.String) }}>
+                              {{ $bld.BloodType }}
+                            </option>
+                          {{ end }}
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Religion</label>
+                        <select id="religion" name="religion" class="form-control">
+                          <option value="" disabled {{ selected (old .form "religion") "" }}>Select Religion</option>
+                          {{ range $i, $rlg := .religions }}
+                            <option value="{{ $rlg.ID.String }}" {{ selected (old $.form "religion") ($rlg.ID.String) }}>
+                              {{ $rlg.Religion }}
+                            </option>
+                          {{ end }}
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Work Email</label>
+                        <input id="work_email" type="text" name="work_email" class="form-control"
+                          value="{{ old .form "work_email" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Evidence Link</label>
+                        <input id="evidence_link" type="text" name="evidence_link" class="form-control"
+                          value="{{ old .form "evidence_link" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Place of Birth</label>
+                        <input id="place_of_birth" type="text" name="place_of_birth" class="form-control"
+                          value="{{ old .form "place_of_birth" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Date of Birth</label>
+                        <input id="date_of_birth" type="date" name="date_of_birth" class="form-control"
+                          value="{{ old .form "date_of_birth" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Join Date</label>
+                        <input id="join_date" type="date" name="join_date" class="form-control"
+                          value="{{ old .form "join_date" }}">
+                      </div>
+
+                    </div>
                   </div>
-                  <form id="deptForm" action="{{ .action }}" method="POST">
+
+                  <!-- Bank Account -->
+                  <div class="card">
+                    <div class="card-header"><h4>Bank Account</h4></div>
                     <div class="card-body">
                       <div class="form-group">
-                        <label>Name Department</label>
-                        <input type="text" name="department" class="form-control"
-                              value="{{ if .data }}{{ .data.Department }}{{ end }}">
+                        <label>Type Bank</label>
+                        <select id="id_type_bank" name="id_type_bank" class="form-control">
+                          <option value="" disabled {{ selected (old .form "id_type_bank") "" }}>Select Type Bank</option>
+                          {{ range $i, $bnk := .banks }}
+                            <option value="{{ $bnk.ID.String }}" {{ selected (old $.form "id_type_bank") ($bnk.ID.String) }}>
+                              {{ $bnk.Type }}
+                            </option>
+                          {{ end }}
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <label>No Bank</label>
+                        <input id="no_account" type="text" name="no_account" class="form-control"
+                          value="{{ old .form "no_account" }}">
                       </div>
                     </div>
-                    <div class="card-footer text-right">
-                      <a href="/department" class="btn btn-secondary">Back</a>
-                      <button type="submit" class="btn btn-success">Add</button>
-                    </div>
-                  </form>
+                  </div>
+
                 </div>
+
+                <!-- RIGHT -->
+                <div class="col-12 col-md-6 col-lg-6">
+
+                  <!-- Staffing -->
+                  <div class="card">
+                    <div class="card-header"><h4>Staffing</h4></div>
+                    <div class="card-body">
+
+                      <div class="form-group">
+                        <label>No KPJ BPJS</label>
+                        <input type="text" name="no_kjp_bpjs" class="form-control"
+                          value="{{ old .form "no_kjp_bpjs" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>No BPJS Kesehatan</label>
+                        <input type="text" name="no_bpjs_kes" class="form-control"
+                          value="{{ old .form "no_bpjs_kes" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>No BPJS Ketenagakerjaan</label>
+                        <input type="text" name="no_bpjs_jk" class="form-control"
+                          value="{{ old .form "no_bpjs_jk" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>No NPWP (15 digit)</label>
+                        <input type="text" name="no_npwp_limabelas" class="form-control"
+                          value="{{ old .form "no_npwp_limabelas" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>No NPWP (16 digit)</label>
+                        <input type="text" name="no_npwp_enambelas" class="form-control"
+                          value="{{ old .form "no_npwp_enambelas" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>PTKP</label>
+                        <input type="text" name="ptkp" class="form-control"
+                          value="{{ old .form "ptkp" }}">
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <!-- Identity -->
+                  <div class="card">
+                    <div class="card-header"><h4>Identity</h4></div>
+                    <div class="card-body">
+                      <div class="form-group">
+                        <label>Type Identity</label>
+                        <select id="id_type_identity" name="id_type_identity" class="form-control">
+                          <option value="" disabled {{ selected (old .form "id_type_identity") "" }}>Select Type Identity</option>
+                          {{ range $i, $idt := .identities }}
+                            <option value="{{ $idt.ID.String }}" {{ selected (old $.form "id_type_identity") ($idt.ID.String) }}>
+                              {{ $idt.Type }}
+                            </option>
+                          {{ end }}
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <label>No Identity</label>
+                        <input type="text" name="no" class="form-control"
+                          value="{{ old .form "no" }}">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Contact -->
+                  <div class="card">
+                    <div class="card-header"><h4>Contact</h4></div>
+                    <div class="card-body">
+
+                      <div class="form-group">
+                        <label>Address (According Identity)</label>
+                        <input type="text" name="address_identity" class="form-control"
+                          value="{{ old .form "address_identity" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Address (Domicile)</label>
+                        <input type="text" name="address_domicile" class="form-control"
+                          value="{{ old .form "address_domicile" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>No Handphone</label>
+                        <input type="text" name="no_hp" class="form-control"
+                          value="{{ old .form "no_hp" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Emergency Contact Name</label>
+                        <input type="text" name="emergency_contact_name" class="form-control"
+                          value="{{ old .form "emergency_contact_name" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>No Handphone Emergency Contact</label>
+                        <input type="text" name="no_emergency_contact" class="form-control"
+                          value="{{ old .form "no_emergency_contact" }}">
+                      </div>
+
+                      <div class="form-group">
+                        <label>Emergency Relation</label>
+                        <input type="text" name="emergency_relation" class="form-control"
+                          value="{{ old .form "emergency_relation" }}">
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+
               </div>
             </div>
-          </div>
-        </section>
-        </div>
-        
-        <!-- Footer -->
-        {{ template "footer" . }}
 
+            <div class="card-body text-right">
+              <a href="/employee" class="btn btn-secondary">Back</a>
+              <button type="submit" class="btn btn-success">Add</button>
+            </div>
+
+          </form>
+        </section>
+      </div>
+
+      {{ template "footer" . }}
     </div>
   </div>
 
-  <!-- General JS Scripts -->
   <script src="/static/assets/modules/jquery.min.js"></script>
-  <script src="/static/assets/modules/popper.js"></script>
-  <script src="/static/assets/modules/tooltip.js"></script>
   <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
-  <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
-  <script src="/static/assets/modules/moment.min.js"></script>
-  <script src="/static/assets/js/stisla.js"></script>
-  
-  <!-- JS Libraies -->
-  <script src="/static/assets/modules/simple-weather/jquery.simpleWeather.min.js"></script>
-  <script src="/static/assets/modules/chart.min.js"></script>
-  <script src="/static/assets/modules/jqvmap/dist/jquery.vmap.min.js"></script>
-  <script src="/static/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js"></script>
-  <script src="/static/assets/modules/summernote/summernote-bs4.js"></script>
-  <script src="/static/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <!-- Page Specific JS File -->
-  <script src="/static/assets/js/page/index-0.js"></script>
-  
-  <script src="/static/assets/modules/datatables/datatables.min.js"></script>
-  <script src="/static/assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
-  <script src="/static/assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
-  <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
-
-  <!-- Page Specific JS File -->
-  <script src="/static/assets/js/page/modules-datatables.js"></script>
-
-  <!-- Template JS File -->
-  <script src="/static/assets/js/scripts.js"></script>
-  <script src="/static/assets/js/custom.js"></script>
   <script>
-  document.getElementById('deptForm').addEventListener('submit', function (e) {
-    const dept = this.department.value.trim();
-    if (!dept) {
-      e.preventDefault();
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Name Department required',
+    
+    if (window.__SWAL_ERROR__) {
+      Swal.fire({ icon: 'error', title: 'Error', text: window.__SWAL_ERROR__ });
+    }
+
+    // Photo preview
+    var photo = document.getElementById('photo');
+    var preview = document.getElementById('photoPreview');
+
+    if (photo) {
+      photo.addEventListener('change', function(){
+        var f = photo.files && photo.files[0];
+        if (!f) return;
+
+        if (!f.type || f.type.indexOf('image/') !== 0) {
+          photo.value = '';
+          Swal.fire({ icon:'error', title:'Invalid file', text:'Photo harus berupa gambar.' });
+          return;
+        }
+
+        if (f.size > 2 * 1024 * 1024) {
+          photo.value = '';
+          Swal.fire({ icon:'error', title:'File terlalu besar', text:'Maksimal 2MB.' });
+          return;
+        }
+
+        preview.src = URL.createObjectURL(f);
       });
     }
-  });
+
+    function setErr(id, msg) {
+      var el = document.getElementById(id);
+      var err = document.getElementById('err-' + id);
+      if (!el || !err) return;
+
+      if (msg) {
+        el.classList.add('is-invalid');
+        err.textContent = msg;
+      } else {
+        el.classList.remove('is-invalid');
+        err.textContent = '';
+      }
+    }
+
+    function validate() {
+      var errors = [];
+
+      var name = document.getElementById('name');
+      var email = document.getElementById('email');
+
+      var nameVal = name ? name.value.trim() : '';
+      var emailVal = email ? email.value.trim() : '';
+
+      if (!nameVal) { errors.push('Full Name wajib diisi'); setErr('name', 'Full Name wajib diisi'); }
+      else setErr('name', '');
+
+      if (!emailVal) { errors.push('Email wajib diisi'); setErr('email', 'Email wajib diisi'); }
+      else setErr('email', '');
+
+      return errors;
+    }
+
+    var form = document.getElementById('empForm');
+    if (form) {
+      ['name','email'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('input', validate);
+      });
+
+      form.addEventListener('submit', function(e){
+        var errs = validate();
+        if (errs.length) {
+          e.preventDefault();
+          Swal.fire({
+            icon:'error',
+            title:'Validasi gagal',
+            html:'<ul style="text-align:left;margin:0;">' +
+              errs.map(function(x){ return '<li>'+x+'</li>'; }).join('') +
+              '</ul>'
+          });
+        }
+      });
+    }
   </script>
 </body>
 </html>
