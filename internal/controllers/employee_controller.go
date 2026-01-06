@@ -96,6 +96,18 @@ func (dc *EmployeeController) Index(c *gin.Context) {
 		return
 	}
 
+    // Buat map untuk simpan no_hp berdasarkan employee ID
+    contactMap := make(map[uuid.UUID]string)
+
+    for _, emp := range employees {
+        if emp.IDContact != nil {
+            var contact models.Contact
+            if err := config.DB.First(&contact, "id = ?", emp.IDContact).Error; err == nil {
+                contactMap[emp.ID] = contact.NoHp
+            }
+        }
+    }
+
 	session := sessions.Default(c)
 	success := session.Get("flash_success")
 	if success != nil {
@@ -108,6 +120,7 @@ func (dc *EmployeeController) Index(c *gin.Context) {
 		"title":      "Employee",
 		"user":       employee,  // seluruh row employee yang login (boleh nil)
 		"users":      employees, // seluruh row employee yang login (boleh nil)
+		"contactMap": contactMap, // seluruh row employee yang login (boleh nil)
 		"activePage": "employee",
 		"success":    success,
 	})

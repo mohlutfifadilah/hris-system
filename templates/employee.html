@@ -113,6 +113,7 @@
                           <thead>
                             <tr>
                               <th class="text-center">No</th>
+                              <th>Photo</th>
                               <th>Name</th>
                               <th>Gender</th>
                               <th>No Hp</th>
@@ -132,12 +133,27 @@
                                   src="{{ $emp.Photo }}"
                                   class="rounded-circle"
                                   width="60"
+                                  height="60"
                                   data-toggle="tooltip"
                                   title="{{ $emp.Name }}"
                                 />
-                                {{ $emp.Name }}
                               </td>
-                              <td>{{ $emp.Gender }}</td>
+                              <td>{{ $emp.Name }}</td>
+                              <td>
+                                {{ if eq $emp.Gender "0" }}
+                                <i class="fas fa-mars text-primary"></i> Male {{
+                                else if eq $emp.Gender "1" }}
+                                <i class="fas fa-venus text-danger"></i> Female
+                                {{ end }}
+                              </td>
+                              <td>
+                                {{ if index $.contactMap $emp.ID }} {{ index
+                                $.contactMap $emp.ID }} {{ else }}
+                                <span class="text-muted">-</span>
+                                {{ end }}
+                              </td>
+                              <td>{{ $emp.WorkEmail }}</td>
+                              <td>{{ $emp.WorkEmail }}</td>
                               <td>{{ $emp.WorkEmail }}</td>
                               <td>
                                 <a
