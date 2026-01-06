@@ -12,10 +12,12 @@ import (
 	"hris-system/config"
 	auth "hris-system/internal/auth"
 	"hris-system/models"
+	"hris-system/utils"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type EmployeeController struct{}
@@ -158,75 +160,98 @@ func (dc *EmployeeController) Store(c *gin.Context) {
         "name":             c.PostForm("name"),
         "email":            c.PostForm("email"),
         "gender":           c.PostForm("gender"),
+        "citizenship":      c.PostForm("citizenship"),
+        "marital_status":   c.PostForm("marital_status"),
+        "blood_type":       c.PostForm("blood_type"),
+        "religion":         c.PostForm("religion"),
         "work_email":       c.PostForm("work_email"),
+        "evidence_link":    c.PostForm("evidence_link"),
         "place_of_birth":   c.PostForm("place_of_birth"),
         "date_of_birth":    c.PostForm("date_of_birth"),
         "join_date":        c.PostForm("join_date"),
-        "blood_type":       c.PostForm("blood_type"),
-        "religion":         c.PostForm("religion"),
-        "citizenship":      c.PostForm("citizenship"),
-        "marial_status":    c.PostForm("marial_status"),
         "id_type_bank":     c.PostForm("id_type_bank"),
         "no_account":       c.PostForm("no_account"),
+        "no_kpj_bpjs":       c.PostForm("no_kpj_bpjs"),
+        "no_bpjs_kes":       c.PostForm("no_bpjs_kes"),
+        "no_bpjs_jk":       c.PostForm("no_bpjs_jk"),
+        "no_npwp_limabelas":       c.PostForm("no_npwp_limabelas"),
+        "no_npwp_enambelas":       c.PostForm("no_npwp_enambelas"),
+        "ptkp":       c.PostForm("ptkp"),
         "id_type_identity": c.PostForm("id_type_identity"),
-        "no":               c.PostForm("no"),
-        "evidence_link":    c.PostForm("evidence_link"),
+        "no":       c.PostForm("no"),
+        "address_identity":       c.PostForm("address_identity"),
+        "address_domicile":       c.PostForm("address_domicile"),
+        "no_hp":       c.PostForm("no_hp"),
+        "no_emergency_contact":       c.PostForm("no_emergency_contact"),
+        "emergency_contact_name":       c.PostForm("emergency_contact_name"),
+        "emergency_relation":       c.PostForm("emergency_relation"),
     }
 
     errors := map[string]string{}
-
-    // Validasi
-    if strings.TrimSpace(form["name"]) == "" {
-        errors["name"] = "Full Name wajib diisi"
-    }
-    if strings.TrimSpace(form["email"]) == "" {
-        errors["email"] = "Email wajib diisi"
-    }
 
     // Validasi photo
     file, fileErr := c.FormFile("photo")
     if fileErr == nil {
         ct := file.Header.Get("Content-Type")
         if !strings.HasPrefix(ct, "image/") {
-            errors["photo"] = "Photo harus berupa gambar (image/*)"
+            errors["photo"] = "Photo must image (image/*)"
         }
         if file.Size > 2*1024*1024 {
-            errors["photo"] = "Photo maksimal 2MB"
+            errors["photo"] = "Max Size 2MB"
         }
     }
 
     // Parse UUID (return pointer)
 	bloodType, err := parseUUIDPtr(form["blood_type"])
 	if err != nil {
-		errors["blood_type"] = "Blood type UUID tidak valid"
+		errors["blood_type"] = "Blood type UUID not valid"
 	}
 
 	idReligion, err := parseUUIDPtr(form["religion"])
 	if err != nil {
-		errors["religion"] = "Religion UUID tidak valid"
+		errors["religion"] = "Religion UUID not valid"
 	}
 
 	idTypeIdentity, err := parseUUIDPtr(form["id_type_identity"])
 	if err != nil {
-		errors["id_type_identity"] = "Identity type UUID tidak valid"
+		errors["id_type_identity"] = "Identity type UUID not valid"
 	}
 
 	idTypeBank, err := parseUUIDPtr(form["id_type_bank"])
 	if err != nil {
-		errors["id_type_bank"] = "Bank type UUID tidak valid"
+		errors["id_type_bank"] = "Bank type UUID not valid"
 	}
 
-    // Parse date
+    // Parse date of birth
     var dateOfBirth time.Time
     if form["date_of_birth"] != "" {
         dateOfBirth, err = time.Parse("2006-01-02", form["date_of_birth"])
         if err != nil {
-            errors["date_of_birth"] = "Format tanggal lahir tidak valid"
+            errors["date_of_birth"] = "Date of birth format not valid"
         }
     }
 
-    // Parse MaritalStatus (boolean)
-    maritalStatus := form["marial_status"] == "Married"
+    // Parse join date
+    var joinDate time.Time
+    if form["join_date"] != "" {
+        joinDate, err = time.Parse("2006-01-02", form["join_date"])
+        if err != nil {
+            errors["join_date"] = "Join date format not valid"
+        }
+    }
+
+    var maritalStatus bool
+	maritalStatusStr := form["marital_status"]
+
+	if maritalStatusStr == "" {
+		errors["marital_status"] = "Marital status is required"
+	} else if maritalStatusStr == "Married" {
+		maritalStatus = true
+	} else if maritalStatusStr == "Not Married" {
+		maritalStatus = false
+	} else {
+		errors["marital_status"] = "Invalid marital status value"
+	}
 
     // Kalau ada error, render ulang
     if len(errors) > 0 {
@@ -275,39 +300,151 @@ func (dc *EmployeeController) Store(c *gin.Context) {
         photoURL = "/static/assets/employee_photo/" + filename
     }
 
+	// ========== START TRANSACTION ==========
+    tx := config.DB.Begin()
+
+	// 1. Create Staffing
+    staffingID := uuid.New()
+    staffing := models.Staffing{
+        ID:              staffingID,
+        NoBpjsKes:       form["no_bpjs_kes"],
+        NoBpjsJk:        form["no_bpjs_jk"],
+        NoKpjBpjs:       form["no_kpj_bpjs"],
+        NoNpwpLimabelas: form["no_npwp_limabelas"],
+        NoNpwpEnambelas: form["no_npwp_enambelas"],
+        Ptkp:            form["ptkp"],
+    }
+
+    if err := tx.Create(&staffing).Error; err != nil {
+        tx.Rollback()
+        log.Println("Error creating staffing:", err)
+        c.String(http.StatusInternalServerError, "employee_add", gin.H{
+            "title":  "Add Employee",
+            "errors": map[string]string{"form": "Failed to create staffing data"},
+            "form":   form,
+        })
+        return
+    }
+
+	// 2. Create Address
+    addressID := uuid.New()
+    address := models.Address{
+        ID:                   addressID,
+        AddressIdentity:      form["address_identity"],
+        AddressDomicile:      form["address_domicile"],
+    }
+
+    if err := tx.Create(&address).Error; err != nil {
+        tx.Rollback()
+        log.Println("Error creating address:", err)
+        c.HTML(http.StatusInternalServerError, "employee_add", gin.H{
+            "title":  "Add Employee",
+            "errors": map[string]string{"form": "Failed to create address data"},
+            "form":   form,
+        })
+        return
+    } 
+
+	// 3. Create Contact
+    contactID := uuid.New()
+    contact := models.Contact{
+        ID:                   contactID,
+        IDAddress:            &addressID,
+        NoHp:                 form["no_hp"],
+        EmergencyContactName: form["emergency_contact_name"],
+        NoEmergencyContact:   form["no_emergency_contact"],
+        EmergencyRelation:    form["emergency_relation"],
+    }
+
+    if err := tx.Create(&contact).Error; err != nil {
+        tx.Rollback()
+        log.Println("Error creating contact:", err)
+        c.HTML(http.StatusInternalServerError, "employee_add", gin.H{
+            "title":  "Add Employee",
+            "errors": map[string]string{"form": "Failed to create contact data"},
+            "form":   form,
+        })
+        return
+    }
+
     // Get company
     var company models.Company
-    config.DB.First(&company)
+    tx.First(&company)
+
+	// Generate random password
+    plainPassword := utils.GenerateRandomPassword()
+    
+    // Hash password untuk disimpan di database
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
+    if err != nil {
+        log.Println("Error hashing password:", err)
+        c.HTML(http.StatusInternalServerError, "employee_add", gin.H{
+            "title":  "Add Employee",
+            "errors": map[string]string{"form": "Failed to generate password"},
+            "form":   form,
+        })
+        return
+    }
 
     // Create employee
     emp := models.Employee{
         IDCompany:     &company.ID,
-        IDStaffing:    nil,
-        IDContact:     nil,
+        IDStaffing:    &staffingID,
+        IDContact:     &contactID,
         IDIdentity:    idTypeIdentity,
         IDBankAccount: idTypeBank,
         IDBlood:       bloodType,
         IDReligion:    idReligion,
         WorkEmail:     form["work_email"],
         Email:         form["email"],
+		Password:      string(hashedPassword), // kosongkan dulu, nanti bisa direset
         Name:          form["name"],
         Photo:         photoURL,
-        IDEmployee:    form["id_employee"],
+		IDEmployee:    form["id_employee"],
         Gender:        form["gender"],
         Citizenship:   form["citizenship"],
         PlaceOfBirth:  form["place_of_birth"],
         DateOfBirth:   dateOfBirth,
-        MarialStatus:  maritalStatus,
-        JoinDate:      form["join_date"],
+        MaritalStatus: maritalStatus,
+        JoinDate:      joinDate,
         EvidenceLink:  form["evidence_link"],
         CreatedAt:     time.Now(),
         UpdatedAt:     time.Now(),
     }
 
-    if err := config.DB.Create(&emp).Error; err != nil {
+    if err := tx.Create(&emp).Error; err != nil {
         c.String(http.StatusInternalServerError, "create employee failed: "+err.Error())
         return
     }
+
+	// ========== COMMIT TRANSACTION ==========
+    if err := tx.Commit().Error; err != nil {
+        log.Println("Error committing transaction:", err)
+        c.HTML(http.StatusInternalServerError, "employee_add", gin.H{
+            "title":  "Add Employee",
+            "errors": map[string]string{"form": "Failed to save data"},
+            "form":   form,
+        })
+        return
+    }
+
+    // ========== SEND PASSWORD EMAIL ==========
+    emailConfig := utils.EmailConfig{
+        SMTPHost:     "smtp.gmail.com",           // Ganti dengan SMTP server kamu
+        SMTPPort:     587,                        // Port SMTP (587 untuk TLS, 465 untuk SSL)
+        SMTPUsername: "mohlutfifadilah23@gmail.com",  // Email admin
+        SMTPPassword: "dklf kykb girq cymb",      // Password email admin (atau App Password)
+        FromEmail:    "mohlutfifadilah23@gmail.com",
+        FromName:     "HRIS Admin",
+    }
+	
+
+    // Send email (async, tidak block response)
+    go func() {
+        if err := utils.SendPasswordEmail(form["work_email"], form["name"], plainPassword, emailConfig); err != nil {
+            log.Printf("Failed to send password email: %v", err)
+        }
+    }()
 
 	session := sessions.Default(c)
 	success := session.Get("flash_success")
