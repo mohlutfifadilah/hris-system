@@ -283,7 +283,7 @@ func (dc *EmployeeController) Store(c *gin.Context) {
             "action":     "/employee",
             "form":       form,
             "errors":     errors,
-            "swalError":  "Ada input yang belum valid.",
+            "swalError":  "There are some invalid inputs.",
             "bloods":     bloods,
             "religions":  religions,
             "banks":      banks,
