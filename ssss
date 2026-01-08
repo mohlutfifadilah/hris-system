@@ -1,0 +1,143 @@
+[33mcommit 5fd657a21854e475e869fcb8ec18d0a2ee570ebd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Tue Jan 6 19:12:17 2026 +0700
+
+    done employee index 50%
+
+[33mcommit bce1ee6a3209fd96afc40cbc7e1f753c0585e66e[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Tue Jan 6 17:20:41 2026 +0700
+
+    done add employee
+
+[33mcommit 8e7bfcf0e1465f74e4ebcf705a305c8c05234587[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Mon Jan 5 19:02:35 2026 +0700
+
+    debug add employee
+
+[33mcommit 573e4794f6454c93b3a4df23f73a148a540a3ed2[m
+Author: mohlutfifadilah <mohlutfifadilah23@gmail.com>
+Date:   Mon Jan 5 07:25:38 2026 +0700
+
+    done tampilan on employee
+
+[33mcommit 248b8375c69689da2d5cf21820b691d97c6989fa[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Fri Jan 2 17:47:47 2026 +0700
+
+    done read employee
+
+[33mcommit 5712437e0035fbe57f69203ffe0bf553941cd08b[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Fri Jan 2 13:51:44 2026 +0700
+
+    done framework database and ready
+
+[33mcommit 5da4a185ef903b30b7054c0150c9a282ad2d0b17[m
+Author: mohlutfifadilah <mohlutfifadilah23@gmail.com>
+Date:   Thu Jan 1 10:29:48 2026 +0700
+
+    add cross-platform Air config
+
+[33mcommit e8e8e8d34035b82f7b89088f90a0e39a1cd282d6[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Wed Dec 31 14:02:22 2025 +0700
+
+    daiwldinwald
+
+[33mcommit e84b7af52957f20ba71e5e20f11d7763d6400e80[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Wed Dec 31 13:46:54 2025 +0700
+
+    rev controller
+
+[33mcommit 71ed0efd1aa5c300629dd4e1ec3e0c9438e6fa08[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Wed Dec 31 13:24:40 2025 +0700
+
+    done for seeder
+
+[33mcommit 75cc70fd68eb92e1ba835117da190ca38bd2bdec[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Tue Dec 30 18:19:54 2025 +0700
+
+    done migration structure
+
+[33mcommit 3c7809ade2d8102afc3b38b1079e0b6015fcdfac[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Tue Dec 30 17:51:46 2025 +0700
+
+    done rev migration
+
+[33mcommit 0b87df5beb463405690d89523efafbe05db51b9f[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Tue Dec 30 16:29:17 2025 +0700
+
+    edit for foto profile
+
+[33mcommit 95146821418795fc48d8d879c4ad3ea35db69154[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Mon Dec 29 19:59:45 2025 +0700
+
+    done crud status and type achievement
+
+[33mcommit d53005dc4be2e30358c1b646e8f0084b11000dc8[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Wed Dec 24 16:53:15 2025 +0700
+
+    done crud from rank
+
+[33mcommit c6b7ac01e45dc886123a391689e8e090589b9c8e[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Wed Dec 24 16:17:09 2025 +0700
+
+    done crud from department
+
+[33mcommit a73c5760ede4c7cc4162ee1448aed05733af69af[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Tue Dec 23 19:51:46 2025 +0700
+
+    add department menu
+
+[33mcommit c1552938a4a2803e58228fed0842682eb35d1eb2[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Mon Dec 22 17:34:50 2025 +0700
+
+    profile config
+
+[33mcommit 86eff5c8ae9e33d519f7c875dfb75ac478b45bf3[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Mon Dec 22 17:08:10 2025 +0700
+
+    add profile page
+
+[33mcommit f9be5b7ec0dd4d3d8764de058b1b3ee5bd825d96[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Mon Dec 22 16:05:32 2025 +0700
+
+    done for session data
+
+[33mcommit 18971f4cf429e87728ca745270e4c52b1ddea1a6[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Mon Dec 22 14:13:12 2025 +0700
+
+    done migration and seeder database
+
+[33mcommit e2f9d7c1ac50c254f89d79b844d845e80aa206ca[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Fri Dec 19 16:06:58 2025 +0700
+
+    login system and dashboard page
+
+[33mcommit cc3e560625fdf4cf4037b75e5116b29d76032abd[m
+Author: Data Analyse 2 <Data Analyse2@adplusadvisor.pro>
+Date:   Thu Dec 18 14:35:30 2025 +0700
+
+    update for config database and login system
+
+[33mcommit 63f85559e1a2a27b7765080928468b14df7064fb[m
+Author: mohlutfifadilah <mohlutfifadilah23@gmail.com>
+Date:   Sun Dec 14 22:14:08 2025 +0700
+
+    Initial commit - HRIS System
