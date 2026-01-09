@@ -34,18 +34,33 @@ func (dc *AchievementController) Index(c *gin.Context) {
 	}
 
 	var achievement []models.Achievement
-	if err := config.DB.Order("created_at desc").Find(&achievement).Error; err != nil {
+
+	err := config.DB.
+		Table("achievement").
+		Select("DISTINCT ON (id_employee) *").
+		Order("id_employee, created_at DESC").
+		Scan(&achievement).Error
+	if err != nil {
 		c.String(http.StatusInternalServerError, "Error: %v", err)
 		return
 	}
 
-    employeeMap := make(map[string]string)
+	type EmployeeInfo struct {
+		Name   string
+		Gender string
+		WorkEmail string
+	}
+    employeeMap := make(map[string]EmployeeInfo)
 
 	for _, ach := range achievement {  // ganti `emp` jadi `ach`
 		if ach.IDEmployee != nil {
 			var employee models.Employee
 			if err := config.DB.First(&employee, "id = ?", ach.IDEmployee).Error; err == nil {
-				employeeMap[ach.IDEmployee.String()] = employee.Name  // key: string, value: nama employee
+				employeeMap[ach.IDEmployee.String()] = EmployeeInfo{
+					Name:   employee.Name,
+					Gender: employee.Gender, // atau field gender di model Employee kamu
+					WorkEmail: employee.WorkEmail,
+				}
 			}
 		}
 	}
@@ -199,6 +214,37 @@ func (dc *AchievementController) Store(c *gin.Context) {
 	}
 
     c.Redirect(http.StatusFound, "/achievement")
+}
+
+// Get show/{id}/achievement
+func (dc *AchievementController) Show(c *gin.Context) {
+	id := c.Param("id")
+
+	var achievement models.Achievement
+	if err := config.DB.First(&achievement, "id = ?", id).Error; err != nil {
+		c.String(http.StatusNotFound, "Achievement not found")
+		return
+	}
+
+	var employee models.Employee
+	if err := config.DB.First(&employee, "id = ?", achievement.IDEmployee).Error; err != nil {
+		c.String(http.StatusNotFound, "Employee not found")
+		return
+	}
+
+	var typeAchievement models.TypeAchievement
+	if err := config.DB.First(&typeAchievement, "id = ?", achievement.IDTypeAchievement).Error; err != nil {
+		c.String(http.StatusNotFound, "Type Achievement not found")
+		return
+	}
+
+	c.HTML(http.StatusOK, "achievement_info", gin.H{
+		"title":      "Info Achievement",
+		"activePage": "achievement",
+		"achievement": achievement,
+		"employee": employee,
+		"typeAchievement": typeAchievement,
+	})
 }
 
 // GET /departments/:id/edit

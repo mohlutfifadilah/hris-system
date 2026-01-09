@@ -92,11 +92,11 @@ func main() {
 
 	// Grading routes
 	r.GET("/grading", gradingController.Index)
-	r.GET("/gradings/create", gradingController.Create)
-	r.POST("/gradings", gradingController.Store)
-	r.GET("/gradings/:id/edit", gradingController.Edit)
-	r.POST("/gradings/:id", gradingController.Update)
-	r.POST("/gradings/:id/delete", gradingController.Delete)
+	r.GET("/grading/create", gradingController.Create)
+	r.POST("/grading", gradingController.Store)
+	r.GET("/grading/:id/edit", gradingController.Edit)
+	r.POST("/grading/:id", gradingController.Update)
+	r.POST("/grading/:id/delete", gradingController.Delete)
 
 	// Status routes
 	r.GET("/status", statusController.Index)
@@ -110,6 +110,7 @@ func main() {
 	r.GET("/achievement", achievementController.Index)
 	r.GET("/achievement/create", achievementController.Create)
 	r.POST("/achievement", achievementController.Store)
+	r.GET("/achievement/:id/show", achievementController.Show)
 	r.GET("/achievement/:id/edit", achievementController.Edit)
 	r.POST("/achievement/:id", achievementController.Update)
 	r.POST("/achievement/:id/delete", achievementController.Delete)

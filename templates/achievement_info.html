@@ -1,0 +1,307 @@
+{{ define "achievement_info" }}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no"
+      name="viewport"
+    />
+    <title>{{ .title }} | HRIS System</title>
+
+    <!-- General CSS Files -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/bootstrap/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/fontawesome/css/all.min.css"
+    />
+
+    <!-- CSS Libraries -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/jqvmap/dist/jqvmap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons-wind.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/summernote/summernote-bs4.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/datatables.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css"
+    />
+
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="/static/assets/css/style.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <!-- Start GA -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "UA-94034622-3");
+    </script>
+    <!-- /END GA -->
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="main-wrapper main-wrapper-1">
+        <div class="navbar-bg"></div>
+
+        <!-- Header -->
+        {{ template "header" . }}
+
+        <!-- Sidebar -->
+        {{ template "sidebar" . }}
+
+        <!-- Main Content -->
+        <div class="main-content">
+          <section class="section">
+            <div class="section-header">
+              <h1>Achievement</h1>
+              <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active">
+                  <a href="/achievement">Achievement</a>
+                </div>
+                <div class="breadcrumb-item">Data Achievement</div>
+                <div class="breadcrumb-item">Info Achievement</div>
+              </div>
+            </div>
+            <form id="achForm" action="{{ .action }}" method="POST">
+              <div class="section-body">
+                <div class="row">
+                  <!-- LEFT -->
+                  <div class="col-12 col-md-12 col-sm-12">
+                    <!-- Achievement -->
+                    <div class="card">
+                      <div class="card-header"><h4>Info Achievement</h4></div>
+                      <div class="card-body"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-body text-right">
+                <a href="/achievement" class="btn btn-secondary">Back</a>
+                <button type="submit" class="btn btn-success">Add</button>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <!-- Footer -->
+        {{ template "footer" . }}
+      </div>
+    </div>
+
+    <!-- General JS Scripts -->
+    <script src="/static/assets/modules/jquery.min.js"></script>
+    <script src="/static/assets/modules/popper.js"></script>
+    <script src="/static/assets/modules/tooltip.js"></script>
+    <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
+    <script src="/static/assets/modules/moment.min.js"></script>
+    <script src="/static/assets/js/stisla.js"></script>
+
+    <!-- JS Libraies -->
+    <script src="/static/assets/modules/simple-weather/jquery.simpleWeather.min.js"></script>
+    <script src="/static/assets/modules/chart.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/jquery.vmap.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+    <script src="/static/assets/modules/summernote/summernote-bs4.js"></script>
+    <script src="/static/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+
+    <!-- Page Specific JS File -->
+    <script src="/static/assets/js/page/index-0.js"></script>
+
+    <script src="/static/assets/modules/datatables/datatables.min.js"></script>
+    <script src="/static/assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
+    <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
+
+    <!-- Page Specific JS File -->
+    <!-- <script src="/static/assets/js/page/modules-datatables.js"></script> -->
+    <script>
+      // Show SweetAlert if error exists
+      if (window.__SWAL_ERROR__) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: window.__SWAL_ERROR__,
+        });
+      }
+
+      var date = document.getElementById("date");
+      if (date) {
+        var today = new Date();
+        var maxDate = today.toISOString().split("T")[0]; // Format YYYY-MM-DD
+        date.setAttribute("max", maxDate);
+      }
+
+      // Validation helper
+      function setErr(id, msg) {
+        var el = document.getElementById(id);
+        var err = document.getElementById("err-" + id);
+        if (!el || !err) return;
+
+        if (msg) {
+          el.classList.add("is-invalid");
+          err.textContent = msg;
+        } else {
+          el.classList.remove("is-invalid");
+          err.textContent = "";
+        }
+      }
+
+      // Main validation
+      function validate() {
+        var errors = [];
+
+        // Employee
+        var employee = document.getElementById("employee");
+        var employeeVal = employee ? employee.value : "";
+        if (!employeeVal) {
+          errors.push("Please select employee");
+          setErr("employee", "Please select employee");
+        } else {
+          setErr("employee", "");
+        }
+
+        // Type Achievement
+        var typeAchievement = document.getElementById("type_achievement");
+        var typeAchievementVal = typeAchievement ? typeAchievement.value : "";
+        if (!typeAchievementVal) {
+          errors.push("Please select type achievement");
+          setErr("type_achievement", "Please select type achievement");
+        } else {
+          setErr("type_achievement", "");
+        }
+
+        // Date
+        var date = document.getElementById("date");
+        var dobVal = date ? date.value : "";
+        if (!dobVal) {
+          errors.push("Date is required");
+          setErr("date", "Date is required");
+        } else {
+          var dob = new Date(dobVal);
+          var today = new Date();
+          today.setHours(0, 0, 0, 0); // Reset time untuk comparison yang akurat
+
+          if (dob >= today) {
+            errors.push("Date must be before today");
+            setErr("date", "Date must be before today");
+          } else {
+            var age = today.getFullYear() - dob.getFullYear();
+            var monthDiff = today.getMonth() - dob.getMonth();
+            if (
+              monthDiff < 0 ||
+              (monthDiff === 0 && today.getDate() < dob.getDate())
+            ) {
+              age--;
+            }
+          }
+        }
+
+        // Title
+        var title = document.getElementById("title");
+        var titleVal = title ? title.value.trim() : "";
+        if (!titleVal) {
+          errors.push("Title is required");
+          setErr("title", "Title is required");
+        } else {
+          setErr("title", "");
+        }
+
+        // Description
+        var description = document.getElementById("description");
+        var descriptionVal = description ? description.value.trim() : "";
+        if (!descriptionVal) {
+          errors.push("Description is required");
+          setErr("description", "Description is required");
+        } else {
+          setErr("description", "");
+        }
+
+        // Evidence Link
+        var evidenceLink = document.getElementById("evidence_link");
+        var evidenceLinkVal = evidenceLink ? evidenceLink.value.trim() : "";
+        if (!evidenceLinkVal) {
+          errors.push("Evidence Link is required");
+          setErr("evidence_link", "Evidence Link is required");
+        } else if (evidenceLinkVal && !isValidURL(evidenceLinkVal)) {
+          errors.push("Evidence Link must be a valid URL");
+          setErr("evidence_link", "Evidence Link must be a valid URL");
+        } else {
+          setErr("evidence_link", "");
+        }
+
+        return errors;
+      }
+
+      // Attach validation
+      var form = document.getElementById("achForm");
+      if (form) {
+        var fieldsToValidate = [
+          "employee",
+          "type_achievement",
+          "date",
+          "title",
+          "description",
+          "evidence_link",
+        ];
+
+        fieldsToValidate.forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) {
+            el.addEventListener("input", validate);
+            el.addEventListener("change", validate);
+          }
+        });
+
+        form.addEventListener("submit", function (e) {
+          var errs = validate();
+          if (errs.length) {
+            e.preventDefault();
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              html: "There is an error",
+            });
+          }
+        });
+      }
+    </script>
+    <!-- Template JS File -->
+    <script src="/static/assets/js/scripts.js"></script>
+    <script src="/static/assets/js/custom.js"></script>
+  </body>
+</html>
+{{ end }}

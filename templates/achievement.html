@@ -114,11 +114,10 @@
                             <tr>
                               <th class="text-center">No</th>
                               <th>Employee</th>
+                              <th>Gender</th>
+                              <th>Email</th>
                               <th>Position</th>
                               <th>Department</th>
-                              <th>Type</th>
-                              <th>Title</th>
-                              <th>Date</th>
                               <th>Action</th>
                             </tr>
                           </thead>
@@ -127,22 +126,31 @@
                             <tr>
                               <td class="text-center">{{ add $i 1 }}</td>
                               <td>
-                                {{ with $empID := index $.employeeMap
-                                ($achievement.IDEmployee.String) }} {{ $empID }}
-                                {{ else }}
+                                {{ with $emp := index $.employeeMap
+                                ($achievement.IDEmployee.String) }} {{ $emp.Name
+                                }} {{ else }}
                                 <span class="text-muted">-</span>
                                 {{ end }}
                               </td>
-                              <td>{{ $achievement.Date }}</td>
-                              <td>{{ $achievement.Date }}</td>
                               <td>
-                                {{ with $empID := index $.typeAchievementMap
-                                ($achievement.IDTypeAchievement.String) }} {{
-                                $empID }} {{ else }}
+                                {{ with $emp := index $.employeeMap
+                                ($achievement.IDEmployee.String) }} {{ if eq
+                                $emp.Gender "0" }}
+                                <i class="fas fa-mars text-primary"></i> Male {{
+                                else if eq $emp.Gender "1" }}
+                                <i class="fas fa-venus text-danger"></i> Female
+                                {{ end }} {{ else }}
                                 <span class="text-muted">-</span>
                                 {{ end }}
                               </td>
-                              <td>{{ $achievement.Title }}</td>
+                              <td>
+                                {{ with $emp := index $.employeeMap
+                                ($achievement.IDEmployee.String) }} {{
+                                $emp.WorkEmail }} {{ else }}
+                                <span class="text-muted">-</span>
+                                {{ end }}
+                              </td>
+                              <td>{{ $achievement.Date | indDate }}</td>
                               <td>{{ $achievement.Date | indDate }}</td>
                               <td>
                                 <a
@@ -251,30 +259,6 @@
     <!-- Template JS File -->
     <script src="/static/assets/js/scripts.js"></script>
     <script src="/static/assets/js/custom.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    {{ if .error }}
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "{{ .error }}",
-          confirmButtonColor: "#d33",
-        });
-      });
-    </script>
-    {{ end }} {{ if .success }}
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "{{ .success }}",
-          confirmButtonColor: "#28a745",
-        });
-      });
-    </script>
-    {{ end }}
   </body>
 </html>
 {{ end }}

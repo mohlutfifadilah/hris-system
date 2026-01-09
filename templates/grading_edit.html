@@ -1,138 +1,183 @@
-{{ define "rank_edit" }}
+{{ define "grading_edit" }}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>{{ .title }} | HRIS System</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no"
+      name="viewport"
+    />
+    <title>{{ .title }} | HRIS System</title>
 
-  <!-- General CSS Files -->
-  <link rel="stylesheet" href="/static/assets/modules/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/fontawesome/css/all.min.css">
+    <!-- General CSS Files -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/bootstrap/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/fontawesome/css/all.min.css"
+    />
 
-  <!-- CSS Libraries -->
-  <link rel="stylesheet" href="/static/assets/modules/jqvmap/dist/jqvmap.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/weather-icon/css/weather-icons.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/weather-icon/css/weather-icons-wind.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/summernote/summernote-bs4.css">
+    <!-- CSS Libraries -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/jqvmap/dist/jqvmap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons-wind.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/summernote/summernote-bs4.css"
+    />
 
-  <link rel="stylesheet" href="/static/assets/modules/datatables/datatables.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css">
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/datatables.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css"
+    />
 
-  <!-- Template CSS -->
-  <link rel="stylesheet" href="/static/assets/css/style.css">
-  <link rel="stylesheet" href="/static/assets/css/components.css">
-<!-- Start GA -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="/static/assets/css/style.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <!-- Start GA -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-  gtag('config', 'UA-94034622-3');
-</script>
-<!-- /END GA --></head>
+      gtag("config", "UA-94034622-3");
+    </script>
+    <!-- /END GA -->
+  </head>
 
-<body>
-  <div id="app">
-    <div class="main-wrapper main-wrapper-1">
-      <div class="navbar-bg"></div>
-      
+  <body>
+    <div id="app">
+      <div class="main-wrapper main-wrapper-1">
+        <div class="navbar-bg"></div>
+
         <!-- Header -->
         {{ template "header" . }}
 
         <!-- Sidebar -->
         {{ template "sidebar" . }}
-        
+
         <!-- Main Content -->
         <div class="main-content">
-            <section class="section">
-          <div class="section-header">
-            <h1>Rank</h1>
-            <div class="section-header-breadcrumb">
-              <div class="breadcrumb-item active"><a href="/rank">Rank</a></div>
-              <div class="breadcrumb-item">Data Rank</div>
-              <div class="breadcrumb-item">Edit Rank</div>
+          <section class="section">
+            <div class="section-header">
+              <h1>Grading</h1>
+              <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active">
+                  <a href="/grading">Grading</a>
+                </div>
+                <div class="breadcrumb-item">Data Grading</div>
+                <div class="breadcrumb-item">Edit Grading</div>
+              </div>
             </div>
-          </div>
-          <div class="section-body">
-            <div class="row">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-header">
-                    <h4>Edit Rank</h4>
-                  </div>
-                  <form id="rankForm" action="{{ .action }}" method="POST">
-                    <div class="card-body">
-                      <div class="form-group">
-                        <label>Name Rank</label>
-                        <input type="text" name="rank" class="form-control"
-                              value="{{ if .data }}{{ .data.Rank }}{{ end }}">
+            <div class="section-body">
+              <div class="row">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header">
+                      <h4>Edit Grading</h4>
+                    </div>
+                    <form id="gradingForm" action="{{ .action }}" method="POST">
+                      <div class="card-body">
+                        <div class="form-group">
+                          <label>Name Grading</label>
+                          <input
+                            type="text"
+                            name="grading"
+                            class="form-control"
+                            value="{{ if .data }}{{ .data.Grading }}{{ end }}"
+                          />
+                        </div>
                       </div>
-                    </div>
-                    <div class="card-footer text-right">
-                      <a href="/rank" class="btn btn-secondary">Back</a>
-                      <button type="submit" class="btn btn-success">Edit</button>
-                    </div>
-                  </form>
+                      <div class="card-footer text-right">
+                        <a href="/grading" class="btn btn-secondary">Back</a>
+                        <button type="submit" class="btn btn-success">
+                          Edit
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
         </div>
-        
+
         <!-- Footer -->
         {{ template "footer" . }}
-
+      </div>
     </div>
-  </div>
 
-  <!-- General JS Scripts -->
-  <script src="/static/assets/modules/jquery.min.js"></script>
-  <script src="/static/assets/modules/popper.js"></script>
-  <script src="/static/assets/modules/tooltip.js"></script>
-  <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
-  <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
-  <script src="/static/assets/modules/moment.min.js"></script>
-  <script src="/static/assets/js/stisla.js"></script>
-  
-  <!-- JS Libraies -->
-  <script src="/static/assets/modules/simple-weather/jquery.simpleWeather.min.js"></script>
-  <script src="/static/assets/modules/chart.min.js"></script>
-  <script src="/static/assets/modules/jqvmap/dist/jquery.vmap.min.js"></script>
-  <script src="/static/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js"></script>
-  <script src="/static/assets/modules/summernote/summernote-bs4.js"></script>
-  <script src="/static/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+    <!-- General JS Scripts -->
+    <script src="/static/assets/modules/jquery.min.js"></script>
+    <script src="/static/assets/modules/popper.js"></script>
+    <script src="/static/assets/modules/tooltip.js"></script>
+    <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
+    <script src="/static/assets/modules/moment.min.js"></script>
+    <script src="/static/assets/js/stisla.js"></script>
 
-  <!-- Page Specific JS File -->
-  <script src="/static/assets/js/page/index-0.js"></script>
-  
-  <script src="/static/assets/modules/datatables/datatables.min.js"></script>
-  <script src="/static/assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
-  <script src="/static/assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
-  <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
+    <!-- JS Libraies -->
+    <script src="/static/assets/modules/simple-weather/jquery.simpleWeather.min.js"></script>
+    <script src="/static/assets/modules/chart.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/jquery.vmap.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+    <script src="/static/assets/modules/summernote/summernote-bs4.js"></script>
+    <script src="/static/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
 
-  <!-- Page Specific JS File -->
-  <script src="/static/assets/js/page/modules-datatables.js"></script>
+    <!-- Page Specific JS File -->
+    <script src="/static/assets/js/page/index-0.js"></script>
 
-  <!-- Template JS File -->
-  <script src="/static/assets/js/scripts.js"></script>
-  <script src="/static/assets/js/custom.js"></script>
-  <script>
-  document.getElementById('rankForm').addEventListener('submit', function (e) {
-    const rank = this.rank.value.trim();
-    if (!rank) {
-      e.preventDefault();
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Name Rank required',
-      });
-    }
-  });
-  </script>
-</body>
+    <script src="/static/assets/modules/datatables/datatables.min.js"></script>
+    <script src="/static/assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
+    <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
+
+    <!-- Page Specific JS File -->
+    <script src="/static/assets/js/page/modules-datatables.js"></script>
+
+    <!-- Template JS File -->
+    <script src="/static/assets/js/scripts.js"></script>
+    <script src="/static/assets/js/custom.js"></script>
+    <script>
+      document
+        .getElementById("gradingForm")
+        .addEventListener("submit", function (e) {
+          const grading = this.grading.value.trim();
+          if (!grading) {
+            e.preventDefault();
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Name Grading required",
+            });
+          }
+        });
+    </script>
+  </body>
 </html>
 {{ end }}
