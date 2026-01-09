@@ -32,36 +32,6 @@ func (dc *TypeAchievement) Index(c *gin.Context) {
 		return
 	}
 
-	// // 2) Ambil row career lengkap dari DB
-	// var career models.Career
-	// if err := config.DB.
-	// 	Where("id = ?", employee.IDCareer).
-	// 	First(&career).Error; err != nil {
-	// 	// handle error (404, dll)
-	// 	c.String(http.StatusInternalServerError, "career not found")
-	// 	return
-	// }
-
-	// // 3) Ambil row career_history lengkap dari DB
-	// var career_history models.CareerHistory
-	// if err := config.DB.
-	// 	Where("id = ?", career.IDCareerHistory).
-	// 	First(&career_history).Error; err != nil {
-	// 	// handle error (404, dll)
-	// 	c.String(http.StatusInternalServerError, "career history not found")
-	// 	return
-	// }
-
-	// // 4) Ambil row department_history lengkap dari DB
-	// var department_history models.DepartmentHistory
-	// if err := config.DB.
-	// 	Where("id = ?", career_history.IDDepartment).
-	// 	First(&department_history).Error; err != nil {
-	// 	// handle error (404, dll)
-	// 	c.String(http.StatusInternalServerError, "department history not found")
-	// 	return
-	// }
-
 	var typeAchievement []models.TypeAchievement
 	if err := config.DB.Order("created_at desc").Find(&typeAchievement).Error; err != nil {
 		c.String(http.StatusInternalServerError, "Error: %v", err)

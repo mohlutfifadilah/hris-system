@@ -11,7 +11,6 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type AchievementController struct{}
@@ -34,61 +33,33 @@ func (dc *AchievementController) Index(c *gin.Context) {
 		return
 	}
 
-	// 1) Ambil row company lengkap dari DB
-	var company models.Company
-	if err := config.DB.
-		Where("id = ?", employee.IDCompany).
-		First(&company).Error; err != nil {
-		// handle error (404, dll)
-		c.String(http.StatusInternalServerError, "company not found")
-		return
-	}
-
-	// 2) Ambil row staffing lengkap dari DB
-	var staffing models.Staffing
-	if employee.IDStaffing != nil {
-		if err := config.DB.
-			Where("id = ?", employee.IDStaffing).
-			First(&staffing).Error; err != nil {
-			// handle error (404, dll)
-			c.String(http.StatusInternalServerError, "staffing not found")
-			return
-		}
-	} else {
-		log.Println("Employee has no staffing (superadmin or unassigned)")
-	}
-
-	// 3) Ambil row contact lengkap dari DB
-	var contact models.Contact
-	if employee.IDContact != nil {
-		if err := config.DB.
-			Where("id = ?", employee.IDContact).
-			First(&contact).Error; err != nil {
-			// handle error (404, dll)
-			c.String(http.StatusInternalServerError, "contact not found")
-			return
-		}
-	} else {
-		log.Println("Employee has no contact (superadmin or unassigned)")
-	}
-
 	var achievement []models.Achievement
 	if err := config.DB.Order("created_at desc").Find(&achievement).Error; err != nil {
 		c.String(http.StatusInternalServerError, "Error: %v", err)
 		return
 	}
 
-    // Buat map untuk simpan employee berdasarkan employee ID
-    employeeMap := make(map[uuid.UUID]string)
+    employeeMap := make(map[string]string)
 
-    for _, emp := range achievement {
-        if emp.IDEmployee != nil {
-            var employee models.Employee
-            if err := config.DB.First(&employee, "id = ?", emp.IDEmployee).Error; err == nil {
-                employeeMap[emp.ID] = employee.ID
-            }
-        }
-    }
+	for _, ach := range achievement {  // ganti `emp` jadi `ach`
+		if ach.IDEmployee != nil {
+			var employee models.Employee
+			if err := config.DB.First(&employee, "id = ?", ach.IDEmployee).Error; err == nil {
+				employeeMap[ach.IDEmployee.String()] = employee.Name  // key: string, value: nama employee
+			}
+		}
+	}
+
+    typeAchievementMap := make(map[string]string)
+
+	for _, typ := range achievement {  // ganti `emp` jadi `ach`
+		if typ.IDTypeAchievement != nil {
+			var typeAchievement models.TypeAchievement
+			if err := config.DB.First(&typeAchievement, "id = ?", typ.IDTypeAchievement).Error; err == nil {
+				typeAchievementMap[typ.IDTypeAchievement.String()] = typeAchievement.Type  // key: string, value: nama employee
+			}
+		}
+	}
 
 	session := sessions.Default(c)
 	success := session.Get("flash_success")
@@ -102,7 +73,8 @@ func (dc *AchievementController) Index(c *gin.Context) {
 		"title":      "Achievement",
 		"user":       employee,  // seluruh row employee yang login (boleh nil)
 		"achievement":      achievement, // seluruh row employee yang login (boleh nil)
-		"contactMap": contactMap, // seluruh row employee yang login (boleh nil)
+		"employeeMap": employeeMap, // seluruh row employee yang login (boleh nil)
+		"typeAchievementMap": typeAchievementMap, // seluruh row employee yang login (boleh nil)
 		"activePage": "achievement",
 		"success":    success,
 	})
@@ -226,7 +198,7 @@ func (dc *AchievementController) Store(c *gin.Context) {
 		_ = session.Save()
 	}
 
-    c.Redirect(http.StatusSeeOther, "/achievement")
+    c.Redirect(http.StatusFound, "/achievement")
 }
 
 // GET /departments/:id/edit

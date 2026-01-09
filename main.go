@@ -9,6 +9,7 @@ import (
 	migrations "hris-system/database/migration"
 	seeders "hris-system/database/seeder"
 	"hris-system/internal/controllers"
+	"hris-system/utils"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -157,6 +158,7 @@ func loadTemplates() *template.Template {
 		"templates/layouts/sidebar.html",
 		"templates/layouts/footer.html",
 	))
+	tmpl = utils.RegisterTemplateHelpers(tmpl)
 
 	tmpl = template.Must(tmpl.ParseGlob("templates/*.html"))
 	tmpl = template.Must(tmpl.ParseFiles("templates/login.html"))

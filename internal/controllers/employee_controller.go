@@ -466,7 +466,7 @@ func (dc *EmployeeController) Store(c *gin.Context) {
 		_ = session.Save()
 	}
 
-    c.Redirect(http.StatusSeeOther, "/employee")
+    c.Redirect(http.StatusFound, "/employee")
 }
 
 // GET /departments/:id/edit
