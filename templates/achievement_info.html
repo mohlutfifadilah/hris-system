@@ -102,7 +102,16 @@
                     <!-- Achievement -->
                     <div class="card">
                       <div class="card-header"><h4>Info Achievement</h4></div>
-                      <div class="card-body"></div>
+                      <div class="card-body">
+
+                        <!-- Employee Info -->
+                        <h2>Employee: {{ .employee.Name }}</h2>
+                        <p>Email: {{ .employee.WorkEmail }}</p>
+                        <p>Gender: {{ .employee.Gender }}</p>
+
+                        <!-- Type Achievement Info -->
+                        <h2>Type: {{ .typeAchievement.Type }}</h2>
+                      </div>
                     </div>
                   </div>
                 </div>
