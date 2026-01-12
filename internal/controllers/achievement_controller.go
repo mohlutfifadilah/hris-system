@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"sort"
 	"time"
 
 	"hris-system/config"
@@ -11,6 +13,7 @@ import (
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type AchievementController struct{}
@@ -216,6 +219,17 @@ func (dc *AchievementController) Store(c *gin.Context) {
     c.Redirect(http.StatusFound, "/achievement")
 }
 
+type YearGroup struct {
+    Year         int                    `json:"year"`
+    TypeGroups   []AchievementByType    `json:"type_groups"`
+}
+
+type AchievementByType struct {
+    TypeName     string                 `json:"type_name"`
+    TypeID       uuid.UUID              `json:"type_id"`
+    Achievements []models.Achievement   `json:"achievements"`
+}
+
 // Get show/{id}/achievement
 func (dc *AchievementController) Show(c *gin.Context) {
 	id := c.Param("id")
@@ -238,13 +252,79 @@ func (dc *AchievementController) Show(c *gin.Context) {
 		return
 	}
 
-	c.HTML(http.StatusOK, "achievement_info", gin.H{
-		"title":      "Info Achievement",
-		"activePage": "achievement",
-		"achievement": achievement,
-		"employee": employee,
-		"typeAchievement": typeAchievement,
-	})
+	// 1. Ambil SEMUA achievements employee (NO YEAR FILTER dulu)
+    var allAchievements []models.Achievement
+    config.DB.Where("id_employee = ?", achievement.IDEmployee).
+        Order("date ASC").
+        Find(&allAchievements)
+
+    if len(allAchievements) == 0 {
+        // Fallback: empty timeline
+        c.HTML(http.StatusOK, "achievement_info", gin.H{
+            // ... existing data ...
+            "yearGroups": []YearGroup{},
+        })
+        return
+    }
+
+    // 2. Group by YEAR dari data yang ada
+    yearMap := make(map[int][]AchievementByType)
+    
+    for _, ach := range allAchievements {
+        year := ach.Date.Year()
+        
+        // Get or create type group for this year
+        typeMap := yearMap[year]
+        
+        // Cari apakah type sudah ada di year ini
+        found := false
+        for i := range typeMap {
+            if typeMap[i].TypeID == *ach.IDTypeAchievement {
+                typeMap[i].Achievements = append(typeMap[i].Achievements, ach)
+                found = true
+                break
+            }
+        }
+        
+        if !found {
+            // Type baru, fetch type name
+            var typeAch models.TypeAchievement
+            config.DB.First(&typeAch, *ach.IDTypeAchievement)
+            
+            yearMap[year] = append(typeMap, AchievementByType{
+                TypeName:     typeAch.Type,
+                TypeID:       *ach.IDTypeAchievement,
+                Achievements: []models.Achievement{ach},
+            })
+        }
+    }
+
+    // 3. Convert to sorted yearGroups
+    var yearGroups []YearGroup
+    for year := range yearMap {
+        yearGroups = append(yearGroups, YearGroup{
+            Year:       year,
+            TypeGroups: yearMap[year],
+        })
+    }
+    
+    // Sort by year
+    sort.Slice(yearGroups, func(i, j int) bool {
+        return yearGroups[i].Year < yearGroups[j].Year
+    })
+
+    fmt.Printf("DEBUG: Found %d years, %d total achievements\n", 
+        len(yearGroups), len(allAchievements))
+
+    c.HTML(http.StatusOK, "achievement_info", gin.H{
+        "title":           "Achievement Timeline",
+        "activePage":      "achievement",
+        "achievement":     achievement,
+        "employee":        employee,
+        "typeAchievement": typeAchievement,
+        "yearGroups":      yearGroups,
+        "allAchievements": allAchievements, // Backup untuk timeline dots
+    })
 }
 
 // GET /departments/:id/edit
