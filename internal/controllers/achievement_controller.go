@@ -313,8 +313,8 @@ func (dc *AchievementController) Show(c *gin.Context) {
         return yearGroups[i].Year < yearGroups[j].Year
     })
 
-    fmt.Printf("DEBUG: Found %d years, %d total achievements\n", 
-        len(yearGroups), len(allAchievements))
+    var types []models.TypeAchievement
+    config.DB.Order("type ASC").Find(&types)
 
     c.HTML(http.StatusOK, "achievement_info", gin.H{
         "title":           "Achievement Timeline",
@@ -323,40 +323,21 @@ func (dc *AchievementController) Show(c *gin.Context) {
         "employee":        employee,
         "typeAchievement": typeAchievement,
         "yearGroups":      yearGroups,
+        "types":      types,
         "allAchievements": allAchievements, // Backup untuk timeline dots
     })
 }
 
-// GET /departments/:id/edit
-func (dc *AchievementController) Edit(c *gin.Context) {
-	id := c.Param("id")
-
-	var dept models.Department
-	if err := config.DB.First(&dept, "id = ?", id).Error; err != nil {
-		c.String(http.StatusNotFound, "Department not found")
-		return
-	}
-
-	c.HTML(http.StatusOK, "department_edit", gin.H{
-		"title":      "Edit Department",
-		"activePage": "department",
-		"data":       dept,
-		"action":     "/departments/" + id,
-		"method":     "POST",
-		"isEdit":     true,
-	})
-}
-
-// POST /departments/:id
+// POST /achievement/:id
 func (dc *AchievementController) Update(c *gin.Context) {
 	id := c.Param("id")
 
-	var dept models.Department
-	if err := config.DB.First(&dept, "id = ?", id).Error; err != nil {
-		c.String(http.StatusNotFound, "Department not found")
+	var achievement models.Achievement
+	if err := config.DB.First(&achievement, "id = ?", id).Error; err != nil {
+		c.String(http.StatusNotFound, "Achievement not found")
 		return
 	}
-
+	
 	var input struct {
 		Department string `form:"department" binding:"required"`
 	}
