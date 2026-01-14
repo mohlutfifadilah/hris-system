@@ -111,6 +111,8 @@ func main() {
 	r.GET("/achievement/create", achievementController.Create)
 	r.POST("/achievement", achievementController.Store)
 	r.GET("/achievement/:id/show", achievementController.Show)
+	r.GET("/achievement/generateExcel/:employee_id", achievementController.Excel)
+	r.GET("/achievement/generatePdf/:employee_id", achievementController.Pdf)
 	r.POST("/achievement/:id", achievementController.Update)
 	r.POST("/achievement/:id/delete", achievementController.Delete)
 

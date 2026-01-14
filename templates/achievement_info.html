@@ -121,10 +121,24 @@
                     <div class="card">
                       <div class="card-header"><h4>Info Achievement</h4></div>
                       <div class="card-body">
-                        <dl>
-                          <dt>Employee</dt>
-                          <dd>{{ .employee.Name }}</dd>
-                        </dl>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                          <!-- Left: Employee Info -->
+                          <dl class="mb-0">
+                            <dt>Employee</dt>
+                            <dd class="mb-0">{{ .employee.Name }}</dd>
+                          </dl>
+                          
+                          <!-- Right: Add Button -->
+                          <div>
+                            <a href="/achievement/generateExcel/{{ .employee.ID }}" class="btn btn-success">
+                              <i class="fas fa-file-excel"></i> Excel
+                            </a>
+                            <a href="/achievement/generatePdf/{{ .employee.ID }}" class="btn btn-danger">
+                              <i class="fas fa-file-pdf"></i> PDF
+                            </a>
+                          </div>
+                        </div>
+                        
                         <div class="row">
                           <div class="col-12 col-sm-12 col-md-2">
                             <!-- Tab Nav -->
@@ -161,72 +175,64 @@
                                 <!-- JENIS PELATIHAN CARDS -->
                                 <div class="row">
                                   {{range $typeGroup := $yearGroup.TypeGroups}}
-                                  <div class="col-md-6 col-lg-6 mb-4">
-                                    <div class="card h-100 shadow-sm border-left-primary">
-                                      <div class="card-body p-0">
-                                        {{range $ach := $typeGroup.Achievements}}
-                                        <div class="achievement-item mb-3 p-3 bg-light rounded">
-                                          <small><strong>{{$typeGroup.TypeName}}</strong></small>
+                                    {{range $ach := $typeGroup.Achievements}}
+                                    <div class="col-12 col-md-6 mb-3">
+                                      <div class="card shadow-sm border-left-primary bg-light h-100" style="border-left-width: 4px !important;">
+                                        <div class="card-body">
+                                          <!-- Type Badge -->
+                                          <p class="d-block mb-2">
+                                            <strong>{{$typeGroup.TypeName}}</strong>
+                                          </p>
+                                          
+                                          <!-- Title & Date -->
                                           <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="mb-1 font-weight-bold text-primary">{{$ach.Title}}</h6>
-                                            <span class="badge badge-info px-2 py-1">
+                                            <h6 class="mb-0 font-weight-bold text-primary">{{$ach.Title}}</h6>
+                                            <span class="badge badge-info ml-2">
                                               {{$ach.Date.Format "02 Jan"}}
                                             </span>
                                           </div>
+                                          
+                                          <!-- Description -->
                                           {{if $ach.Description}}
-                                          <p class="text-muted mb-2 line-clamp-2">
+                                          <p class="text-muted mb-3 small">
                                             {{$ach.Description}}
                                           </p>
                                           {{end}}
-                                          <!-- ACTION BUTTONS: Kiri bukti, Kanan edit/hapus -->
-                                          <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                            <!-- KIRI: Lihat Bukti -->
+                                          
+                                          <!-- Actions -->
+                                          <div class="d-flex justify-content-between align-items-center pt-2 border-top mb-0 pb-0">
                                             <div>
                                               {{if $ach.EvidenceLink}}
-                                              <a href="{{$ach.EvidenceLink}}" target="_blank" 
-                                                class="btn btn-sm btn-primary">
-                                                <i class="fas fa-external-link-alt mr-1"></i>
-                                                Evidence
+                                              <a href="{{$ach.EvidenceLink}}" target="_blank" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-external-link-alt"></i> Evidence
                                               </a>
                                               {{else}}
-                                              <span class="text-muted small">Empty</span>
+                                              <span class="text-muted small">No Evidence</span>
                                               {{end}}
                                             </div>
                                             
-                                            <!-- KANAN: Edit | Hapus -->
-                                            <div class="btn-group btn-group-sm" role="group">
-                                              <!-- EDIT BUTTON (trigger modal) -->
-                                              <button type="button" 
-                                                      class="btn btn-warning edit-ach-btn btn-sm" 
+                                            <div class="btn-group btn-group-sm">
+                                              <button type="button" class="btn btn-warning edit-ach-btn" 
                                                       data-id="{{$ach.ID}}"
                                                       data-type="{{printf "%s" $ach.IDTypeAchievement}}"
                                                       data-date="{{$ach.Date.Format "2006-01-02"}}"
                                                       data-title="{{$ach.Title}}"
                                                       data-desc="{{$ach.Description}}"
                                                       data-evidence="{{$ach.EvidenceLink}}">
-                                                <i class="fas fa-edit"></i> Edit
+                                                <i class="fas fa-edit"></i>
                                               </button>
                                               
-                                              <!-- DELETE BUTTON (trigger SweetAlert) -->
-                                              <button type="button" 
-                                                      class="btn btn-danger delete-ach-btn btn-sm" 
+                                              <button type="button" class="btn btn-danger delete-ach-btn" 
                                                       data-id="{{$ach.ID}}" 
                                                       data-title="{{$ach.Title}}">
-                                                <i class="fas fa-trash"></i> Delete
+                                                <i class="fas fa-trash"></i>
                                               </button>
                                             </div>
                                           </div>
                                         </div>
-                                        {{end}}
-                                        {{if eq 0 (len $typeGroup.Achievements)}}
-                                        <div class="text-center text-muted py-4">
-                                          <i class="fas fa-info-circle fa-2x mb-2 opacity-75"></i>
-                                          <p class="mb-0">Empty Data</p>
-                                        </div>
-                                        {{end}}
                                       </div>
                                     </div>
-                                  </div>
+                                    {{end}}
                                   {{end}}
                                 </div>
                               </div>
