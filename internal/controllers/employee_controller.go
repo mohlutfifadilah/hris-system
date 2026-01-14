@@ -128,6 +128,18 @@ func (dc *EmployeeController) Index(c *gin.Context) {
 
 // GET /employee/create
 func (dc *EmployeeController) Create(c *gin.Context) {
+    // Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+
+	// 1) Ambil row employee lengkap dari DB
+	var employee models.Employee
+	if err := config.DB.
+		Where("id = ?", currentUser.ID).
+		First(&employee).Error; err != nil {
+		// handle error (404, dll)
+		c.String(http.StatusInternalServerError, "employee not found")
+		return
+	}
 
 	var bloods []models.Blood
 	if err := config.DB.Order("created_at desc").Find(&bloods).Error; err != nil {
@@ -163,11 +175,25 @@ func (dc *EmployeeController) Create(c *gin.Context) {
 		"banks":      banks,
 		"action":     "/employee",
 		"method":     "POST",
+        "user":       employee, // seluruh row employee yang login (boleh nil)
 	})
 }
 
 // POST /employee
 func (dc *EmployeeController) Store(c *gin.Context) {
+    // Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+
+	// 1) Ambil row employee lengkap dari DB
+	var employee models.Employee
+	if err := config.DB.
+		Where("id = ?", currentUser.ID).
+		First(&employee).Error; err != nil {
+		// handle error (404, dll)
+		c.String(http.StatusInternalServerError, "employee not found")
+		return
+	}
+
     form := map[string]string{
         "id_employee":      c.PostForm("id_employee"),
         "name":             c.PostForm("name"),
@@ -288,6 +314,7 @@ func (dc *EmployeeController) Store(c *gin.Context) {
             "religions":  religions,
             "banks":      banks,
             "identities": identities,
+            "user":       employee, // seluruh row employee yang login (boleh nil)
         })
         return
     }
@@ -471,6 +498,19 @@ func (dc *EmployeeController) Store(c *gin.Context) {
 
 // GET /departments/:id/edit
 func (dc *EmployeeController) Edit(c *gin.Context) {
+    // Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+
+	// 1) Ambil row employee lengkap dari DB
+	var employee models.Employee
+	if err := config.DB.
+		Where("id = ?", currentUser.ID).
+		First(&employee).Error; err != nil {
+		// handle error (404, dll)
+		c.String(http.StatusInternalServerError, "employee not found")
+		return
+	}
+
 	id := c.Param("id")
 
 	var dept models.Department
@@ -486,6 +526,7 @@ func (dc *EmployeeController) Edit(c *gin.Context) {
 		"action":     "/departments/" + id,
 		"method":     "POST",
 		"isEdit":     true,
+        "user":       employee, // seluruh row employee yang login (boleh nil)
 	})
 }
 

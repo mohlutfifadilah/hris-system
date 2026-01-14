@@ -113,7 +113,6 @@
                 <div class="breadcrumb-item">Info Achievement</div>
               </div>
             </div>
-            <form id="achForm" action="{{ .action }}" method="POST">
               <div class="section-body">
                 <div class="row">
                   <!-- LEFT -->
@@ -185,26 +184,36 @@
                                             <div>
                                               {{if $ach.EvidenceLink}}
                                               <a href="{{$ach.EvidenceLink}}" target="_blank" 
-                                                class="btn btn-sm btn-outline-primary">
+                                                class="btn btn-sm btn-primary">
                                                 <i class="fas fa-external-link-alt mr-1"></i>
-                                                Lihat Bukti
+                                                Evidence
                                               </a>
                                               {{else}}
-                                              <span class="text-muted small">Tidak ada bukti</span>
+                                              <span class="text-muted small">Empty</span>
                                               {{end}}
                                             </div>
                                             
                                             <!-- KANAN: Edit | Hapus -->
                                             <div class="btn-group btn-group-sm" role="group">
-                                              <a href="/achievement/edit/{{$ach.ID}}" 
-                                                class="btn btn-success border-right-0">
+                                              <!-- EDIT BUTTON (trigger modal) -->
+                                              <button type="button" 
+                                                      class="btn btn-warning edit-ach-btn btn-sm" 
+                                                      data-id="{{$ach.ID}}"
+                                                      data-type="{{printf "%s" $ach.IDTypeAchievement}}"
+                                                      data-date="{{$ach.Date.Format "2006-01-02"}}"
+                                                      data-title="{{$ach.Title}}"
+                                                      data-desc="{{$ach.Description}}"
+                                                      data-evidence="{{$ach.EvidenceLink}}">
                                                 <i class="fas fa-edit"></i> Edit
-                                              </a>
-                                              <form action="/achievement/{{ $ach.ID }}/delete" method="POST" style="display: inline" class="form-delete-achievement">
-                                                <button type="submit" class="btn btn-danger btn-sm">
-                                                  <i class="fas fa-trash"></i> Delete
-                                                </button>
-                                              </form>
+                                              </button>
+                                              
+                                              <!-- DELETE BUTTON (trigger SweetAlert) -->
+                                              <button type="button" 
+                                                      class="btn btn-danger delete-ach-btn btn-sm" 
+                                                      data-id="{{$ach.ID}}" 
+                                                      data-title="{{$ach.Title}}">
+                                                <i class="fas fa-trash"></i> Delete
+                                              </button>
                                             </div>
                                           </div>
                                         </div>
@@ -212,7 +221,7 @@
                                         {{if eq 0 (len $typeGroup.Achievements)}}
                                         <div class="text-center text-muted py-4">
                                           <i class="fas fa-info-circle fa-2x mb-2 opacity-75"></i>
-                                          <p class="mb-0">Belum ada data</p>
+                                          <p class="mb-0">Empty Data</p>
                                         </div>
                                         {{end}}
                                       </div>
@@ -232,14 +241,93 @@
               </div>
               <div class="card-body text-right">
                 <a href="/achievement" class="btn btn-secondary">Back</a>
-                <button type="submit" class="btn btn-success">Add</button>
               </div>
-            </form>
           </section>
         </div>
 
         <!-- Footer -->
         {{ template "footer" . }}
+      </div>
+    </div>
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning text-white">
+            <h5 class="modal-title">
+              Edit Achievement
+            </h5>
+            <button type="button" class="close text-white" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <form id="editForm">
+            <input type="hidden" id="edit_id" name="id">
+            
+            <!-- HIDDEN: ID Employee fixed dari achievement -->
+            <input type="hidden" name="id_employee" value="{{.employee.ID}}">
+            
+            <div class="modal-body">
+              <!-- Employee Name (Read-only) -->
+              <div class="form-group">
+                <label class="text-muted">Employee</label>
+                <div class="form-control-plaintext font-weight-bold">
+                  {{.employee.Name}}
+                </div>
+              </div>
+              
+              <!-- Type Achievement Dropdown -->
+              <div class="form-group">
+                <label>Type Achievement <span class="text-danger">*</span></label>
+                <select name="id_type_achievement" id="edit_type" class="form-control">
+                  <option value="" selected disabled>Choose Type Achievement</option>
+                  {{range $type := .types}}
+                  <option value="{{$type.ID}}">{{$type.Type}}</option>
+                  {{end}}
+                </select>
+                <div class="invalid-feedback" id="err-edit_type"></div>
+              </div>
+              
+              <!-- Date -->
+              <div class="form-group">
+                <label>Date <span class="text-danger">*</span></label>
+                <input type="date" name="date" id="edit_date" class="form-control">
+                <div class="invalid-feedback" id="err-edit_date"></div>
+              </div>
+              
+              <!-- Title -->
+              <div class="form-group">
+                <label>Title <span class="text-danger">*</span></label>
+                <input type="text" name="title" id="edit_title" class="form-control" 
+                       maxlength="150" placeholder="">
+                <div class="invalid-feedback" id="err-edit_title"></div>
+              </div>
+              
+              <!-- Description -->
+              <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" id="edit_desc" class="form-control" 
+                          rows="3"></textarea>
+              </div>
+              
+              <!-- Evidence Link -->
+              <div class="form-group">
+                <label>Evidence Link <span class="text-danger">*</span></label>
+                <input type="url" name="evidence_link" id="edit_evidence" 
+                       class="form-control">
+                <div class="invalid-feedback" id="err-edit_evidence"></div>
+              </div>
+            </div>
+            
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                <i class="fas fa-times mr-1"></i>Cancel
+              </button>
+              <button type="submit" class="btn btn-warning" id="btnUpdate">
+                <i class="fas fa-edit mr-1"></i> Edit
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -267,6 +355,7 @@
     <script src="/static/assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
     <script src="/static/assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
     <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Page Specific JS File -->
     <!-- <script src="/static/assets/js/page/modules-datatables.js"></script> -->
@@ -280,171 +369,207 @@
         });
       }
 
-      var date = document.getElementById("date");
-      if (date) {
-        var today = new Date();
-        var maxDate = today.toISOString().split("T")[0]; // Format YYYY-MM-DD
-        date.setAttribute("max", maxDate);
-      }
-
-      // Validation helper
+      $(document).ready(function() {
+      // ============ VALIDATION HELPERS ============
       function setErr(id, msg) {
-        var el = document.getElementById(id);
-        var err = document.getElementById("err-" + id);
-        if (!el || !err) return;
-
+        var el = $('#' + id);
+        var err = $('#err-' + id);
         if (msg) {
-          el.classList.add("is-invalid");
-          err.textContent = msg;
+          el.addClass('is-invalid');
+          err.text(msg);
         } else {
-          el.classList.remove("is-invalid");
-          err.textContent = "";
+          el.removeClass('is-invalid');
+          err.text('');
         }
       }
 
-      // Main validation
-      function validate() {
+      function validateEditForm() {
         var errors = [];
-
-        // Employee
-        var employee = document.getElementById("employee");
-        var employeeVal = employee ? employee.value : "";
-        if (!employeeVal) {
-          errors.push("Please select employee");
-          setErr("employee", "Please select employee");
+        
+        // Type
+        var type = $('#edit_type').val();
+        if (!type) {
+          errors.push('Type Achievement required');
+          setErr('edit_type', 'Type Achievement required');
         } else {
-          setErr("employee", "");
+          setErr('edit_type', '');
         }
-
-        // Type Achievement
-        var typeAchievement = document.getElementById("type_achievement");
-        var typeAchievementVal = typeAchievement ? typeAchievement.value : "";
-        if (!typeAchievementVal) {
-          errors.push("Please select type achievement");
-          setErr("type_achievement", "Please select type achievement");
-        } else {
-          setErr("type_achievement", "");
-        }
-
+        
         // Date
-        var date = document.getElementById("date");
-        var dobVal = date ? date.value : "";
-        if (!dobVal) {
-          errors.push("Date is required");
-          setErr("date", "Date is required");
+        var date = $('#edit_date').val();
+        if (!date) {
+          errors.push('Date required');
+          setErr('edit_date', 'Date required');
         } else {
-          var dob = new Date(dobVal);
+          var dateObj = new Date(date);
           var today = new Date();
-          today.setHours(0, 0, 0, 0); // Reset time untuk comparison yang akurat
-
-          if (dob >= today) {
-            errors.push("Date must be before today");
-            setErr("date", "Date must be before today");
+          today.setHours(0, 0, 0, 0);
+          
+          if (dateObj > today) {
+            errors.push('Date cannot be in the future');
+            setErr('edit_date', 'Date cannot be in the future');
           } else {
-            var age = today.getFullYear() - dob.getFullYear();
-            var monthDiff = today.getMonth() - dob.getMonth();
-            if (
-              monthDiff < 0 ||
-              (monthDiff === 0 && today.getDate() < dob.getDate())
-            ) {
-              age--;
-            }
+            setErr('edit_date', '');
           }
         }
-
+        
         // Title
-        var title = document.getElementById("title");
-        var titleVal = title ? title.value.trim() : "";
-        if (!titleVal) {
-          errors.push("Title is required");
-          setErr("title", "Title is required");
+        var title = $('#edit_title').val().trim();
+        if (!title) {
+          errors.push('Title required');
+          setErr('edit_title', 'Title required');
         } else {
-          setErr("title", "");
+          setErr('edit_title', '');
         }
 
         // Description
-        var description = document.getElementById("description");
-        var descriptionVal = description ? description.value.trim() : "";
-        if (!descriptionVal) {
-          errors.push("Description is required");
-          setErr("description", "Description is required");
+        var desc = $('#edit_desc').val().trim();
+        if (!desc) {
+          errors.push('Description required');
+          setErr('edit_desc', 'Description required');
         } else {
-          setErr("description", "");
+          setErr('edit_desc', '');
         }
-
+        
         // Evidence Link
-        var evidenceLink = document.getElementById("evidence_link");
-        var evidenceLinkVal = evidenceLink ? evidenceLink.value.trim() : "";
-        if (!evidenceLinkVal) {
-          errors.push("Evidence Link is required");
-          setErr("evidence_link", "Evidence Link is required");
-        } else if (evidenceLinkVal && !isValidURL(evidenceLinkVal)) {
-          errors.push("Evidence Link must be a valid URL");
-          setErr("evidence_link", "Evidence Link must be a valid URL");
+        var evidence = $('#edit_evidence').val().trim();
+        if (!evidence) {
+          errors.push('Evidence Link required');
+          setErr('edit_evidence', 'Evidence Link required');
         } else {
-          setErr("evidence_link", "");
+          var urlPattern = /^https?:\/\/.+/i;
+          if (!urlPattern.test(evidence)) {
+            errors.push('Evidence Link must be a valid URL');
+            setErr('edit_evidence', 'Evidence Link must be a valid URL');
+          } else {
+            setErr('edit_evidence', '');
+          }
         }
-
+        
         return errors;
       }
 
-      // Attach validation
-      var form = document.getElementById("achForm");
-      if (form) {
-        var fieldsToValidate = [
-          "employee",
-          "type_achievement",
-          "date",
-          "title",
-          "description",
-          "evidence_link",
-        ];
+      // Real-time validation
+      $('#edit_type, #edit_date, #edit_title, #edit_evidence').on('change input blur', function() {
+        validateEditForm();
+      });
 
-        fieldsToValidate.forEach(function (id) {
-          var el = document.getElementById(id);
-          if (el) {
-            el.addEventListener("input", validate);
-            el.addEventListener("change", validate);
-          }
-        });
+      // ============ EDIT BUTTON: POPULATE MODAL ============
+      $('.edit-ach-btn').on('click', function() {
+        var btn = $(this);
+        
+        // Reset form
+        $('#editForm')[0].reset();
+        $('.is-invalid').removeClass('is-invalid');
+        $('.invalid-feedback').text('');
+        
+        // Populate data
+        $('#edit_id').val(btn.data('id'));
+        $('#edit_type').val(btn.data('type'));
+        $('#edit_date').val(btn.data('date'));
+        $('#edit_title').val(btn.data('title'));
+        $('#edit_desc').val(btn.data('desc'));
+        $('#edit_evidence').val(btn.data('evidence'));
+        
+        // Show modal
+        $('#editModal').modal('show');
+      });
 
-        form.addEventListener("submit", function (e) {
-          var errs = validate();
-          if (errs.length) {
-            e.preventDefault();
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              html: "There is an error",
-            });
-          }
-        });
-      }
-
-    
-      document.addEventListener("DOMContentLoaded", function () {
-        const forms = document.querySelectorAll(".form-delete-achievement");
-        forms.forEach(function (form) {
-          form.addEventListener("submit", function (e) {
-            e.preventDefault(); // blokir submit default
-
-            Swal.fire({
-              title: "Are you sure?",
-              text: "Data Achievement will deleted permanently",
-              icon: "warning",
-              showCancelButton: true,
-              confirmButtonColor: "#d33",
-              cancelButtonColor: "#6c757d",
-              confirmButtonText: "Yes, delete it!",
-              cancelButtonText: "Cancel",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                form.submit(); // submit beneran ke server
-              }
-            });
+      // ============ EDIT FORM SUBMIT ============
+      $('#editForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate
+        var errors = validateEditForm();
+        if (errors.length > 0) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            html: errors.join('<br>')
           });
+          return;
+        }
+        
+        var $btnUpdate = $('#btnUpdate');
+        $btnUpdate.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Updating...');
+        
+        $.ajax({
+          url: '/achievement/update',
+          method: 'POST',
+          data: $(this).serialize(),
+          success: function(response) {
+            if (response.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: response.message,
+                timer: 2000,
+                showConfirmButton: false
+              }).then(() => location.reload());
+            } else {
+              Swal.fire('Error!', response.error || 'Update failed', 'error');
+              $btnUpdate.prop('disabled', false).html('<i class="fas fa-save mr-1"></i>Update');
+            }
+          },
+          error: function(xhr) {
+            var msg = xhr.responseJSON?.error || 'Update failed!';
+            Swal.fire('Error!', msg, 'error');
+            $btnUpdate.prop('disabled', false).html('<i class="fas fa-save mr-1"></i>Update');
+          }
         });
       });
+
+      // ============ DELETE BUTTON ============
+      $('.delete-ach-btn').on('click', function() {
+        var id = $(this).data('id');
+        var title = $(this).data('title');
+        
+        Swal.fire({
+          title: 'Are you sure?',
+          html: `Data Achivement will deleted permanently`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: '<i class="fas fa-trash mr-1"></i>Yes, delete it!',
+          cancelButtonText: 'Cancel',
+          reverseButtons: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            $.ajax({
+              url: `/achievement/${id}/delete`,
+              method: 'POST',
+              success: function(response) {
+                if (response.success) {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted!',
+                    text: response.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                  }).then(() => {
+                    // ✅ Cek apakah ini row terakhir
+                    if (response.is_last_row || response.redirect === '/achievement') {
+                      // Redirect ke achievement list
+                      window.location.href = '/achievement';
+                    } else {
+                      // Reload halaman employee yang sama
+                      location.reload();
+                    }
+                  });
+                } else {
+                  Swal.fire('Error!', response.error, 'error');
+                }
+              },
+              error: function(xhr) {
+                var msg = xhr.responseJSON?.error || 'Delete failed!';
+                Swal.fire('Error!', msg, 'error');
+              }
+            });
+          }
+        });
+      });
+    });
     </script>
     <!-- Template JS File -->
     <script src="/static/assets/js/scripts.js"></script>

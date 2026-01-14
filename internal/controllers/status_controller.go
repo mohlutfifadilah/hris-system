@@ -32,36 +32,6 @@ func (dc *StatusController) Index(c *gin.Context) {
 		return
 	}
 
-	// // 2) Ambil row career lengkap dari DB
-	// var career models.Career
-	// if err := config.DB.
-	// 	Where("id = ?", employee.IDCareer).
-	// 	First(&career).Error; err != nil {
-	// 	// handle error (404, dll)
-	// 	c.String(http.StatusInternalServerError, "career not found")
-	// 	return
-	// }
-
-	// // 3) Ambil row career_history lengkap dari DB
-	// var career_history models.CareerHistory
-	// if err := config.DB.
-	// 	Where("id = ?", career.IDCareerHistory).
-	// 	First(&career_history).Error; err != nil {
-	// 	// handle error (404, dll)
-	// 	c.String(http.StatusInternalServerError, "career history not found")
-	// 	return
-	// }
-
-	// // 4) Ambil row department_history lengkap dari DB
-	// var department_history models.DepartmentHistory
-	// if err := config.DB.
-	// 	Where("id = ?", career_history.IDDepartment).
-	// 	First(&department_history).Error; err != nil {
-	// 	// handle error (404, dll)
-	// 	c.String(http.StatusInternalServerError, "department history not found")
-	// 	return
-	// }
-
 	var status []models.Status
 	if err := config.DB.Order("created_at desc").Find(&status).Error; err != nil {
 		c.String(http.StatusInternalServerError, "Error: %v", err)
@@ -87,11 +57,25 @@ func (dc *StatusController) Index(c *gin.Context) {
 
 // GET /status/create
 func (dc *StatusController) Create(c *gin.Context) {
+	// Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+
+	// 1) Ambil row employee lengkap dari DB
+	var employee models.Employee
+	if err := config.DB.
+		Where("id = ?", currentUser.ID).
+		First(&employee).Error; err != nil {
+		// handle error (404, dll)
+		c.String(http.StatusInternalServerError, "employee not found")
+		return
+	}
+
 	c.HTML(http.StatusOK, "status_add", gin.H{
 		"title":      "Add Status",
 		"activePage": "status",
 		"action":     "/status",
 		"method":     "POST",
+		"user":       employee, // seluruh row employee yang login (boleh nil)
 	})
 }
 
@@ -127,6 +111,19 @@ func (dc *StatusController) Store(c *gin.Context) {
 
 // GET /status/:id/status
 func (dc *StatusController) Edit(c *gin.Context) {
+	// Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+
+	// 1) Ambil row employee lengkap dari DB
+	var employee models.Employee
+	if err := config.DB.
+		Where("id = ?", currentUser.ID).
+		First(&employee).Error; err != nil {
+		// handle error (404, dll)
+		c.String(http.StatusInternalServerError, "employee not found")
+		return
+	}
+
 	id := c.Param("id")
 
 	var status models.Status
@@ -142,6 +139,7 @@ func (dc *StatusController) Edit(c *gin.Context) {
 		"action":     "/status/" + id,
 		"method":     "POST",
 		"isEdit":     true,
+		"user":       employee, // seluruh row employee yang login (boleh nil)
 	})
 }
 

@@ -57,11 +57,26 @@ func (dc *TypeAchievement) Index(c *gin.Context) {
 
 // GET /typeAchievement/create
 func (dc *TypeAchievement) Create(c *gin.Context) {
+
+	// Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+
+	// 1) Ambil row employee lengkap dari DB
+	var employee models.Employee
+	if err := config.DB.
+		Where("id = ?", currentUser.ID).
+		First(&employee).Error; err != nil {
+		// handle error (404, dll)
+		c.String(http.StatusInternalServerError, "employee not found")
+		return
+	}
+
 	c.HTML(http.StatusOK, "typeAchievement_add", gin.H{
 		"title":      "Add Type Achievement",
 		"activePage": "typeAchievement",
 		"action":     "/typeAchievement",
 		"method":     "POST",
+		"user":       employee, // seluruh row employee yang login (boleh nil)
 	})
 }
 
@@ -97,6 +112,18 @@ func (dc *TypeAchievement) Store(c *gin.Context) {
 
 // GET /typeAchievement/:id/status
 func (dc *TypeAchievement) Edit(c *gin.Context) {
+	// Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+
+	// 1) Ambil row employee lengkap dari DB
+	var employee models.Employee
+	if err := config.DB.
+		Where("id = ?", currentUser.ID).
+		First(&employee).Error; err != nil {
+		// handle error (404, dll)
+		c.String(http.StatusInternalServerError, "employee not found")
+		return
+	}
 	id := c.Param("id")
 
 	var typeAchievement models.TypeAchievement
@@ -112,6 +139,7 @@ func (dc *TypeAchievement) Edit(c *gin.Context) {
 		"action":     "/typeAchievement/" + id,
 		"method":     "POST",
 		"isEdit":     true,
+		"user":       employee, // seluruh row employee yang login (boleh nil)
 	})
 }
 

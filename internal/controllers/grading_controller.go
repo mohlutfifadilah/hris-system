@@ -32,36 +32,6 @@ func (dc *GradingController) Index(c *gin.Context) {
 		return
 	}
 
-	// // 2) Ambil row career lengkap dari DB
-	// var career models.Career
-	// if err := config.DB.
-	// 	Where("id = ?", employee.IDCareer).
-	// 	First(&career).Error; err != nil {
-	// 	// handle error (404, dll)
-	// 	c.String(http.StatusInternalServerError, "career not found")
-	// 	return
-	// }
-
-	// // 3) Ambil row career_history lengkap dari DB
-	// var career_history models.CareerHistory
-	// if err := config.DB.
-	// 	Where("id = ?", career.IDCareerHistory).
-	// 	First(&career_history).Error; err != nil {
-	// 	// handle error (404, dll)
-	// 	c.String(http.StatusInternalServerError, "career history not found")
-	// 	return
-	// }
-
-	// // 4) Ambil row department_history lengkap dari DB
-	// var department_history models.DepartmentHistory
-	// if err := config.DB.
-	// 	Where("id = ?", career_history.IDDepartment).
-	// 	First(&department_history).Error; err != nil {
-	// 	// handle error (404, dll)
-	// 	c.String(http.StatusInternalServerError, "department history not found")
-	// 	return
-	// }
-
 	var grading []models.Grading
 	if err := config.DB.Order("created_at desc").Find(&grading).Error; err != nil {
 		c.String(http.StatusInternalServerError, "Error: %v", err)
@@ -87,11 +57,25 @@ func (dc *GradingController) Index(c *gin.Context) {
 
 // GET /grading/create
 func (dc *GradingController) Create(c *gin.Context) {
+	// Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+
+	// 1) Ambil row employee lengkap dari DB
+	var employee models.Employee
+	if err := config.DB.
+		Where("id = ?", currentUser.ID).
+		First(&employee).Error; err != nil {
+		// handle error (404, dll)
+		c.String(http.StatusInternalServerError, "employee not found")
+		return
+	}
+
 	c.HTML(http.StatusOK, "grading_add", gin.H{
 		"title":      "Add Grading",
 		"activePage": "grading",
 		"action":     "/grading",
 		"method":     "POST",
+		"user":       employee, // seluruh row employee yang login (boleh nil)
 	})
 }
 
@@ -127,6 +111,19 @@ func (dc *GradingController) Store(c *gin.Context) {
 
 // GET /grading/:id/grading
 func (dc *GradingController) Edit(c *gin.Context) {
+	// Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+
+	// 1) Ambil row employee lengkap dari DB
+	var employee models.Employee
+	if err := config.DB.
+		Where("id = ?", currentUser.ID).
+		First(&employee).Error; err != nil {
+		// handle error (404, dll)
+		c.String(http.StatusInternalServerError, "employee not found")
+		return
+	}
+
 	id := c.Param("id")
 
 	var grading models.Grading
@@ -142,6 +139,7 @@ func (dc *GradingController) Edit(c *gin.Context) {
 		"action":     "/grading/" + id,
 		"method":     "POST",
 		"isEdit":     true,
+		"user":       employee, // seluruh row employee yang login (boleh nil)
 	})
 }
 

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"sort"
@@ -101,6 +100,18 @@ func (dc *AchievementController) Index(c *gin.Context) {
 // GET /achievement/create
 func (dc *AchievementController) Create(c *gin.Context) {
 
+	// Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+
+	var employee models.Employee
+	if err := config.DB.
+		Where("id = ?", currentUser.ID).
+		First(&employee).Error; err != nil {
+		// handle error (404, dll)
+		c.String(http.StatusInternalServerError, "employee not found")
+		return
+	}
+
 	var employees []models.Employee
 	if err := config.DB.Order("created_at desc").Find(&employees).Error; err != nil {
 		c.String(http.StatusInternalServerError, "Error: %v", err)
@@ -122,11 +133,13 @@ func (dc *AchievementController) Create(c *gin.Context) {
 		"typeAchievement":     typeAchievement,
 		"action":     "/achievement",
 		"method":     "POST",
+		"user":       employee, // seluruh row employee yang login (boleh nil)
 	})
 }
 
 // POST /achievement
 func (dc *AchievementController) Store(c *gin.Context) {
+	
     form := map[string]string{
         "employee":      c.PostForm("employee"),
         "type_achievement":      c.PostForm("type_achievement"),
@@ -232,29 +245,30 @@ type AchievementByType struct {
 
 // Get show/{id}/achievement
 func (dc *AchievementController) Show(c *gin.Context) {
+	// Ambil user dari session (helper, tanpa middleware)
+	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+
+	var employe models.Employee
+	if err := config.DB.
+		Where("id = ?", currentUser.ID).
+		First(&employe).Error; err != nil {
+		// handle error (404, dll)
+		c.String(http.StatusInternalServerError, "employee not found")
+		return
+	}
+	
 	id := c.Param("id")
 
-	var achievement models.Achievement
-	if err := config.DB.First(&achievement, "id = ?", id).Error; err != nil {
-		c.String(http.StatusNotFound, "Achievement not found")
-		return
-	}
 
 	var employee models.Employee
-	if err := config.DB.First(&employee, "id = ?", achievement.IDEmployee).Error; err != nil {
+	if err := config.DB.First(&employee, "id = ?", id).Error; err != nil {
 		c.String(http.StatusNotFound, "Employee not found")
-		return
-	}
-
-	var typeAchievement models.TypeAchievement
-	if err := config.DB.First(&typeAchievement, "id = ?", achievement.IDTypeAchievement).Error; err != nil {
-		c.String(http.StatusNotFound, "Type Achievement not found")
 		return
 	}
 
 	// 1. Ambil SEMUA achievements employee (NO YEAR FILTER dulu)
     var allAchievements []models.Achievement
-    config.DB.Where("id_employee = ?", achievement.IDEmployee).
+    config.DB.Where("id_employee = ?", id).
         Order("date ASC").
         Find(&allAchievements)
 
@@ -317,14 +331,13 @@ func (dc *AchievementController) Show(c *gin.Context) {
     config.DB.Order("type ASC").Find(&types)
 
     c.HTML(http.StatusOK, "achievement_info", gin.H{
-        "title":           "Achievement Timeline",
+        "title":           "Achievement Info",
         "activePage":      "achievement",
-        "achievement":     achievement,
         "employee":        employee,
-        "typeAchievement": typeAchievement,
         "yearGroups":      yearGroups,
         "types":      types,
         "allAchievements": allAchievements, // Backup untuk timeline dots
+		"user":       employe, // seluruh row employee yang login (boleh nil)
     })
 }
 
@@ -332,62 +345,170 @@ func (dc *AchievementController) Show(c *gin.Context) {
 func (dc *AchievementController) Update(c *gin.Context) {
 	id := c.Param("id")
 
-	var achievement models.Achievement
-	if err := config.DB.First(&achievement, "id = ?", id).Error; err != nil {
-		c.String(http.StatusNotFound, "Achievement not found")
-		return
+	var input struct {
+		ID                string `form:"id" binding:"required"`
+		IDEmployee        string `form:"id_employee" binding:"required"`
+		IDTypeAchievement string `form:"id_type_achievement" binding:"required"`
+		Date              string `form:"date" binding:"required"`
+		Title             string `form:"title" binding:"required"`
+		Description       string `form:"description"`
+		EvidenceLink      string `form:"evidence_link" binding:"required"`
 	}
 	
-	var input struct {
-		Department string `form:"department" binding:"required"`
-	}
-
+	// Bind form data
 	if err := c.ShouldBind(&input); err != nil {
-		c.HTML(http.StatusBadRequest, "department_edit", gin.H{
-			"title":      "Edit Department",
-			"activePage": "department",
-			"error":      "Name department required",
-			"data":       dept,
-			"action":     "/departments/" + id,
-			"method":     "POST",
-			"isEdit":     true,
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   err.Error(),
 		})
 		return
 	}
 
-	dept.Department = input.Department
-
-	if err := config.DB.Save(&dept).Error; err != nil {
-		c.String(http.StatusInternalServerError, "Gagal mengupdate: %v", err)
+	// Parse achievement ID
+	achID, err := uuid.Parse(input.ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid achievement ID",
+		})
 		return
 	}
 
-	// set flash
-	session := sessions.Default(c)
-	session.Set("flash_success", "Department success edited")
-	_ = session.Save()
+	// Parse employee ID
+	empID, err := uuid.Parse(input.IDEmployee)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid employee ID",
+		})
+		return
+	}
 
-	c.Redirect(http.StatusFound, "/department")
+	// Parse type achievement ID
+	typeID, err := uuid.Parse(input.IDTypeAchievement)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid type achievement ID",
+		})
+		return
+	}
+
+	// Parse date (format: YYYY-MM-DD dari input type="date")
+	date, err := time.Parse("2006-01-02", input.Date)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid date format",
+		})
+		return
+	}
+
+	// Validate: date tidak boleh di masa depan
+	if date.After(time.Now()) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Date cannot be in the future",
+		})
+		return
+	}
+
+	// Cari achievement yang akan diupdate
+	var achievement models.Achievement
+	if err := config.DB.First(&achievement, "id = ?", achID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error":   "Achievement not found",
+		})
+		return
+	}
+
+	// Update semua fields
+	achievement.IDEmployee = &empID
+	achievement.IDTypeAchievement = &typeID
+	achievement.Date = date
+	achievement.Title = input.Title
+	achievement.Description = input.Description
+	achievement.EvidenceLink = input.EvidenceLink
+
+	// Save ke database
+	if err := config.DB.Save(&achievement).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to update achievement: " + err.Error(),
+		})
+		return
+	}
+
+	// Success response (untuk AJAX)
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Achievement success edited",
+		"data":    achievement,
+	})
+
+	c.Redirect(http.StatusFound, "/achievement/"+id+"/show")
 }
 
-func (dc *AchievementController) Delete(c *gin.Context) {
+// DELETE /achievement/delete/:id - Delete achievement via AJAX
+func (ac *AchievementController) Delete(c *gin.Context) {
 	id := c.Param("id")
 
-	var dept models.Department
-	if err := config.DB.First(&dept, "id = ?", id).Error; err != nil {
-		c.String(http.StatusNotFound, "Department not found")
+	// Parse UUID
+	achID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid achievement ID",
+		})
 		return
 	}
 
-	if err := config.DB.Delete(&dept).Error; err != nil {
-		c.String(http.StatusInternalServerError, "Gagal menghapus: %v", err)
+	// Cek apakah achievement exists
+	var achievement models.Achievement
+	if err := config.DB.First(&achievement, "id = ?", achID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"error":   "Achievement not found",
+		})
 		return
 	}
 
-	// set flash
-	session := sessions.Default(c)
-	session.Set("flash_success", "Department success deleted")
-	_ = session.Save()
+	// Simpan employee ID sebelum delete
+	employeeID := achievement.IDEmployee
 
-	c.Redirect(http.StatusFound, "/department")
+	// Cek berapa total achievement untuk employee ini SEBELUM delete
+	var totalCount int64
+	config.DB.Model(&models.Achievement{}).
+		Where("id_employee = ?", employeeID).
+		Count(&totalCount)
+
+	// Delete dari database
+	if err := config.DB.Delete(&achievement).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "Failed to delete achievement: " + err.Error(),
+		})
+		return
+	}
+
+	// Jika ini row terakhir (count = 1 sebelum delete, jadi 0 setelah delete)
+	if totalCount == 1 {
+		c.JSON(http.StatusOK, gin.H{
+			"success":       true,
+			"message":       "Achievement success deleted",
+			"redirect":      "/achievement", // ✅ Flag untuk redirect
+			"is_last_row":   true,
+		})
+		return
+	}
+
+	// Jika masih ada achievement lain untuk employee ini
+	c.JSON(http.StatusOK, gin.H{
+		"success":     true,
+		"message":     "Achievement success deleted",
+		"redirect":    "",  // Kosong = reload halaman sama
+		"is_last_row": false,
+	})
 }
+
