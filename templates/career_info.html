@@ -1,0 +1,503 @@
+{{ define "career_info" }}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no"
+      name="viewport"
+    />
+    <title>{{ .title }} | HRIS System</title>
+
+    <!-- General CSS Files -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/bootstrap/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/fontawesome/css/all.min.css"
+    />
+
+    <!-- CSS Libraries -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/jqvmap/dist/jqvmap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons-wind.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/summernote/summernote-bs4.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/datatables.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css"
+    />
+
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="/static/assets/css/style.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <!-- Start GA -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "UA-94034622-3");
+    </script>
+    <!-- /END GA -->
+
+    <style>
+      .timeline-container {
+        width: 100% !important;
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+      }
+      .cd-horizontal-timeline .events-wrapper {
+        margin: 0 80px !important;
+      }
+      @media (max-width: 768px) {
+        .cd-horizontal-timeline .timeline {
+          height: 100px !important;
+        }
+        .cd-horizontal-timeline .events a {
+          font-size: 1rem !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="main-wrapper main-wrapper-1">
+        <div class="navbar-bg"></div>
+
+        <!-- Header -->
+        {{ template "header" . }}
+
+        <!-- Sidebar -->
+        {{ template "sidebar" . }}
+
+        <!-- Main Content -->
+        <div class="main-content">
+          <section class="section">
+            <div class="section-header">
+              <h1>Career</h1>
+              <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active">
+                  <a href="/career">Career</a>
+                </div>
+                <div class="breadcrumb-item">Data Career</div>
+                <div class="breadcrumb-item">Info Career</div>
+              </div>
+            </div>
+            <div class="section-body">
+              <div class="row">
+                <!-- LEFT -->
+                <div class="col-12 col-md-12 col-sm-12">
+                  <!-- Career -->
+                  <div class="card">
+                    <div class="card-header"><h4>Info Career</h4></div>
+                    <div class="card-body">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-4"
+                      >
+                        <!-- Left: Employee Info -->
+                        <dl class="mb-0">
+                          <dt>Employee</dt>
+                          <dd class="mb-0">{{ .employee.Name }}</dd>
+                        </dl>
+
+                        <!-- Right: Add Button -->
+                        <div>
+                          <a
+                            href="/achievement/generateExcel/{{ .employee.ID }}"
+                            class="btn btn-success"
+                          >
+                            <i class="fas fa-file-excel"></i> Excel
+                          </a>
+                          <a
+                            href="/achievement/generatePdf/{{ .employee.ID }}"
+                            class="btn btn-danger"
+                          >
+                            <i class="fas fa-file-pdf"></i> PDF
+                          </a>
+                        </div>
+                      </div>
+
+                      {{range .yearGroups}}
+                      <div class="section-body">
+                        <h2 class="section-title">Year: {{.Year}}</h2>
+                        <div class="activities" style="width: 100%; display: block;">
+                          {{range $index, $career := .Careers}}
+                          <div class="activity" style="width: 100%;">
+                            <div class="activity-icon bg-primary text-white shadow-primary">
+                              <i class="fas fa-briefcase"></i>
+                            </div>
+                            <div class="activity-detail mt-0 pt-0" style="flex: 1;">
+                              <div class="mb-2">
+                                <span class="text-job text-primary">{{$career.EffectiveDate.Format "02 January 2006"}}</span>
+                                <span class="bullet"></span>
+                                {{if $career.IDStatus}}
+                                <span class="badge badge-info">{{index $.statusNames $career.IDStatus.String}}</span>
+                                {{end}}
+                                <!-- Dropdown Three Dots -->
+                                <div class="float-right dropdown">
+                                  <a href="#" data-toggle="dropdown" class="text-muted">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                  </a>
+                                  <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-title">Options</div>
+                                    {{if $career.EvidenceLink}}
+                                    <a href="{{$career.EvidenceLink}}" target="_blank" class="dropdown-item has-icon">
+                                      <i class="fas fa-external-link-alt"></i> View Evidence
+                                    </a>
+                                    {{end}}
+                                    <a href="/career/edit/{{$career.ID}}" class="dropdown-item has-icon">
+                                      <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a href="#" class="dropdown-item has-icon text-danger" 
+                                      data-confirm="Are you sure?|This action cannot be undone. Do you want to continue?" 
+                                      data-confirm-text-yes="Yes, Delete"
+                                      onclick="deleteCareer('{{$career.ID}}'); return false;">
+                                      <i class="fas fa-trash-alt"></i> Delete
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <p class="mb-2"><strong>{{$career.Position}}</strong></p>
+
+                              <div class="row mt-2">
+                                {{if $career.IDGrading}}
+                                <div class="col-md-4">
+                                  <small class="text-muted">
+                                    <i class="fas fa-layer-group"></i> Grading:
+                                    <strong>{{index $.gradingNames $career.IDGrading.String}}</strong>
+                                  </small>
+                                </div>
+                                {{end}}
+                                {{if $career.IDDepartment}}
+                                <div class="col-md-4">
+                                  <small class="text-muted">
+                                    <i class="fas fa-building"></i> Department:
+                                    <strong>{{index $.departmentNames $career.IDDepartment.String}}</strong>
+                                  </small>
+                                </div>
+                                {{end}}
+                              </div>
+                            </div>
+                          </div>
+                          {{end}}
+                        </div>
+                      </div>
+                      {{end}}
+
+                      {{if eq (len .yearGroups) 0}}
+                      <div class="empty-state" data-height="400">
+                        <div class="empty-state-icon">
+                          <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h2>No Career History</h2>
+                        <p class="lead">This employee doesn't have any career history yet.</p>
+                      </div>
+                      {{end}}
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-body text-right">
+              <a href="/achievement" class="btn btn-secondary">Back</a>
+            </div>
+          </section>
+        </div>
+
+        <!-- Footer -->
+        {{ template "footer" . }}
+      </div>
+    </div>
+
+    <!-- General JS Scripts -->
+    <script src="/static/assets/modules/jquery.min.js"></script>
+    <script src="/static/assets/modules/popper.js"></script>
+    <script src="/static/assets/modules/tooltip.js"></script>
+    <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
+    <script src="/static/assets/modules/moment.min.js"></script>
+    <script src="/static/assets/js/stisla.js"></script>
+
+    <!-- JS Libraies -->
+    <script src="/static/assets/modules/simple-weather/jquery.simpleWeather.min.js"></script>
+    <script src="/static/assets/modules/chart.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/jquery.vmap.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+    <script src="/static/assets/modules/summernote/summernote-bs4.js"></script>
+    <script src="/static/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+
+    <!-- Page Specific JS File -->
+    <script src="/static/assets/js/page/index-0.js"></script>
+
+    <script src="/static/assets/modules/datatables/datatables.min.js"></script>
+    <script src="/static/assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
+    <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Page Specific JS File -->
+    <!-- <script src="/static/assets/js/page/modules-datatables.js"></script> -->
+    <script>
+      // Show SweetAlert if error exists
+      if (window.__SWAL_ERROR__) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: window.__SWAL_ERROR__,
+        });
+      }
+
+      $(document).ready(function () {
+        // ============ VALIDATION HELPERS ============
+        function setErr(id, msg) {
+          var el = $("#" + id);
+          var err = $("#err-" + id);
+          if (msg) {
+            el.addClass("is-invalid");
+            err.text(msg);
+          } else {
+            el.removeClass("is-invalid");
+            err.text("");
+          }
+        }
+
+        function validateEditForm() {
+          var errors = [];
+
+          // Type
+          var type = $("#edit_type").val();
+          if (!type) {
+            errors.push("Type Achievement required");
+            setErr("edit_type", "Type Achievement required");
+          } else {
+            setErr("edit_type", "");
+          }
+
+          // Date
+          var date = $("#edit_date").val();
+          if (!date) {
+            errors.push("Date required");
+            setErr("edit_date", "Date required");
+          } else {
+            var dateObj = new Date(date);
+            var today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (dateObj > today) {
+              errors.push("Date cannot be in the future");
+              setErr("edit_date", "Date cannot be in the future");
+            } else {
+              setErr("edit_date", "");
+            }
+          }
+
+          // Title
+          var title = $("#edit_title").val().trim();
+          if (!title) {
+            errors.push("Title required");
+            setErr("edit_title", "Title required");
+          } else {
+            setErr("edit_title", "");
+          }
+
+          // Description
+          var desc = $("#edit_desc").val().trim();
+          if (!desc) {
+            errors.push("Description required");
+            setErr("edit_desc", "Description required");
+          } else {
+            setErr("edit_desc", "");
+          }
+
+          // Evidence Link
+          var evidence = $("#edit_evidence").val().trim();
+          if (!evidence) {
+            errors.push("Evidence Link required");
+            setErr("edit_evidence", "Evidence Link required");
+          } else {
+            var urlPattern = /^https?:\/\/.+/i;
+            if (!urlPattern.test(evidence)) {
+              errors.push("Evidence Link must be a valid URL");
+              setErr("edit_evidence", "Evidence Link must be a valid URL");
+            } else {
+              setErr("edit_evidence", "");
+            }
+          }
+
+          return errors;
+        }
+
+        // Real-time validation
+        $("#edit_type, #edit_date, #edit_title, #edit_evidence").on(
+          "change input blur",
+          function () {
+            validateEditForm();
+          }
+        );
+
+        // ============ EDIT BUTTON: POPULATE MODAL ============
+        $(".edit-ach-btn").on("click", function () {
+          var btn = $(this);
+
+          // Reset form
+          $("#editForm")[0].reset();
+          $(".is-invalid").removeClass("is-invalid");
+          $(".invalid-feedback").text("");
+
+          // Populate data
+          $("#edit_id").val(btn.data("id"));
+          $("#edit_type").val(btn.data("type"));
+          $("#edit_date").val(btn.data("date"));
+          $("#edit_title").val(btn.data("title"));
+          $("#edit_desc").val(btn.data("desc"));
+          $("#edit_evidence").val(btn.data("evidence"));
+
+          // Show modal
+          $("#editModal").modal("show");
+        });
+
+        // ============ EDIT FORM SUBMIT ============
+        $("#editForm").on("submit", function (e) {
+          e.preventDefault();
+
+          // Validate
+          var errors = validateEditForm();
+          if (errors.length > 0) {
+            Swal.fire({
+              icon: "error",
+              title: "Validation Error",
+              html: errors.join("<br>"),
+            });
+            return;
+          }
+
+          var $btnUpdate = $("#btnUpdate");
+          $btnUpdate
+            .prop("disabled", true)
+            .html('<i class="fas fa-spinner fa-spin mr-1"></i>Updating...');
+
+          $.ajax({
+            url: "/achievement/update",
+            method: "POST",
+            data: $(this).serialize(),
+            success: function (response) {
+              if (response.success) {
+                Swal.fire({
+                  icon: "success",
+                  title: "Success!",
+                  text: response.message,
+                  timer: 2000,
+                  showConfirmButton: false,
+                }).then(() => location.reload());
+              } else {
+                Swal.fire("Error!", response.error || "Update failed", "error");
+                $btnUpdate
+                  .prop("disabled", false)
+                  .html('<i class="fas fa-save mr-1"></i>Update');
+              }
+            },
+            error: function (xhr) {
+              var msg = xhr.responseJSON?.error || "Update failed!";
+              Swal.fire("Error!", msg, "error");
+              $btnUpdate
+                .prop("disabled", false)
+                .html('<i class="fas fa-save mr-1"></i>Update');
+            },
+          });
+        });
+
+        // ============ DELETE BUTTON ============
+        $(".delete-ach-btn").on("click", function () {
+          var id = $(this).data("id");
+          var title = $(this).data("title");
+
+          Swal.fire({
+            title: "Are you sure?",
+            html: `Data Achivement will deleted permanently`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText:
+              '<i class="fas fa-trash mr-1"></i>Yes, delete it!',
+            cancelButtonText: "Cancel",
+            reverseButtons: true,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              $.ajax({
+                url: `/achievement/${id}/delete`,
+                method: "POST",
+                success: function (response) {
+                  if (response.success) {
+                    Swal.fire({
+                      icon: "success",
+                      title: "Deleted!",
+                      text: response.message,
+                      timer: 2000,
+                      showConfirmButton: false,
+                    }).then(() => {
+                      // ✅ Cek apakah ini row terakhir
+                      if (
+                        response.is_last_row ||
+                        response.redirect === "/achievement"
+                      ) {
+                        // Redirect ke achievement list
+                        window.location.href = "/achievement";
+                      } else {
+                        // Reload halaman employee yang sama
+                        location.reload();
+                      }
+                    });
+                  } else {
+                    Swal.fire("Error!", response.error, "error");
+                  }
+                },
+                error: function (xhr) {
+                  var msg = xhr.responseJSON?.error || "Delete failed!";
+                  Swal.fire("Error!", msg, "error");
+                },
+              });
+            }
+          });
+        });
+      });
+    </script>
+    <!-- Template JS File -->
+    <script src="/static/assets/js/scripts.js"></script>
+    <script src="/static/assets/js/custom.js"></script>
+  </body>
+</html>
+{{ end }}

@@ -1,0 +1,363 @@
+{{ define "career_add" }}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport"/>
+    <title>{{ .title }} | HRIS System</title>
+
+    <!-- General CSS Files -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/bootstrap/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/fontawesome/css/all.min.css"
+    />
+
+    <!-- CSS Libraries -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/jqvmap/dist/jqvmap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons-wind.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/summernote/summernote-bs4.css"
+    />
+
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/datatables.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css"
+    />
+
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="/static/assets/css/style.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <!-- Start GA -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "UA-94034622-3");
+    </script>
+    <!-- /END GA -->
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="main-wrapper main-wrapper-1">
+        <div class="navbar-bg"></div>
+
+        <!-- Header -->
+        {{ template "header" . }}
+
+        <!-- Sidebar -->
+        {{ template "sidebar" . }}
+
+        <!-- Main Content -->
+        <div class="main-content">
+          <section class="section">
+            <div class="section-header">
+              <h1>Career</h1>
+              <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active"><a href="/career">Career</a></div>
+                <div class="breadcrumb-item">Data Career</div>
+                <div class="breadcrumb-item">Add Career</div>
+              </div>
+            </div>
+            <form id="carForm" action="{{ .action }}" method="POST">
+              <div class="section-body">
+                <div class="row">
+  
+                  <!-- LEFT -->
+                  <div class="col-12 col-md-12 col-sm-12">
+
+                    <!-- Career -->
+                    <div class="card">
+                      <div class="card-header"><h4>Career</h4></div>
+                      <div class="card-body">
+  
+                        <div class="form-group">
+                          <label>Employee <span class="text-danger">*</span></label>
+                          <select id="employee" name="employee" class="form-control">
+                            <option value="" disabled {{ selected (old .form "employee") "" }}>Select Employee</option>
+                            {{ range $i, $emp := .employees }}
+                              <option value="{{ $emp.ID.String }}" {{ selected (old $.form "employee") ($emp.ID.String) }}>
+                                {{ $emp.Name }}
+                              </option>
+                            {{ end }}
+                          </select>
+                          <div class="invalid-feedback" id="err-employee">{{ err .errors "employee" }}</div>
+                        </div>
+  
+                        <div class="form-group">
+                          <label>Status <span class="text-danger">*</span></label>
+                          <select id="status" name="status" class="form-control">
+                            <option value="" disabled {{ selected (old .form "status") "" }}>Select Status</option>
+                            {{ range $i, $type := .status }}
+                              <option value="{{ $type.ID.String }}" {{ selected (old $.form "status") ($type.ID.String) }}>
+                                {{ $type.Status }}
+                              </option>
+                            {{ end }}
+                          </select>
+                          <div class="invalid-feedback" id="err-status">{{ err .errors "status" }}</div>
+                        </div>
+
+                        <div class="form-group">
+                          <label>Grading <span class="text-danger">*</span></label>
+                          <select id="grading" name="grading" class="form-control">
+                            <option value="" disabled {{ selected (old .form "grading") "" }}>Select Grading</option>
+                            {{ range $i, $type := .grading }}
+                              <option value="{{ $type.ID.String }}" {{ selected (old $.form "grading") ($type.ID.String) }}>
+                                {{ $type.Grading }}
+                              </option>
+                            {{ end }}
+                          </select>
+                          <div class="invalid-feedback" id="err-grading">{{ err .errors "grading" }}</div>
+                        </div>
+
+                        <div class="form-group">
+                          <label>Department <span class="text-danger">*</span></label>
+                          <select id="department" name="department" class="form-control">
+                            <option value="" disabled {{ selected (old .form "department") "" }}>Select Department</option>
+                            {{ range $i, $type := .department }}
+                              <option value="{{ $type.ID.String }}" {{ selected (old $.form "department") ($type.ID.String) }}>
+                                {{ $type.Department }}
+                              </option>
+                            {{ end }}
+                          </select>
+                          <div class="invalid-feedback" id="err-department">{{ err .errors "department" }}</div>
+                        </div>
+
+                        <div class="form-group">
+                          <label>Effective Date <span class="text-danger">*</span></label>
+                          <input id="effectivedate" type="date" name="effectivedate" class="form-control"
+                            value="{{ old .form "effectivedate" }}">
+                          <div class="invalid-feedback" id="err-effectivedate">{{ err .errors "effectivedate" }}</div>
+                        </div>
+                        
+                        <div class="form-group">
+                          <label>Position <span class="text-danger">*</span></label>
+                          <input id="position" type="text" name="position" class="form-control"
+                            value="{{ old .form "position" }}">
+                          <div class="invalid-feedback" id="err-position">{{ err .errors "position" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>Evidence Link <span class="text-danger">*</span></label>
+                          <input id="evidence_link" type="text" name="evidence_link" class="form-control"
+                            value="{{ old .form "evidence_link" }}">
+                          <div class="invalid-feedback" id="err-evidence_link">{{ err .errors "evidence_link" }}</div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              <div class="card-body text-right">
+                <a href="/career" class="btn btn-secondary">Back</a>
+                <button type="submit" class="btn btn-success">Add</button>
+              </div>
+  
+            </form>
+          </section>
+        </div>
+
+        <!-- Footer -->
+        {{ template "footer" . }}
+      </div>
+    </div>
+
+    <!-- General JS Scripts -->
+    <script src="/static/assets/modules/jquery.min.js"></script>
+    <script src="/static/assets/modules/popper.js"></script>
+    <script src="/static/assets/modules/tooltip.js"></script>
+    <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
+    <script src="/static/assets/modules/moment.min.js"></script>
+    <script src="/static/assets/js/stisla.js"></script>
+
+    <!-- JS Libraies -->
+    <script src="/static/assets/modules/simple-weather/jquery.simpleWeather.min.js"></script>
+    <script src="/static/assets/modules/chart.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/jquery.vmap.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+    <script src="/static/assets/modules/summernote/summernote-bs4.js"></script>
+    <script src="/static/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+
+    <!-- Page Specific JS File -->
+    <script src="/static/assets/js/page/index-0.js"></script>
+
+    <script src="/static/assets/modules/datatables/datatables.min.js"></script>
+    <script src="/static/assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
+    <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
+
+    <!-- Page Specific JS File -->
+    <!-- <script src="/static/assets/js/page/modules-datatables.js"></script> -->
+    <script>
+      // Show SweetAlert if error exists
+    if (window.__SWAL_ERROR__) {
+      Swal.fire({ icon: 'error', title: 'Error', text: window.__SWAL_ERROR__ });
+    }
+
+    var date = document.getElementById('effectivedate');
+    if (date) {
+      var today = new Date();
+      var maxDate = today.toISOString().split('T')[0]; // Format YYYY-MM-DD
+      date.setAttribute('max', maxDate);
+    }
+
+    // Validation helper
+    function setErr(id, msg) {
+      var el = document.getElementById(id);
+      var err = document.getElementById('err-' + id);
+      if (!el || !err) return;
+  
+      if (msg) {
+        el.classList.add('is-invalid');
+        err.textContent = msg;
+      } else {
+        el.classList.remove('is-invalid');
+        err.textContent = '';
+      }
+    }
+
+    // Main validation
+    function validate() {
+      var errors = [];
+  
+      // Employee
+      var employee = document.getElementById('employee');
+      var employeeVal = employee ? employee.value : '';
+      if (!employeeVal) {
+        errors.push('Please select employee');
+        setErr('employee', 'Please select employee');
+      } else {
+        setErr('employee', '');
+      }
+
+      // Status
+      var status = document.getElementById('status');
+      var statusVal = status ? status.value : '';
+      if (!statusVal) {
+        errors.push('Please select status');
+        setErr('status', 'Please select status');
+      } else {
+        setErr('status', '');
+      }
+
+      // Grading
+      var grading = document.getElementById('grading');
+      var gradingVal = grading ? grading.value : '';
+      if (!gradingVal) {
+        errors.push('Please select grading');
+        setErr('grading', 'Please select grading');
+      } else {
+        setErr('grading', '');
+      }
+
+      // Department
+      var department = document.getElementById('department');
+      var departmentVal = department ? department.value : '';
+      if (!departmentVal) {
+        errors.push('Please select department');
+        setErr('department', 'Please select department');
+      } else {
+        setErr('department', '');
+      }
+      
+      // Effective Date
+      var date = document.getElementById('effectivedate');
+      var dobVal = date ? date.value : '';
+      if (!dobVal) {
+        errors.push('Effective Date is required');
+        setErr('effectivedate', 'Effective Date is required');
+      }
+
+      // Position
+      var position = document.getElementById('position');
+      var positionVal = position ? position.value.trim() : '';
+      if (!positionVal) {
+        errors.push('Position is required');
+        setErr('position', 'Position is required');
+      } else {
+        setErr('position', '');
+      }
+
+      // Evidence Link
+      var evidenceLink = document.getElementById('evidence_link');
+      var evidenceLinkVal = evidenceLink ? evidenceLink.value.trim() : '';
+      if (!evidenceLinkVal) {
+        errors.push('Evidence Link is required');
+        setErr('evidence_link', 'Evidence Link is required');
+      } else if (evidenceLinkVal && !isValidURL(evidenceLinkVal)) {
+        errors.push('Evidence Link must be a valid URL');
+        setErr('evidence_link', 'Evidence Link must be a valid URL');
+      } else {
+        setErr('evidence_link', '');
+      }
+      
+      return errors;
+    }
+  
+    // Attach validation
+    var form = document.getElementById('carForm');
+    if (form) {
+      var fieldsToValidate = [
+        'employee', 'status', 'grading', 'department', 'effectivedate', 'position', 'evidence_link'
+      ];
+  
+      fieldsToValidate.forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', validate);
+          el.addEventListener('change', validate);
+        }
+      });
+  
+      form.addEventListener('submit', function(e){
+        var errs = validate();
+        if (errs.length) {
+          e.preventDefault();
+          Swal.fire({
+            icon:'error',
+            title:'Error',
+            html:'There is an error' 
+          });
+        }
+      });
+    }
+    </script>
+    <!-- Template JS File -->
+    <script src="/static/assets/js/scripts.js"></script>
+    <script src="/static/assets/js/custom.js"></script>
+  </body>
+</html>
+{{ end }}

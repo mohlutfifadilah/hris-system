@@ -54,6 +54,7 @@ func main() {
 	EmployeeController := controllers.NewEmployeeController()
 	profileController := controllers.NewProfileController()
 	departmentController := controllers.NewDepartmentController()
+	careerController := controllers.NewCareerController()
 	gradingController := controllers.NewGradingController()
 	statusController := controllers.NewStatusController()
 	achievementController := controllers.NewAchievementController()
@@ -81,6 +82,16 @@ func main() {
 	r.GET("/profile", profileController.Index)
 	r.POST("/profile/upload-photo", profileController.UploadProfilePhoto)
 	r.DELETE("/profile/delete-photo", profileController.DeleteProfilePhoto)
+
+	// Career routes
+	r.GET("/career", careerController.Index)
+	r.GET("/career/create", careerController.Create)
+	r.POST("/career", careerController.Store)
+	r.GET("/career/:id/show", careerController.Show)
+	r.GET("/career/generateExcel/:employee_id", careerController.Excel)
+	r.GET("/career/generatePdf/:employee_id", careerController.Pdf)
+	r.POST("/career/:id", careerController.Update)
+	r.POST("/career/:id/delete", careerController.Delete)
 
 	// Department routes
 	r.GET("/department", departmentController.Index)
