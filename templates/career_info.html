@@ -175,16 +175,20 @@
                                       <i class="fas fa-external-link-alt"></i> View Evidence
                                     </a>
                                     {{end}}
-                                    <a href="/career/edit/{{$career.ID}}" class="dropdown-item has-icon">
+                                    <button type="button" class="dropdown-item has-icon edit-car-btn text-warning" data-id="{{$career.ID}}"
+                                    data-status="{{printf "%s" $career.IDStatus}}"
+                                    data-grading="{{printf "%s" $career.IDGrading}}"
+                                    data-department="{{printf "%s" $career.IDDepartment}}"
+                                    data-effectivedate="{{$career.EffectiveDate.Format "2006-01-02"}}"
+                                    data-position="{{$career.Position}}"
+                                    data-evidence="{{$career.EvidenceLink}}">
                                       <i class="fas fa-edit"></i> Edit
-                                    </a>
+                                    </button>
                                     <div class="dropdown-divider"></div>
-                                    <a href="#" class="dropdown-item has-icon text-danger" 
-                                      data-confirm="Are you sure?|This action cannot be undone. Do you want to continue?" 
-                                      data-confirm-text-yes="Yes, Delete"
-                                      onclick="deleteCareer('{{$career.ID}}'); return false;">
-                                      <i class="fas fa-trash-alt"></i> Delete
-                                    </a>
+                                    <button type="button" class="dropdown-item has-icon text-danger delete-car-btn" 
+                                            data-id="{{$career.ID}}">
+                                      <i class="fas fa-trash"></i>
+                                    </button>
                                   </div>
                                 </div>
                               </div>
@@ -232,13 +236,112 @@
               </div>
             </div>
             <div class="card-body text-right">
-              <a href="/achievement" class="btn btn-secondary">Back</a>
+              <a href="/career" class="btn btn-secondary">Back</a>
             </div>
           </section>
         </div>
 
         <!-- Footer -->
         {{ template "footer" . }}
+      </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-warning text-white">
+            <h5 class="modal-title">
+              Edit Career
+            </h5>
+            <button type="button" class="close text-white" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <form id="editForm">
+            <input type="hidden" id="edit_id" name="id">
+            
+            <!-- HIDDEN: ID Employee fixed dari achievement -->
+            <input type="hidden" name="id_employee" value="{{.employee.ID}}">
+            
+            <div class="modal-body">
+              <!-- Employee Name (Read-only) -->
+              <div class="form-group">
+                <label class="text-muted">Employee</label>
+                <div class="form-control-plaintext font-weight-bold">
+                  {{.employee.Name}}
+                </div>
+              </div>
+              
+              <!-- Status Dropdown -->
+              <div class="form-group">
+                <label>Status <span class="text-danger">*</span></label>
+                <select name="id_status" id="edit_status" class="form-control">
+                  <option value="" selected disabled>Select Status</option>
+                  {{range $status := .status}}
+                  <option value="{{$status.ID}}">{{$status.Status}}</option>
+                  {{end}}
+                </select>
+                <div class="invalid-feedback" id="err-edit_status"></div>
+              </div>
+
+              <!-- Grading Dropdown -->
+              <div class="form-group">
+                <label>Grading <span class="text-danger">*</span></label>
+                <select name="id_grading" id="edit_grading" class="form-control">
+                  <option value="" selected disabled>Select Grading</option>
+                  {{range $grading := .grading}}
+                  <option value="{{$grading.ID}}">{{$grading.Grading}}</option>
+                  {{end}}
+                </select>
+                <div class="invalid-feedback" id="err-edit_grading"></div>
+              </div>
+
+              <!-- Department Dropdown -->
+              <div class="form-group">
+                <label>Department <span class="text-danger">*</span></label>
+                <select name="id_department" id="edit_department" class="form-control">
+                  <option value="" selected disabled>Select Department</option>
+                  {{range $department := .department}}
+                  <option value="{{$department.ID}}">{{$department.Department}}</option>
+                  {{end}}
+                </select>
+                <div class="invalid-feedback" id="err-edit_department"></div>
+              </div>
+              
+              <!-- Effective Date -->
+              <div class="form-group">
+                <label>Effective Date <span class="text-danger">*</span></label>
+                <input type="date" name="effectivedate" id="edit_effectivedate" class="form-control">
+                <div class="invalid-feedback" id="err-edit_effectivedate"></div>
+              </div>
+              
+              <!-- Position -->
+              <div class="form-group">
+                <label>Position <span class="text-danger">*</span></label>
+                <input type="text" name="position" id="edit_position" class="form-control" 
+                       maxlength="150" placeholder="">
+                <div class="invalid-feedback" id="err-edit_position"></div>
+              </div>
+              
+              <!-- Evidence Link -->
+              <div class="form-group">
+                <label>Evidence Link <span class="text-danger">*</span></label>
+                <input type="url" name="evidence_link" id="edit_evidence" 
+                       class="form-control">
+                <div class="invalid-feedback" id="err-edit_evidence"></div>
+              </div>
+            </div>
+            
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                <i class="fas fa-times mr-1"></i>Cancel
+              </button>
+              <button type="submit" class="btn btn-warning" id="btnUpdate">
+                <i class="fas fa-edit mr-1"></i> Edit
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -297,49 +400,51 @@
         function validateEditForm() {
           var errors = [];
 
-          // Type
-          var type = $("#edit_type").val();
-          if (!type) {
-            errors.push("Type Achievement required");
-            setErr("edit_type", "Type Achievement required");
+          // Status
+          var status = $("#edit_status").val();
+          if (!status) {
+            errors.push("Status required");
+            setErr("edit_status", "Status required");
           } else {
-            setErr("edit_type", "");
+            setErr("edit_status", "");
           }
 
-          // Date
-          var date = $("#edit_date").val();
+          // Grading
+          var grading = $("#edit_grading").val();
+          if (!grading) {
+            errors.push("Grading required");
+            setErr("edit_grading", "Grading required");
+          } else {
+            setErr("edit_grading", "");
+          }
+
+          // Department
+          var department = $("#edit_department").val();
+          if (!department) {
+            errors.push("Department required");
+            setErr("edit_department", "Department required");
+          } else {
+            setErr("edit_department", "");
+          }
+
+          // Effective Date
+          var date = $("#edit_effectivedate").val();
           if (!date) {
-            errors.push("Date required");
-            setErr("edit_date", "Date required");
+            errors.push("Effective Date required");
+            setErr("edit_date", "Effective Date required");
           } else {
             var dateObj = new Date(date);
             var today = new Date();
             today.setHours(0, 0, 0, 0);
-
-            if (dateObj > today) {
-              errors.push("Date cannot be in the future");
-              setErr("edit_date", "Date cannot be in the future");
-            } else {
-              setErr("edit_date", "");
-            }
           }
 
-          // Title
-          var title = $("#edit_title").val().trim();
-          if (!title) {
-            errors.push("Title required");
-            setErr("edit_title", "Title required");
+          // Position
+          var position = $("#edit_position").val().trim();
+          if (!position) {
+            errors.push("Position required");
+            setErr("edit_position", "Position required");
           } else {
-            setErr("edit_title", "");
-          }
-
-          // Description
-          var desc = $("#edit_desc").val().trim();
-          if (!desc) {
-            errors.push("Description required");
-            setErr("edit_desc", "Description required");
-          } else {
-            setErr("edit_desc", "");
+            setErr("edit_position", "");
           }
 
           // Evidence Link
@@ -361,7 +466,7 @@
         }
 
         // Real-time validation
-        $("#edit_type, #edit_date, #edit_title, #edit_evidence").on(
+        $("#edit_status, #edit_grading, #edit_department, #edit_effectivedate, #edit_position, #edit_evidence").on(
           "change input blur",
           function () {
             validateEditForm();
@@ -369,7 +474,7 @@
         );
 
         // ============ EDIT BUTTON: POPULATE MODAL ============
-        $(".edit-ach-btn").on("click", function () {
+        $(".edit-car-btn").on("click", function () {
           var btn = $(this);
 
           // Reset form
@@ -379,10 +484,11 @@
 
           // Populate data
           $("#edit_id").val(btn.data("id"));
-          $("#edit_type").val(btn.data("type"));
-          $("#edit_date").val(btn.data("date"));
-          $("#edit_title").val(btn.data("title"));
-          $("#edit_desc").val(btn.data("desc"));
+          $("#edit_status").val(btn.data("status"));
+          $("#edit_grading").val(btn.data("grading"));
+          $("#edit_department").val(btn.data("department"));
+          $("#edit_effectivedate").val(btn.data("effectivedate"));
+          $("#edit_position").val(btn.data("position"));
           $("#edit_evidence").val(btn.data("evidence"));
 
           // Show modal
@@ -410,7 +516,7 @@
             .html('<i class="fas fa-spinner fa-spin mr-1"></i>Updating...');
 
           $.ajax({
-            url: "/achievement/update",
+            url: "/career/update",
             method: "POST",
             data: $(this).serialize(),
             success: function (response) {
@@ -440,13 +546,13 @@
         });
 
         // ============ DELETE BUTTON ============
-        $(".delete-ach-btn").on("click", function () {
+        $(".delete-car-btn").on("click", function () {
           var id = $(this).data("id");
           var title = $(this).data("title");
 
           Swal.fire({
             title: "Are you sure?",
-            html: `Data Achivement will deleted permanently`,
+            html: `Data Career will deleted permanently`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
@@ -458,7 +564,7 @@
           }).then((result) => {
             if (result.isConfirmed) {
               $.ajax({
-                url: `/achievement/${id}/delete`,
+                url: `/career/${id}/delete`,
                 method: "POST",
                 success: function (response) {
                   if (response.success) {
@@ -472,10 +578,10 @@
                       // ✅ Cek apakah ini row terakhir
                       if (
                         response.is_last_row ||
-                        response.redirect === "/achievement"
+                        response.redirect === "/career"
                       ) {
-                        // Redirect ke achievement list
-                        window.location.href = "/achievement";
+                        // Redirect ke career list
+                        window.location.href = "/career";
                       } else {
                         // Reload halaman employee yang sama
                         location.reload();

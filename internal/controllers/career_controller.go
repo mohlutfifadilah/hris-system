@@ -404,6 +404,24 @@ func (dc *CareerController) Show(c *gin.Context) {
 		return yearGroups[i].Year < yearGroups[j].Year
 	})
 
+	var status []models.Status
+	if err := config.DB.Order("created_at desc").Find(&status).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Error: %v", err)
+		return
+	}
+
+	var grading []models.Grading
+	if err := config.DB.Order("created_at desc").Find(&grading).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Error: %v", err)
+		return
+	}
+
+	var department []models.Department
+	if err := config.DB.Order("created_at desc").Find(&department).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Error: %v", err)
+		return
+	}
+
 	c.HTML(http.StatusOK, "career_info", gin.H{
 		"title":           "Career Info",
 		"activePage":      "career",
@@ -414,6 +432,9 @@ func (dc *CareerController) Show(c *gin.Context) {
 		"gradingNames":    gradingNames,
 		"departmentNames": departmentNames,
 		"user":            employe, // seluruh row employee yang login (boleh nil)
+		"status":          status,
+		"grading":         grading,
+		"department":      department,
 	})
 }
 
@@ -423,11 +444,11 @@ func (dc *CareerController) Update(c *gin.Context) {
 
 	var input struct {
 		ID                string `form:"id" binding:"required"`
-		IDEmployee        string `form:"id_employee" binding:"required"`
-		IDTypeAchievement string `form:"id_type_achievement" binding:"required"`
-		Date              string `form:"date" binding:"required"`
-		Title             string `form:"title" binding:"required"`
-		Description       string `form:"description"`
+		IDStatus          string `form:"id_status" binding:"required"`
+		IDGrading         string `form:"id_grading" binding:"required"`
+		IDDepartment      string `form:"id_department" binding:"required"`
+		EffectiveDate     string `form:"effectivedate" binding:"required"`
+		Position          string `form:"position" binding:"required"`
 		EvidenceLink      string `form:"evidence_link" binding:"required"`
 	}
 
@@ -440,38 +461,48 @@ func (dc *CareerController) Update(c *gin.Context) {
 		return
 	}
 
-	// Parse achievement ID
-	achID, err := uuid.Parse(input.ID)
+	// Parse career ID
+	carID, err := uuid.Parse(input.ID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"error":   "Invalid achievement ID",
+			"error":   "Invalid career ID",
 		})
 		return
 	}
 
-	// Parse employee ID
-	empID, err := uuid.Parse(input.IDEmployee)
+	// Parse status ID
+	statusID, err := uuid.Parse(input.IDStatus)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"error":   "Invalid employee ID",
+			"error":   "Invalid status ID",
 		})
 		return
 	}
 
-	// Parse type achievement ID
-	typeID, err := uuid.Parse(input.IDTypeAchievement)
+	// Parse grading ID
+	gradingID, err := uuid.Parse(input.IDGrading)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"error":   "Invalid type achievement ID",
+			"error":   "Invalid grading ID",
 		})
 		return
 	}
 
-	// Parse date (format: YYYY-MM-DD dari input type="date")
-	date, err := time.Parse("2006-01-02", input.Date)
+	// Parse department ID
+	departmentID, err := uuid.Parse(input.IDDepartment)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   "Invalid department ID",
+		})
+		return
+	}
+
+	// Parse Effective Date (format: YYYY-MM-DD dari input type="date")
+	date, err := time.Parse("2006-01-02", input.EffectiveDate)	
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
@@ -480,38 +511,30 @@ func (dc *CareerController) Update(c *gin.Context) {
 		return
 	}
 
-	// Validate: date tidak boleh di masa depan
-	if date.After(time.Now()) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error":   "Date cannot be in the future",
-		})
-		return
-	}
 
-	// Cari achievement yang akan diupdate
-	var achievement models.Achievement
-	if err := config.DB.First(&achievement, "id = ?", achID).Error; err != nil {
+	// Cari career yang akan diupdate
+	var career models.Career
+	if err := config.DB.First(&career, "id = ?", carID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
-			"error":   "Achievement not found",
+			"error":   "Career not found",
 		})
 		return
 	}
 
 	// Update semua fields
-	achievement.IDEmployee = &empID
-	achievement.IDTypeAchievement = &typeID
-	achievement.Date = date
-	achievement.Title = input.Title
-	achievement.Description = input.Description
-	achievement.EvidenceLink = input.EvidenceLink
+	career.IDStatus = &statusID
+	career.IDGrading = &gradingID
+	career.IDDepartment = &departmentID
+	career.EffectiveDate = date
+	career.Position = input.Position
+	career.EvidenceLink = input.EvidenceLink
 
 	// Save ke database
-	if err := config.DB.Save(&achievement).Error; err != nil {
+	if err := config.DB.Save(&career).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"error":   "Failed to update achievement: " + err.Error(),
+			"error":   "Failed to update career: " + err.Error(),
 		})
 		return
 	}
@@ -519,11 +542,11 @@ func (dc *CareerController) Update(c *gin.Context) {
 	// Success response (untuk AJAX)
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "Achievement success edited",
-		"data":    achievement,
+		"message": "Career success edited",
+		"data":    career,
 	})
 
-	c.Redirect(http.StatusFound, "/achievement/"+id+"/show")
+	c.Redirect(http.StatusFound, "/career/"+id+"/show")
 }
 
 // DELETE /achievement/delete/:id - Delete achievement via AJAX
