@@ -549,44 +549,44 @@ func (dc *CareerController) Update(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/career/"+id+"/show")
 }
 
-// DELETE /achievement/delete/:id - Delete achievement via AJAX
+// DELETE /career/delete/:id - Delete career via AJAX
 func (ac *CareerController) Delete(c *gin.Context) {
 	id := c.Param("id")
 
 	// Parse UUID
-	achID, err := uuid.Parse(id)
+	carID, err := uuid.Parse(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"error":   "Invalid achievement ID",
+			"error":   "Invalid career ID",
 		})
 		return
 	}
 
-	// Cek apakah achievement exists
-	var achievement models.Achievement
-	if err := config.DB.First(&achievement, "id = ?", achID).Error; err != nil {
+	// Cek apakah career exists
+	var career models.Career
+	if err := config.DB.First(&career, "id = ?", carID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
-			"error":   "Achievement not found",
+			"error":   "Career not found",
 		})
 		return
 	}
 
 	// Simpan employee ID sebelum delete
-	employeeID := achievement.IDEmployee
+	employeeID := career.IDEmployee
 
-	// Cek berapa total achievement untuk employee ini SEBELUM delete
+	// Cek berapa total career untuk employee ini SEBELUM delete
 	var totalCount int64
-	config.DB.Model(&models.Achievement{}).
+	config.DB.Model(&models.Career{}).
 		Where("id_employee = ?", employeeID).
 		Count(&totalCount)
 
 	// Delete dari database
-	if err := config.DB.Delete(&achievement).Error; err != nil {
+	if err := config.DB.Delete(&career).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"error":   "Failed to delete achievement: " + err.Error(),
+			"error":   "Failed to delete career: " + err.Error(),
 		})
 		return
 	}
@@ -595,17 +595,17 @@ func (ac *CareerController) Delete(c *gin.Context) {
 	if totalCount == 1 {
 		c.JSON(http.StatusOK, gin.H{
 			"success":     true,
-			"message":     "Achievement success deleted",
-			"redirect":    "/achievement", // ✅ Flag untuk redirect
+			"message":     "Career success deleted",
+			"redirect":    "/career", // ✅ Flag untuk redirect
 			"is_last_row": true,
 		})
 		return
 	}
 
-	// Jika masih ada achievement lain untuk employee ini
+	// Jika masih ada career lain untuk employee ini
 	c.JSON(http.StatusOK, gin.H{
 		"success":     true,
-		"message":     "Achievement success deleted",
+		"message":     "Career success deleted",
 		"redirect":    "", // Kosong = reload halaman sama
 		"is_last_row": false,
 	})
