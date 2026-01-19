@@ -443,13 +443,13 @@ func (dc *CareerController) Update(c *gin.Context) {
 	id := c.Param("id")
 
 	var input struct {
-		ID                string `form:"id" binding:"required"`
-		IDStatus          string `form:"id_status" binding:"required"`
-		IDGrading         string `form:"id_grading" binding:"required"`
-		IDDepartment      string `form:"id_department" binding:"required"`
-		EffectiveDate     string `form:"effectivedate" binding:"required"`
-		Position          string `form:"position" binding:"required"`
-		EvidenceLink      string `form:"evidence_link" binding:"required"`
+		ID            string `form:"id" binding:"required"`
+		IDStatus      string `form:"id_status" binding:"required"`
+		IDGrading     string `form:"id_grading" binding:"required"`
+		IDDepartment  string `form:"id_department" binding:"required"`
+		EffectiveDate string `form:"effectivedate" binding:"required"`
+		Position      string `form:"position" binding:"required"`
+		EvidenceLink  string `form:"evidence_link" binding:"required"`
 	}
 
 	// Bind form data
@@ -502,7 +502,7 @@ func (dc *CareerController) Update(c *gin.Context) {
 	}
 
 	// Parse Effective Date (format: YYYY-MM-DD dari input type="date")
-	date, err := time.Parse("2006-01-02", input.EffectiveDate)	
+	date, err := time.Parse("2006-01-02", input.EffectiveDate)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
@@ -510,7 +510,6 @@ func (dc *CareerController) Update(c *gin.Context) {
 		})
 		return
 	}
-
 
 	// Cari career yang akan diupdate
 	var career models.Career
@@ -614,17 +613,17 @@ func (ac *CareerController) Delete(c *gin.Context) {
 func (ac *CareerController) Excel(ctx *gin.Context) {
 	employeeID := ctx.Param("employee_id")
 
-	// Get achievements
-	var achievements []models.Achievement
+	// Get career
+	var careers []models.Career
 	if err := config.DB.Where("id_employee = ?", employeeID).
-		Order("date ASC").
-		Find(&achievements).Error; err != nil {
+		Order("effective_date ASC").
+		Find(&careers).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	if len(achievements) == 0 {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "No achievement found"})
+	if len(careers) == 0 {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "No career found"})
 		return
 	}
 
@@ -635,14 +634,38 @@ func (ac *CareerController) Excel(ctx *gin.Context) {
 		return
 	}
 
-	// Get type names untuk semua achievements
-	typeNames := make(map[string]string)
-	for _, achievement := range achievements {
-		idType := achievement.IDTypeAchievement.String()
-		if _, exists := typeNames[idType]; !exists {
-			var typeAch models.TypeAchievement
-			if err := config.DB.Where("id = ?", achievement.IDTypeAchievement).First(&typeAch).Error; err == nil {
-				typeNames[idType] = typeAch.Type
+	// Get status untuk semua career
+	statuss := make(map[string]string)
+	for _, career := range careers {
+		idType := career.IDStatus.String()
+		if _, exists := statuss[idType]; !exists {
+			var typeStatus models.Status
+			if err := config.DB.Where("id = ?", career.IDStatus).First(&typeStatus).Error; err == nil {
+				statuss[idType] = typeStatus.Status
+			}
+		}
+	}
+
+	// Get grading untuk semua career
+	gradings := make(map[string]string)
+	for _, career := range careers {
+		idType := career.IDGrading.String()
+		if _, exists := gradings[idType]; !exists {
+			var typeGrading models.Grading
+			if err := config.DB.Where("id = ?", career.IDGrading).First(&typeGrading).Error; err == nil {
+				gradings[idType] = typeGrading.Grading
+			}
+		}
+	}
+
+	// Get department untuk semua career
+	departments := make(map[string]string)
+	for _, career := range careers {
+		idType := career.IDDepartment.String()
+		if _, exists := departments[idType]; !exists {
+			var typeDepartment models.Department
+			if err := config.DB.Where("id = ?", career.IDDepartment).First(&typeDepartment).Error; err == nil {
+				departments[idType] = typeDepartment.Department
 			}
 		}
 	}
@@ -655,7 +678,7 @@ func (ac *CareerController) Excel(ctx *gin.Context) {
 	f.DeleteSheet("Sheet1")
 
 	// Create sheet
-	sheetName := "Achievement"
+	sheetName := "Sheet1"
 	index, _ := f.NewSheet(sheetName)
 	f.SetActiveSheet(index)
 
@@ -731,9 +754,9 @@ func (ac *CareerController) Excel(ctx *gin.Context) {
 	// ===== CONTENT =====
 
 	// Title
-	f.MergeCell(sheetName, "A1", "E1")
-	f.SetCellValue(sheetName, "A1", "ACHIEVEMENT REPORT")
-	f.SetCellStyle(sheetName, "A1", "E1", titleStyle)
+	f.MergeCell(sheetName, "A1", "F1")
+	f.SetCellValue(sheetName, "A1", "CAREER REPORT")
+	f.SetCellStyle(sheetName, "A1", "F1", titleStyle)
 	f.SetRowHeight(sheetName, 1, 25)
 
 	// Employee Info
@@ -741,8 +764,8 @@ func (ac *CareerController) Excel(ctx *gin.Context) {
 	f.SetCellValue(sheetName, "A3", fmt.Sprintf("Generated: %s", time.Now().Format("02 Jan 2006 15:04")))
 
 	// Table Headers
-	headers := []string{"No", "Date", "Type", "Title", "Description"}
-	headerCells := []string{"A", "B", "C", "D", "E"}
+	headers := []string{"No", "Effective Date", "Status", "Grading", "Position", "Department"}
+	headerCells := []string{"A", "B", "C", "D", "E", "F"}
 	for col, header := range headers {
 		cell := fmt.Sprintf("%s%d", headerCells[col], 5)
 		f.SetCellValue(sheetName, cell, header)
@@ -751,7 +774,7 @@ func (ac *CareerController) Excel(ctx *gin.Context) {
 	f.SetRowHeight(sheetName, 5, 20)
 
 	// Data rows
-	for idx, achievement := range achievements {
+	for idx, career := range careers {
 		row := idx + 6
 		fill := idx%2 == 1
 		cellStyle := dataStyle
@@ -800,52 +823,47 @@ func (ac *CareerController) Excel(ctx *gin.Context) {
 		f.SetCellValue(sheetName, cellA, idx+1)
 		f.SetCellStyle(sheetName, cellA, cellA, centerStyle)
 
-		// Date
+		// Effective Date
 		cellB := fmt.Sprintf("B%d", row)
-		f.SetCellValue(sheetName, cellB, achievement.Date.Format("02 Jan 2006"))
+		f.SetCellValue(sheetName, cellB, career.EffectiveDate.Format("02 Jan 2006"))
 		f.SetCellStyle(sheetName, cellB, cellB, centerStyle)
 
-		// Type
+		// Status
 		cellC := fmt.Sprintf("C%d", row)
-		typeName := typeNames[achievement.IDTypeAchievement.String()]
-		f.SetCellValue(sheetName, cellC, typeName)
+		status := statuss[career.IDStatus.String()]
+		f.SetCellValue(sheetName, cellC, status)
 		f.SetCellStyle(sheetName, cellC, cellC, cellStyle)
 
-		// Title
+		// Grading
 		cellD := fmt.Sprintf("D%d", row)
-		f.SetCellValue(sheetName, cellD, achievement.Title)
+		grading := gradings[career.IDGrading.String()]
+		f.SetCellValue(sheetName, cellD, grading)
 		f.SetCellStyle(sheetName, cellD, cellD, cellStyle)
 
-		// Description
+		// Position
 		cellE := fmt.Sprintf("E%d", row)
-		f.SetCellValue(sheetName, cellE, achievement.Description)
+		f.SetCellValue(sheetName, cellE, career.Position)
 		f.SetCellStyle(sheetName, cellE, cellE, cellStyle)
+
+		// Department
+		cellF := fmt.Sprintf("F%d", row)
+		department := departments[career.IDDepartment.String()]
+		f.SetCellValue(sheetName, cellF, department)
+		f.SetCellStyle(sheetName, cellF, cellF, cellStyle)
 
 		f.SetRowHeight(sheetName, row, 30)
 	}
 
 	// Column widths
 	f.SetColWidth(sheetName, "A", "A", 5)
-	f.SetColWidth(sheetName, "B", "B", 12)
+	f.SetColWidth(sheetName, "B", "B", 20)
 	f.SetColWidth(sheetName, "C", "C", 15)
 	f.SetColWidth(sheetName, "D", "D", 25)
 	f.SetColWidth(sheetName, "E", "E", 40)
-
-	// Summary
-	summaryRow := len(achievements) + 7
-	f.SetCellValue(sheetName, fmt.Sprintf("A%d", summaryRow), "Total Achievement:")
-	f.SetCellValue(sheetName, fmt.Sprintf("B%d", summaryRow), len(achievements))
-
-	summaryStyle, _ := f.NewStyle(&excelize.Style{
-		Font: &excelize.Font{
-			Bold: true,
-			Size: 11,
-		},
-	})
-	f.SetCellStyle(sheetName, fmt.Sprintf("A%d", summaryRow), fmt.Sprintf("B%d", summaryRow), summaryStyle)
+	f.SetColWidth(sheetName, "F", "F", 40)
 
 	// Download
-	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=achievement_%s.xlsx", employee.Name))
+	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=career_%s.xlsx", employee.Name))
 	ctx.Header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 	if err := f.Write(ctx.Writer); err != nil {
@@ -857,16 +875,16 @@ func (ac *CareerController) Excel(ctx *gin.Context) {
 func (ac *CareerController) Pdf(ctx *gin.Context) {
 	employeeID := ctx.Param("employee_id")
 
-	var achievements []models.Achievement
+	var careers []models.Career
 	if err := config.DB.Where("id_employee = ?", employeeID).
-		Order("date ASC").
-		Find(&achievements).Error; err != nil {
+		Order("effective_date ASC").
+		Find(&careers).Error; err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	if len(achievements) == 0 {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "No achievement found"})
+	if len(careers) == 0 {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "No career found"})
 		return
 	}
 
@@ -876,15 +894,47 @@ func (ac *CareerController) Pdf(ctx *gin.Context) {
 		return
 	}
 
-	// Get type names untuk semua achievements
-	typeNames := make(map[string]string) // map[id_type]name
-	for _, achievement := range achievements {
-		idType := achievement.IDTypeAchievement.String()
-		if _, exists := typeNames[idType]; !exists {
-			var typeAch models.TypeAchievement
-			// Fix: Gunakan string dengan quote untuk UUID
-			if err := config.DB.Where("id = ?", idType).First(&typeAch).Error; err == nil {
-				typeNames[idType] = typeAch.Type
+	// Get type status
+	typeStatuss := make(map[string]string)
+	for _, career := range careers {
+		if career.IDStatus == nil {
+			continue
+		}
+		idStatus := career.IDStatus.String()
+		if _, exists := typeStatuss[idStatus]; !exists {
+			var typeCar models.Status
+			if err := config.DB.Where("id = ?", idStatus).First(&typeCar).Error; err == nil {
+				typeStatuss[idStatus] = typeCar.Status
+			}
+		}
+	}
+
+	// Get type grading
+	typeGradings := make(map[string]string)
+	for _, career := range careers {
+		if career.IDGrading == nil {
+			continue
+		}
+		idGrading := career.IDGrading.String()
+		if _, exists := typeGradings[idGrading]; !exists {
+			var typeCar models.Grading
+			if err := config.DB.Where("id = ?", idGrading).First(&typeCar).Error; err == nil {
+				typeGradings[idGrading] = typeCar.Grading
+			}
+		}
+	}
+
+	// Get type department
+	typeDepartments := make(map[string]string)
+	for _, career := range careers {
+		if career.IDDepartment == nil {
+			continue
+		}
+		idDepartment := career.IDDepartment.String()
+		if _, exists := typeDepartments[idDepartment]; !exists {
+			var typeCar models.Department
+			if err := config.DB.Where("id = ?", idDepartment).First(&typeCar).Error; err == nil {
+				typeDepartments[idDepartment] = typeCar.Department
 			}
 		}
 	}
@@ -895,8 +945,8 @@ func (ac *CareerController) Pdf(ctx *gin.Context) {
 
 	// Title
 	pdf.SetFont("Arial", "B", 16)
-	pdf.CellFormat(0, 10, "ACHIEVEMENT REPORT", "", 1, "C", false, 0, "")
-	pdf.Ln(5)
+	pdf.CellFormat(0, 10, "CAREER REPORT", "", 1, "C", false, 0, "")
+	pdf.Ln(3)
 
 	// Employee
 	pdf.SetFont("Arial", "", 11)
@@ -905,28 +955,28 @@ func (ac *CareerController) Pdf(ctx *gin.Context) {
 	// Date
 	pdf.SetFont("Arial", "", 9)
 	pdf.SetTextColor(128, 128, 128)
-	pdf.CellFormat(0, 5, fmt.Sprintf("Generated: %s", time.Now().Format("02 Jan 2006 15:04")), "", 1, "L", false, 0, "")
+	pdf.CellFormat(0, 5, fmt.Sprintf("Generated: %s", time.Now().Format("02 Jan 2026 15:04")), "", 1, "L", false, 0, "")
 	pdf.SetTextColor(0, 0, 0)
 	pdf.Ln(5)
 
-	// Group achievements by year
-	achievementsByYear := make(map[int][]models.Achievement)
-	for _, achievement := range achievements {
-		year := achievement.Date.Year()
-		achievementsByYear[year] = append(achievementsByYear[year], achievement)
+	// Group careers by year
+	careersByYear := make(map[int][]models.Career)
+	for _, career := range careers {
+		year := career.EffectiveDate.Year()
+		careersByYear[year] = append(careersByYear[year], career)
 	}
 
-	// Sort years in ascending order
+	// Sort years
 	var years []int
-	for year := range achievementsByYear {
+	for year := range careersByYear {
 		years = append(years, year)
 	}
 	sort.Ints(years)
 
-	// Render table for each year (ditumpuk dalam 1 page)
+	// Render each year
 	for yearIndex, year := range years {
 		if yearIndex > 0 {
-			pdf.Ln(5) // Spacing antar tahun
+			pdf.Ln(8)
 		}
 
 		// Year Header
@@ -939,59 +989,57 @@ func (ac *CareerController) Pdf(ctx *gin.Context) {
 		pdf.SetFillColor(79, 129, 189)
 		pdf.SetTextColor(255, 255, 255)
 
-		pdf.CellFormat(8, 7, "No", "1", 0, "C", true, 0, "")
-		pdf.CellFormat(30, 7, "Type", "1", 0, "C", true, 0, "")
-		pdf.CellFormat(40, 7, "Title", "1", 0, "C", true, 0, "")
-		pdf.CellFormat(60, 7, "Description", "1", 0, "C", true, 0, "")
-		pdf.CellFormat(52, 7, "Date", "1", 1, "C", true, 0, "")
+		pdf.CellFormat(10, 7, "No", "1", 0, "C", true, 0, "")
+		pdf.CellFormat(40, 7, "Date", "1", 0, "C", true, 0, "")
+		pdf.CellFormat(30, 7, "Status", "1", 0, "C", true, 0, "")
+		pdf.CellFormat(30, 7, "Grading", "1", 0, "C", true, 0, "")
+		pdf.CellFormat(42, 7, "Position", "1", 0, "C", true, 0, "")
+		pdf.CellFormat(38, 7, "Department", "1", 1, "C", true, 0, "")
 
 		// Table Content
 		pdf.SetFont("Arial", "", 8)
 		pdf.SetTextColor(0, 0, 0)
-		pdf.SetFillColor(242, 242, 242)
 
-		yearAchievements := achievementsByYear[year]
-		for idx, achievement := range yearAchievements {
-			fill := idx%2 == 1
+		yearCareers := careersByYear[year]
+		for idx, career := range yearCareers {
+			fill := idx%2 == 0
+			if fill {
+				pdf.SetFillColor(242, 242, 242)
+			}
 
-			// Format date dengan hari
-			dateStr := achievement.Date.Format("Monday, 02 January 2006")
+			dateStr := career.EffectiveDate.Format("02 Jan 2006")
+			status := typeStatuss[career.IDStatus.String()]
+			grading := typeGradings[career.IDGrading.String()]
+			dept := typeDepartments[career.IDDepartment.String()]
 
-			// Get type name from map
-			typeName := typeNames[achievement.IDTypeAchievement.String()]
-
-			pdf.CellFormat(8, 7, fmt.Sprintf("%d", idx+1), "1", 0, "C", fill, 0, "")
-			pdf.CellFormat(52, 7, dateStr, "1", 1, "C", fill, 0, "")
-			pdf.CellFormat(30, 7, typeName, "1", 0, "L", fill, 0, "")
-			pdf.CellFormat(40, 7, achievement.Title, "1", 0, "L", fill, 0, "")
-			pdf.CellFormat(60, 7, achievement.Description, "1", 0, "L", fill, 0, "")
+			pdf.CellFormat(10, 7, fmt.Sprintf("%d", idx+1), "1", 0, "C", fill, 0, "")
+			pdf.CellFormat(40, 7, dateStr, "1", 0, "L", fill, 0, "")
+			pdf.CellFormat(30, 7, status, "1", 0, "L", fill, 0, "")
+			pdf.CellFormat(30, 7, grading, "1", 0, "L", fill, 0, "")
+			pdf.CellFormat(42, 7, career.Position, "1", 0, "L", fill, 0, "")
+			pdf.CellFormat(38, 7, dept, "1", 1, "L", fill, 0, "")
 		}
 
 		pdf.Ln(2)
 
 		// Year Summary
 		pdf.SetFont("Arial", "B", 10)
-		pdf.CellFormat(0, 6, fmt.Sprintf("Total Achievement (%d): %d", year, len(yearAchievements)), "", 1, "L", false, 0, "")
+		pdf.CellFormat(0, 6, fmt.Sprintf("Total Career (%d): %d", year, len(yearCareers)), "", 1, "L", false, 0, "")
 	}
 
 	pdf.Ln(3)
 
 	// Total Summary
 	pdf.SetFont("Arial", "B", 10)
-	pdf.CellFormat(0, 6, fmt.Sprintf("Total Achievement (All Years): %d", len(achievements)), "", 1, "L", false, 0, "")
+	pdf.CellFormat(0, 6, fmt.Sprintf("Total Career (All Years): %d", len(careers)), "", 1, "L", false, 0, "")
 
-	// Output ke response writer
-	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=achievement_%s.pdf", employee.Name))
+	// Output
+	ctx.Header("Content-Disposition", fmt.Sprintf("attachment; filename=career_%s.pdf", employee.Name))
 	ctx.Header("Content-Type", "application/pdf")
 
-	if err := pdf.Error(); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	err := pdf.Output(ctx.Writer)
-	if err != nil {
+	if err := pdf.Output(ctx.Writer); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 }
+
