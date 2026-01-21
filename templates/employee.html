@@ -153,8 +153,20 @@
                                 {{ end }}
                               </td>
                               <td>{{ $emp.WorkEmail }}</td>
-                              <td>{{ $emp.WorkEmail }}</td>
-                              <td>{{ $emp.WorkEmail }}</td>
+                              <td>
+                                {{ with $career := index $.careerMap (.ID.String) }}
+                                  {{ $career.Position }}
+                                {{ else }}
+                                  <span class="text-muted">-</span>
+                                {{ end }}
+                              </td>
+                              <td>
+                                {{ with $career := index $.careerMap (.ID.String) }}
+                                  {{ $career.Department }}
+                                {{ else }}
+                                  <span class="text-muted">-</span>
+                                {{ end }}
+                              </td>
                               <td>
                                 <a
                                   href="/employee/{{ $emp.ID }}/info"
