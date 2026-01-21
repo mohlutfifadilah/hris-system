@@ -144,14 +144,26 @@
                                 {{ end }}
                               </td>
                               <td>
-                                {{ with $emp := index $.employeeMap
-                                ($achievement.IDEmployee.String) }} {{
-                                $emp.WorkEmail }} {{ else }}
-                                <span class="text-muted">-</span>
+                                {{ with $emp := index $.employeeMap ($achievement.IDEmployee.String) }} 
+                                  {{ $emp.WorkEmail }} 
+                                {{ else }}
+                                  <span class="text-muted">-</span>
                                 {{ end }}
                               </td>
-                              <td>{{ $achievement.Date | indDate }}</td>
-                              <td>{{ $achievement.Date | indDate }}</td>
+                              <td>
+                                {{ with $career := index $.careerMap ($achievement.IDEmployee.String) }}
+                                  {{ $career.Position }}
+                                {{ else }}
+                                  <span class="text-muted">-</span>
+                                {{ end }}
+                              </td>
+                              <td>
+                                {{ with $career := index $.careerMap ($achievement.IDEmployee.String) }}
+                                  {{ $career.Department }}
+                                {{ else }}
+                                  <span class="text-muted">-</span>
+                                {{ end }}
+                              </td>
                               <td>
                                 <a
                                   href="/achievement/{{ $achievement.IDEmployee }}/show"

@@ -25,22 +25,24 @@ func NewAchievementController() *AchievementController {
 	return &AchievementController{}
 }
 
-// Index - Tampilkan halaman profile
 func (dc *AchievementController) Index(c *gin.Context) {
-	// Ambil user dari session (helper, tanpa middleware)
-	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+	// Ambil user dari session
+	currentUser := auth.GetCurrentUser(c)
+	if currentUser == nil {
+		c.String(http.StatusUnauthorized, "unauthorized")
+		return
+	}
 
 	var employee models.Employee
 	if err := config.DB.
 		Where("id = ?", currentUser.ID).
 		First(&employee).Error; err != nil {
-		// handle error (404, dll)
 		c.String(http.StatusInternalServerError, "employee not found")
 		return
 	}
 
+	// Ambil achievement
 	var achievement []models.Achievement
-
 	err := config.DB.
 		Table("achievement").
 		Select("DISTINCT ON (id_employee) *").
@@ -51,37 +53,72 @@ func (dc *AchievementController) Index(c *gin.Context) {
 		return
 	}
 
+	// EmployeeMap
 	type EmployeeInfo struct {
-		Name   string
-		Gender string
+		Name      string
+		Gender    string
 		WorkEmail string
 	}
-    employeeMap := make(map[string]EmployeeInfo)
+	employeeMap := make(map[string]EmployeeInfo)
 
-	for _, ach := range achievement {  // ganti `emp` jadi `ach`
+	for _, ach := range achievement {
 		if ach.IDEmployee != nil {
-			var employee models.Employee
-			if err := config.DB.First(&employee, "id = ?", ach.IDEmployee).Error; err == nil {
+			var emp models.Employee
+			if err := config.DB.First(&emp, "id = ?", ach.IDEmployee).Error; err == nil {
 				employeeMap[ach.IDEmployee.String()] = EmployeeInfo{
-					Name:   employee.Name,
-					Gender: employee.Gender, // atau field gender di model Employee kamu
-					WorkEmail: employee.WorkEmail,
+					Name:      emp.Name,
+					Gender:    emp.Gender,
+					WorkEmail: emp.WorkEmail,
 				}
 			}
 		}
 	}
 
-    typeAchievementMap := make(map[string]string)
+	// TypeAchievementMap
+	typeAchievementMap := make(map[string]string)
 
-	for _, typ := range achievement {  // ganti `emp` jadi `ach`
+	for _, typ := range achievement {
 		if typ.IDTypeAchievement != nil {
 			var typeAchievement models.TypeAchievement
 			if err := config.DB.First(&typeAchievement, "id = ?", typ.IDTypeAchievement).Error; err == nil {
-				typeAchievementMap[typ.IDTypeAchievement.String()] = typeAchievement.Type  // key: string, value: nama employee
+				typeAchievementMap[typ.IDTypeAchievement.String()] = typeAchievement.Type
 			}
 		}
 	}
 
+	// CareerMap - INI YANG PENTING
+	type CareerInfo struct {
+		Position   string
+		Department string
+	}
+	careerMap := make(map[string]CareerInfo)
+
+	for _, ach := range achievement {
+		if ach.IDEmployee != nil {
+			var result struct {
+				Position   string
+				Department string
+			}
+
+			query := fmt.Sprintf(`
+				SELECT c.position, d.department
+				FROM career_history c
+				LEFT JOIN department d ON d.id::text = c.id_department
+				WHERE c.id_employee = '%s'
+				ORDER BY c.effective_date DESC
+				LIMIT 1
+			`, ach.IDEmployee.String())
+
+			if err := config.DB.Raw(query).Scan(&result).Error; err == nil {
+				careerMap[ach.IDEmployee.String()] = CareerInfo{
+					Position:   result.Position,
+					Department: result.Department,
+				}
+			}
+		}
+	}
+
+	// Session flash
 	session := sessions.Default(c)
 	success := session.Get("flash_success")
 	if success != nil {
@@ -89,15 +126,16 @@ func (dc *AchievementController) Index(c *gin.Context) {
 		_ = session.Save()
 	}
 
-	// Render achievement menggunakan layout main.html
+	// Render
 	c.HTML(http.StatusOK, "achievement", gin.H{
-		"title":      "Achievement",
-		"user":       employee,  // seluruh row employee yang login (boleh nil)
-		"achievement":      achievement, // seluruh row employee yang login (boleh nil)
-		"employeeMap": employeeMap, // seluruh row employee yang login (boleh nil)
-		"typeAchievementMap": typeAchievementMap, // seluruh row employee yang login (boleh nil)
-		"activePage": "achievement",
-		"success":    success,
+		"title":              "Achievement",
+		"user":               employee,
+		"achievement":        achievement,
+		"employeeMap":        employeeMap,
+		"typeAchievementMap": typeAchievementMap,
+		"careerMap":          careerMap, // PASTIKAN INI ADA
+		"activePage":         "achievement",
+		"success":            success,
 	})
 }
 
@@ -129,33 +167,33 @@ func (dc *AchievementController) Create(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "achievement_add", gin.H{
-		"title":      "Add Achievement",
-		"activePage": "achievement",
-		"form":       map[string]string{},
-		"errors":     map[string]string{},
-		"employees":     employees,
-		"typeAchievement":     typeAchievement,
-		"action":     "/achievement",
-		"method":     "POST",
-		"user":       employee, // seluruh row employee yang login (boleh nil)
+		"title":           "Add Achievement",
+		"activePage":      "achievement",
+		"form":            map[string]string{},
+		"errors":          map[string]string{},
+		"employees":       employees,
+		"typeAchievement": typeAchievement,
+		"action":          "/achievement",
+		"method":          "POST",
+		"user":            employee, // seluruh row employee yang login (boleh nil)
 	})
 }
 
 // POST /achievement
 func (dc *AchievementController) Store(c *gin.Context) {
-	
-    form := map[string]string{
-        "employee":      c.PostForm("employee"),
-        "type_achievement":      c.PostForm("type_achievement"),
-        "date":      c.PostForm("date"),
-        "title":      c.PostForm("title"),
-        "description":      c.PostForm("description"),
-        "evidence_link":      c.PostForm("evidence_link"),
-    }
 
-    errors := map[string]string{}
+	form := map[string]string{
+		"employee":         c.PostForm("employee"),
+		"type_achievement": c.PostForm("type_achievement"),
+		"date":             c.PostForm("date"),
+		"title":            c.PostForm("title"),
+		"description":      c.PostForm("description"),
+		"evidence_link":    c.PostForm("evidence_link"),
+	}
 
-    // Parse UUID (return pointer)
+	errors := map[string]string{}
+
+	// Parse UUID (return pointer)
 	employee, err := parseUUIDPtr(form["employee"])
 	if err != nil {
 		errors["employee"] = "Employee UUID not valid"
@@ -166,65 +204,65 @@ func (dc *AchievementController) Store(c *gin.Context) {
 		errors["type_achievement"] = "Type Achievement UUID not valid"
 	}
 
-    // Parse date
-    var date time.Time
-    if form["date"] != "" {
-        date, err = time.Parse("2006-01-02", form["date"])
-        if err != nil {
-            errors["date"] = "Date format not valid"
-        }
-    }
+	// Parse date
+	var date time.Time
+	if form["date"] != "" {
+		date, err = time.Parse("2006-01-02", form["date"])
+		if err != nil {
+			errors["date"] = "Date format not valid"
+		}
+	}
 
-    // Kalau ada error, render ulang
-    if len(errors) > 0 {
-        var employees []models.Employee
-        var typeAchievement []models.TypeAchievement
+	// Kalau ada error, render ulang
+	if len(errors) > 0 {
+		var employees []models.Employee
+		var typeAchievement []models.TypeAchievement
 
-        config.DB.Order("created_at desc").Find(&employees)
-        config.DB.Order("created_at desc").Find(&typeAchievement)
+		config.DB.Order("created_at desc").Find(&employees)
+		config.DB.Order("created_at desc").Find(&typeAchievement)
 
-        c.HTML(http.StatusBadRequest, "achievement_add", gin.H{
-            "title":      "Add Achievement",
-            "action":     "/achievement",
-            "form":       form,
-            "errors":     errors,
-            "swalError":  "There are some invalid inputs.",
-            "employees":     employees,
-            "typeAchievement":     typeAchievement,
-            "method":     "POST",})
-        return
-    }
+		c.HTML(http.StatusBadRequest, "achievement_add", gin.H{
+			"title":           "Add Achievement",
+			"action":          "/achievement",
+			"form":            form,
+			"errors":          errors,
+			"swalError":       "There are some invalid inputs.",
+			"employees":       employees,
+			"typeAchievement": typeAchievement,
+			"method":          "POST"})
+		return
+	}
 
 	// ========== START TRANSACTION ==========
-    tx := config.DB.Begin()
+	tx := config.DB.Begin()
 
-    // Create achievement
-    emp := models.Achievement{
-        IDEmployee:     employee,
-        IDTypeAchievement:    type_achievement,
-        Date: date,
-        Title:  form["title"],
-        Description:  form["description"],
-        EvidenceLink:  form["evidence_link"],
-        CreatedAt:     time.Now(),
-        UpdatedAt:     time.Now(),
-    }
+	// Create achievement
+	emp := models.Achievement{
+		IDEmployee:        employee,
+		IDTypeAchievement: type_achievement,
+		Date:              date,
+		Title:             form["title"],
+		Description:       form["description"],
+		EvidenceLink:      form["evidence_link"],
+		CreatedAt:         time.Now(),
+		UpdatedAt:         time.Now(),
+	}
 
-    if err := tx.Create(&emp).Error; err != nil {
-        c.String(http.StatusInternalServerError, "create achievement failed: "+err.Error())
-        return
-    }
+	if err := tx.Create(&emp).Error; err != nil {
+		c.String(http.StatusInternalServerError, "create achievement failed: "+err.Error())
+		return
+	}
 
 	// ========== COMMIT TRANSACTION ==========
-    if err := tx.Commit().Error; err != nil {
-        log.Println("Error committing transaction:", err)
-        c.HTML(http.StatusInternalServerError, "achievement_add", gin.H{
-            "title":  "Add Achievement",
-            "errors": map[string]string{"form": "Failed to save data"},
-            "form":   form,
-        })
-        return
-    }
+	if err := tx.Commit().Error; err != nil {
+		log.Println("Error committing transaction:", err)
+		c.HTML(http.StatusInternalServerError, "achievement_add", gin.H{
+			"title":  "Add Achievement",
+			"errors": map[string]string{"form": "Failed to save data"},
+			"form":   form,
+		})
+		return
+	}
 
 	session := sessions.Default(c)
 	success := session.Get("flash_success")
@@ -233,18 +271,18 @@ func (dc *AchievementController) Store(c *gin.Context) {
 		_ = session.Save()
 	}
 
-    c.Redirect(http.StatusFound, "/achievement")
+	c.Redirect(http.StatusFound, "/achievement")
 }
 
 type YearGroup struct {
-    Year         int                    `json:"year"`
-    TypeGroups   []AchievementByType    `json:"type_groups"`
+	Year       int                 `json:"year"`
+	TypeGroups []AchievementByType `json:"type_groups"`
 }
 
 type AchievementByType struct {
-    TypeName     string                 `json:"type_name"`
-    TypeID       uuid.UUID              `json:"type_id"`
-    Achievements []models.Achievement   `json:"achievements"`
+	TypeName     string               `json:"type_name"`
+	TypeID       uuid.UUID            `json:"type_id"`
+	Achievements []models.Achievement `json:"achievements"`
 }
 
 // Get show/{id}/achievement
@@ -260,9 +298,8 @@ func (dc *AchievementController) Show(c *gin.Context) {
 		c.String(http.StatusInternalServerError, "employee not found")
 		return
 	}
-	
-	id := c.Param("id")
 
+	id := c.Param("id")
 
 	var employee models.Employee
 	if err := config.DB.First(&employee, "id = ?", id).Error; err != nil {
@@ -271,82 +308,82 @@ func (dc *AchievementController) Show(c *gin.Context) {
 	}
 
 	// 1. Ambil SEMUA achievements employee (NO YEAR FILTER dulu)
-    var allAchievements []models.Achievement
-    config.DB.Where("id_employee = ?", id).
-        Order("date ASC").
-        Find(&allAchievements)
+	var allAchievements []models.Achievement
+	config.DB.Where("id_employee = ?", id).
+		Order("date ASC").
+		Find(&allAchievements)
 
-    if len(allAchievements) == 0 {
-        // Fallback: empty timeline
-        c.HTML(http.StatusOK, "achievement_info", gin.H{
-            "title":           "Achievement Info",
+	if len(allAchievements) == 0 {
+		// Fallback: empty timeline
+		c.HTML(http.StatusOK, "achievement_info", gin.H{
+			"title":           "Achievement Info",
 			"activePage":      "achievement",
 			"employee":        employee,
 			"allAchievements": allAchievements, // Backup untuk timeline dots
-			"user":       employe, // seluruh row employee yang login (boleh nil)
-            "yearGroups": []YearGroup{},
-        })
-        return
-    }
+			"user":            employe,         // seluruh row employee yang login (boleh nil)
+			"yearGroups":      []YearGroup{},
+		})
+		return
+	}
 
-    // 2. Group by YEAR dari data yang ada
-    yearMap := make(map[int][]AchievementByType)
-    
-    for _, ach := range allAchievements {
-        year := ach.Date.Year()
-        
-        // Get or create type group for this year
-        typeMap := yearMap[year]
-        
-        // Cari apakah type sudah ada di year ini
-        found := false
-        for i := range typeMap {
-            if typeMap[i].TypeID == *ach.IDTypeAchievement {
-                typeMap[i].Achievements = append(typeMap[i].Achievements, ach)
-                found = true
-                break
-            }
-        }
-        
-        if !found {
-            // Type baru, fetch type name
-            var typeAch models.TypeAchievement
-            config.DB.First(&typeAch, *ach.IDTypeAchievement)
-            
-            yearMap[year] = append(typeMap, AchievementByType{
-                TypeName:     typeAch.Type,
-                TypeID:       *ach.IDTypeAchievement,
-                Achievements: []models.Achievement{ach},
-            })
-        }
-    }
+	// 2. Group by YEAR dari data yang ada
+	yearMap := make(map[int][]AchievementByType)
 
-    // 3. Convert to sorted yearGroups
-    var yearGroups []YearGroup
-    for year := range yearMap {
-        yearGroups = append(yearGroups, YearGroup{
-            Year:       year,
-            TypeGroups: yearMap[year],
-        })
-    }
-    
-    // Sort by year
-    sort.Slice(yearGroups, func(i, j int) bool {
-        return yearGroups[i].Year < yearGroups[j].Year
-    })
+	for _, ach := range allAchievements {
+		year := ach.Date.Year()
 
-    var types []models.TypeAchievement
-    config.DB.Order("type ASC").Find(&types)
+		// Get or create type group for this year
+		typeMap := yearMap[year]
 
-    c.HTML(http.StatusOK, "achievement_info", gin.H{
-        "title":           "Achievement Info",
-        "activePage":      "achievement",
-        "employee":        employee,
-        "yearGroups":      yearGroups,
-        "types":      types,
-        "allAchievements": allAchievements, // Backup untuk timeline dots
-		"user":       employe, // seluruh row employee yang login (boleh nil)
-    })
+		// Cari apakah type sudah ada di year ini
+		found := false
+		for i := range typeMap {
+			if typeMap[i].TypeID == *ach.IDTypeAchievement {
+				typeMap[i].Achievements = append(typeMap[i].Achievements, ach)
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			// Type baru, fetch type name
+			var typeAch models.TypeAchievement
+			config.DB.First(&typeAch, *ach.IDTypeAchievement)
+
+			yearMap[year] = append(typeMap, AchievementByType{
+				TypeName:     typeAch.Type,
+				TypeID:       *ach.IDTypeAchievement,
+				Achievements: []models.Achievement{ach},
+			})
+		}
+	}
+
+	// 3. Convert to sorted yearGroups
+	var yearGroups []YearGroup
+	for year := range yearMap {
+		yearGroups = append(yearGroups, YearGroup{
+			Year:       year,
+			TypeGroups: yearMap[year],
+		})
+	}
+
+	// Sort by year
+	sort.Slice(yearGroups, func(i, j int) bool {
+		return yearGroups[i].Year < yearGroups[j].Year
+	})
+
+	var types []models.TypeAchievement
+	config.DB.Order("type ASC").Find(&types)
+
+	c.HTML(http.StatusOK, "achievement_info", gin.H{
+		"title":           "Achievement Info",
+		"activePage":      "achievement",
+		"employee":        employee,
+		"yearGroups":      yearGroups,
+		"types":           types,
+		"allAchievements": allAchievements, // Backup untuk timeline dots
+		"user":            employe,         // seluruh row employee yang login (boleh nil)
+	})
 }
 
 // POST /achievement/:id
@@ -362,7 +399,7 @@ func (dc *AchievementController) Update(c *gin.Context) {
 		Description       string `form:"description"`
 		EvidenceLink      string `form:"evidence_link" binding:"required"`
 	}
-	
+
 	// Bind form data
 	if err := c.ShouldBind(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -503,10 +540,10 @@ func (ac *AchievementController) Delete(c *gin.Context) {
 	// Jika ini row terakhir (count = 1 sebelum delete, jadi 0 setelah delete)
 	if totalCount == 1 {
 		c.JSON(http.StatusOK, gin.H{
-			"success":       true,
-			"message":       "Achievement success deleted",
-			"redirect":      "/achievement", // ✅ Flag untuk redirect
-			"is_last_row":   true,
+			"success":     true,
+			"message":     "Achievement success deleted",
+			"redirect":    "/achievement", // ✅ Flag untuk redirect
+			"is_last_row": true,
 		})
 		return
 	}
@@ -515,7 +552,7 @@ func (ac *AchievementController) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success":     true,
 		"message":     "Achievement success deleted",
-		"redirect":    "",  // Kosong = reload halaman sama
+		"redirect":    "", // Kosong = reload halaman sama
 		"is_last_row": false,
 	})
 }
@@ -762,8 +799,6 @@ func (ac *AchievementController) Excel(ctx *gin.Context) {
 		return
 	}
 }
-
-
 
 func (ac *AchievementController) Pdf(ctx *gin.Context) {
 	employeeID := ctx.Param("employee_id")
