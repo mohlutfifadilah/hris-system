@@ -25,11 +25,16 @@ func (dc *DashboardController) Index(c *gin.Context) {
 	var totalEmployees int64
 	config.DB.Model(&models.Employee{}).Count(&totalEmployees)
 
+	// Hitung total department
+	var totalDepartments int64
+	config.DB.Model(&models.Department{}).Count(&totalDepartments)
+
 	// Render dashboard menggunakan layout main.html
 	c.HTML(http.StatusOK, "dashboard", gin.H{
-		"title":          "Dashboard",
-		"user":           currentUser, // seluruh row employee yang login (boleh nil)
-		"activePage":     "dashboard",
-		"totalEmployees": totalEmployees,
+		"title":            "Dashboard",
+		"user":             currentUser, // seluruh row employee yang login (boleh nil)
+		"activePage":       "dashboard",
+		"totalEmployees":   totalEmployees,
+		"totalDepartments": totalDepartments,
 	})
 }
