@@ -1,138 +1,940 @@
-{{ define "department_edit" }}
+{{ define "employee_edit" }}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>{{ .title }} | HRIS System</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport"/>
+    <title>{{ .title }} | HRIS System</title>
 
-  <!-- General CSS Files -->
-  <link rel="stylesheet" href="/static/assets/modules/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/fontawesome/css/all.min.css">
+    <!-- General CSS Files -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/bootstrap/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/fontawesome/css/all.min.css"
+    />
 
-  <!-- CSS Libraries -->
-  <link rel="stylesheet" href="/static/assets/modules/jqvmap/dist/jqvmap.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/weather-icon/css/weather-icons.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/weather-icon/css/weather-icons-wind.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/summernote/summernote-bs4.css">
+    <!-- CSS Libraries -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/jqvmap/dist/jqvmap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons-wind.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/summernote/summernote-bs4.css"
+    />
 
-  <link rel="stylesheet" href="/static/assets/modules/datatables/datatables.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css">
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/datatables.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css"
+    />
 
-  <!-- Template CSS -->
-  <link rel="stylesheet" href="/static/assets/css/style.css">
-  <link rel="stylesheet" href="/static/assets/css/components.css">
-<!-- Start GA -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="/static/assets/css/style.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <style>
+      .photo-frame{
+        width:150px;
+        aspect-ratio:3/4;
+        border:1px dashed #ced4da;
+        border-radius:14px;
+        overflow:hidden;
+        background:#f8f9fa;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        position:relative;
+      }
+      .photo-frame img{ width:100%; height:100%; object-fit:cover; }
+      .photo-badge{
+        position:absolute; left:8px; bottom:8px;
+        background:rgba(0,0,0,.55); color:#fff;
+        font-size:12px; padding:3px 8px; border-radius:10px;
+      }
+    </style>
+    <!-- Start GA -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-  gtag('config', 'UA-94034622-3');
-</script>
-<!-- /END GA --></head>
+      gtag("config", "UA-94034622-3");
+    </script>
+    <!-- /END GA -->
+  </head>
 
-<body>
-  <div id="app">
-    <div class="main-wrapper main-wrapper-1">
-      <div class="navbar-bg"></div>
-      
+  <body>
+    <div id="app">
+      <div class="main-wrapper main-wrapper-1">
+        <div class="navbar-bg"></div>
+
         <!-- Header -->
         {{ template "header" . }}
 
         <!-- Sidebar -->
         {{ template "sidebar" . }}
-        
+
         <!-- Main Content -->
         <div class="main-content">
-            <section class="section">
-          <div class="section-header">
-            <h1>Department</h1>
-            <div class="section-header-breadcrumb">
-              <div class="breadcrumb-item active"><a href="/department">Department</a></div>
-              <div class="breadcrumb-item">Data Department</div>
-              <div class="breadcrumb-item">Edit Department</div>
-            </div>
-          </div>
-          <div class="section-body">
-            <div class="row">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-header">
-                    <h4>Edit Department</h4>
-                  </div>
-                  <form id="deptForm" action="{{ .action }}" method="POST">
-                    <div class="card-body">
-                      <div class="form-group">
-                        <label>Name Department</label>
-                        <input type="text" name="department" class="form-control"
-                              value="{{ if .data }}{{ .data.Department }}{{ end }}">
-                      </div>
-                    </div>
-                    <div class="card-footer text-right">
-                      <a href="/department" class="btn btn-secondary">Back</a>
-                      <button type="submit" class="btn btn-success">Edit</button>
-                    </div>
-                  </form>
-                </div>
+          <section class="section">
+            <div class="section-header">
+              <h1>Employee</h1>
+              <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item active"><a href="/employee">Employee</a></div>
+                <div class="breadcrumb-item">Data Employee</div>
+                <div class="breadcrumb-item">Edit Employee</div>
               </div>
             </div>
-          </div>
-        </section>
+            <form id="empForm" action="{{ .action }}" method="POST" enctype="multipart/form-data">
+              <div class="section-body">
+                <div class="row">
+  
+                  <!-- LEFT -->
+                  <div class="col-12 col-md-6 col-lg-6">
+  
+                    <!-- Employee -->
+                    <div class="card">
+                      <div class="card-header"><h4>Employee</h4></div>
+                      <div class="card-body">
+  
+                        <div class="form-group">
+                          <label>ID Employee <span class="text-danger">*</span></label>
+                          <input id="id_employee" type="text" name="id_employee" class="form-control"
+                            value="{{ if .data.IDEmployee }}{{ .data.IDEmployee }}{{ end }}">
+                          <div class="invalid-feedback" id="err-id_employee">{{ err .errors "id_employee" }}</div>
+                        </div>
+  
+                        <div class="form-group">
+                          <label>Photo</label>
+                          <div class="d-flex" style="gap:16px;align-items:flex-start;">
+                            <div class="photo-frame">
+                              {{ if .data.Photo }}
+                                <img id="photoPreview" src="{{ .data.Photo }}" alt="Preview">
+                              {{ else }}
+                                <img id="photoPreview" src="/static/assets/img/avatar/avatar-1.png" alt="Preview">
+                              {{ end }}
+                              <div class="photo-badge">3x4</div>
+                            </div>
+                            <div style="flex:1;">
+                              <input id="photo" type="file" name="photo" class="form-control" accept="image/*">
+                              <small class="text-muted">PNG/JPG, max 2MB.</small>
+                              <div class="invalid-feedback d-block" id="err-photo">{{ err .errors "photo" }}</div>
+                            </div>
+                          </div>
+                        </div>
+  
+                        <div class="form-group">
+                          <label>Full Name <span class="text-danger">*</span></label>
+                          <input id="name" type="text" name="name" class="form-control"
+                            value="{{ if .data.Name }}{{ .data.Name }}{{ end }}">
+                          <div class="invalid-feedback" id="err-name">{{ err .errors "name" }}</div>
+                        </div>
+  
+                        <div class="form-group">
+                          <label>Email <span class="text-danger">*</span></label>
+                          <input id="email" type="text" name="email" class="form-control"
+                            value="{{ if .data.Email }}{{ .data.Email }}{{ end }}">
+                          <div class="invalid-feedback" id="err-email">{{ err .errors "email" }}</div>
+                        </div>
+  
+                        <div class="form-group">
+                          <label>Gender <span class="text-danger">*</span></label>
+                          <select id="gender" name="gender" class="form-control">
+                            <option value="" disabled>Select Gender</option>
+                            <option value="0" {{ if eq .data.Gender "0" }}selected{{ end }}>Male</option>
+                            <option value="1" {{ if eq .data.Gender "1" }}selected{{ end }}>Female</option>
+                          </select>
+                          <div class="invalid-feedback" id="err-gender">{{ err .errors "gender" }}</div>
+                        </div>
+  
+                        <div class="form-group">
+                          <label>Citizenship <span class="text-danger">*</span></label>
+                          <select id="citizenship" name="citizenship" class="form-control">
+                            <option value="" disabled>Select Citizenship</option>
+                            <option value="Indonesia" {{ if eq .data.Citizenship "Indonesia" }}selected{{ end }}>Indonesia</option>
+                            <option value="Singapore" {{ if eq .data.Citizenship "Singapore" }}selected{{ end }}>Singapore</option>
+                            <option value="Malaysia" {{ if eq .data.Citizenship "Malaysia" }}selected{{ end }}>Malaysia</option>
+                          </select>
+                          <div class="invalid-feedback" id="err-citizenship">{{ err .errors "citizenship" }}</div>
+                        </div>
+  
+                        <div class="form-group">
+                          <label>Marital Status <span class="text-danger">*</span></label>
+                          <select id="marital_status" name="marital_status" class="form-control">
+                            <option value="" disabled>Select Marital Status</option>
+                            <option value="Married" {{ if .Data.MaritalStatus }}selected{{ end }}>Married</option>
+                            <option value="Not Married" {{ if not .Data.MaritalStatus }}selected{{ end }}>Not Married</option>
+                          </select>
+                          <div class="invalid-feedback" id="err-marital_status">{{ err .errors "marital_status" }}</div>
+                        </div>
+  
+                        <div class="form-group">
+                          <label>Blood <span class="text-danger">*</span></label>
+                          <select id="blood_type" name="blood_type" class="form-control">
+                            <option value="" disabled>Select Blood</option>
+                            {{ range $i, $bld := .bloods }}
+                              <option value="{{ $bld.ID.String }}" 
+                                {{ if and $.data.IDBlood (eq $.data.IDBlood.String $bld.ID.String) }}selected{{ end }}>
+                                {{ $bld.BloodType }}
+                              </option>
+                            {{ end }}
+                          </select>
+                          <div class="invalid-feedback" id="err-blood_type">{{ err .errors "blood_type" }}</div>
+                        </div>
+  
+                        <div class="form-group">
+                          <label>Religion <span class="text-danger">*</span></label>
+                          <select id="religion" name="religion" class="form-control">
+                            <option value="" disabled>Select Religion</option>
+                            {{ range $i, $rlg := .religions }}
+                              <option value="{{ $rlg.ID.String }}" 
+                                {{ if and $.data.IDReligion (eq $.data.IDReligion.String $rlg.ID.String) }}selected{{ end }}>
+                                {{ $rlg.Religion }}
+                              </option>
+                            {{ end }}
+                          </select>
+                          <div class="invalid-feedback" id="err-religion">{{ err .errors "religion" }}</div>
+                        </div>
+  
+                        <div class="form-group">
+                          <label>Work Email <span class="text-danger">*</span></label>
+                          <input id="work_email" type="text" name="work_email" class="form-control"
+                            value="{{ if .data.WorkEmail }}{{ .data.WorkEmail }}{{ end }}">
+                          <div class="invalid-feedback" id="err-work_email">{{ err .errors "work_email" }}</div>
+                        </div>
+                        
+                        <div class="form-group">
+                          <label>Place of Birth <span class="text-danger">*</span></label>
+                          <input id="place_of_birth" type="text" name="place_of_birth" class="form-control"
+                            value="{{ if .data.PlaceOfBirth }}{{ .data.PlaceOfBirth }}{{ end }}">
+                          <div class="invalid-feedback" id="err-place_of_birth">{{ err .errors "place_of_birth" }}</div>
+                        </div>
+                        
+                        <div class="form-group">
+                          <label>Date of Birth <span class="text-danger">*</span></label>
+                          <input id="date_of_birth" type="date" name="date_of_birth" class="form-control"
+                            value="{{ if .dateOfBirth }}{{ .dateOfBirth }}{{ end }}">
+                          <div class="invalid-feedback" id="err-date_of_birth">{{ err .errors "date_of_birth" }}</div>
+                        </div>
+                        
+                        <div class="form-group">
+                          <label>Join Date <span class="text-danger">*</span></label>
+                          <input id="join_date" type="date" name="join_date" class="form-control"
+                            value="{{ if .joinDate }}{{ .joinDate }}{{ end }}">
+                          <div class="invalid-feedback" id="err-join_date">{{ err .errors "join_date" }}</div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Bank Account -->
+                    <div class="card">
+                      <div class="card-header"><h4>Bank Account</h4></div>
+                      <div class="card-body">
+                        <div class="form-group">
+                          <label>Type Bank <span class="text-danger">*</span></label>
+                          <select id="id_type_bank" name="id_type_bank" class="form-control">
+                            <option value="" disabled>Select Type Bank</option>
+                            {{ range $i, $bnk := .banks }}
+                              <option value="{{ $bnk.ID.String }}" 
+                                {{ if and $.bankAccount.IDTypeBank (eq $.bankAccount.IDTypeBank.String $bnk.ID.String) }}selected{{ end }}>
+                                {{ $bnk.Type }}
+                              </option>
+                            {{ end }}
+                          </select>
+                          <div class="invalid-feedback" id="err-id_type_bank">{{ err .errors "id_type_bank" }}</div>
+                        </div>
+                        
+                        <div class="form-group">
+                          <label>No Bank <span class="text-danger">*</span></label>
+                          <input id="no_account" type="text" name="no_account" class="form-control"
+                            value="{{ if .bankAccount.NoAccount }}{{ .bankAccount.NoAccount }}{{ end }}">
+                          <div class="invalid-feedback" id="err-no_account">{{ err .errors "no_account" }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+  
+                  <!-- RIGHT -->
+                  <div class="col-12 col-md-6 col-lg-6">
+  
+                    <!-- Staffing -->
+                    <div class="card">
+                      <div class="card-header"><h4>Staffing</h4></div>
+                      <div class="card-body">
+                    
+                        <div class="form-group">
+                          <label>No KPJ BPJS <span class="text-danger">*</span></label>
+                          <input id="no_kpj_bpjs" type="text" name="no_kpj_bpjs" class="form-control"
+                            value="{{ if .staffing.NoKpjBpjs }}{{ .staffing.NoKpjBpjs }}{{ end }}">
+                          <div class="invalid-feedback" id="err-no_kpj_bpjs">{{ err .errors "no_kpj_bpjs" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>No BPJS Kesehatan <span class="text-danger">*</span></label>
+                          <input id="no_bpjs_kes" type="text" name="no_bpjs_kes" class="form-control"
+                            value="{{ if .staffing.NoBpjsKes }}{{ .staffing.NoBpjsKes }}{{ end }}">
+                          <div class="invalid-feedback" id="err-no_bpjs_kes">{{ err .errors "no_bpjs_kes" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>No BPJS Ketenagakerjaan <span class="text-danger">*</span></label>
+                          <input id="no_bpjs_jk" type="text" name="no_bpjs_jk" class="form-control"
+                            value="{{ if .staffing.NoBpjsJk }}{{ .staffing.NoBpjsJk }}{{ end }}">
+                          <div class="invalid-feedback" id="err-no_bpjs_jk">{{ err .errors "no_bpjs_jk" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>No NPWP (15 digit) <span class="text-danger">*</span></label>
+                          <input id="no_npwp_limabelas" type="text" name="no_npwp_limabelas" class="form-control"
+                            value="{{ if .staffing.NoNpwpLimabelas }}{{ .staffing.NoNpwpLimabelas }}{{ end }}">
+                          <div class="invalid-feedback" id="err-no_npwp_limabelas">{{ err .errors "no_npwp_limabelas" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>No NPWP (16 digit) <span class="text-danger">*</span></label>
+                          <input id="no_npwp_enambelas" type="text" name="no_npwp_enambelas" class="form-control"
+                            value="{{ if .staffing.NoNpwpEnambelas }}{{ .staffing.NoNpwpEnambelas }}{{ end }}">
+                          <div class="invalid-feedback" id="err-no_npwp_enambelas">{{ err .errors "no_npwp_enambelas" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>PTKP <span class="text-danger">*</span></label>
+                          <input id="ptkp" type="text" name="ptkp" class="form-control"
+                            value="{{ if .staffing.Ptkp }}{{ .staffing.Ptkp }}{{ end }}">
+                          <div class="invalid-feedback" id="err-ptkp">{{ err .errors "ptkp" }}</div>
+                        </div>
+                    
+                      </div>
+                    </div>
+  
+                    <!-- Identity -->
+                    <div class="card">
+                      <div class="card-header"><h4>Identity</h4></div>
+                      <div class="card-body">
+                        <div class="form-group">
+                          <label>Type Identity <span class="text-danger">*</span></label>
+                          <select id="id_type_identity" name="id_type_identity" class="form-control">
+                            <option value="" disabled>Select Type Identity</option>
+                            {{ range $i, $idt := .identities }}
+                              <option value="{{ $idt.ID.String }}" 
+                                {{ if and $.identity.IDTypeIdentity (eq $.identity.IDTypeIdentity.String $idt.ID.String) }}selected{{ end }}>
+                                {{ $idt.Type }}
+                              </option>
+                            {{ end }}
+                          </select>
+                          <div class="invalid-feedback" id="err-id_type_identity">{{ err .errors "id_type_identity" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>No Identity <span class="text-danger">*</span></label>
+                          <input id="no" type="text" name="no" class="form-control"
+                            value="{{ if .identity.No }}{{ .identity.No }}{{ end }}">
+                          <div class="invalid-feedback" id="err-no">{{ err .errors "no" }}</div>
+                        </div>
+                      </div>
+                    </div>
+  
+                    <!-- Contact -->
+                    <div class="card">
+                      <div class="card-header"><h4>Contact</h4></div>
+                      <div class="card-body">
+                    
+                        <div class="form-group">
+                          <label>Address (According Identity) <span class="text-danger">*</span></label>
+                          <input id="address_identity" type="text" name="address_identity" class="form-control"
+                            value="{{ if .address.AddressIdentity }}{{ .address.AddressIdentity }}{{ end }}">
+                          <div class="invalid-feedback" id="err-address_identity">{{ err .errors "address_identity" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>Address (Domicile) <span class="text-danger">*</span></label>
+                          <input id="address_domicile" type="text" name="address_domicile" class="form-control"
+                            value="{{ if .address.AddressDomicile }}{{ .address.AddressDomicile }}{{ end }}">
+                          <div class="invalid-feedback" id="err-address_domicile">{{ err .errors "address_domicile" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>No Handphone <span class="text-danger">*</span></label>
+                          <input id="no_hp" type="text" name="no_hp" class="form-control"
+                            value="{{ if .contact.NoHp }}{{ .contact.NoHp }}{{ end }}">
+                          <div class="invalid-feedback" id="err-no_hp">{{ err .errors "no_hp" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>Emergency Contact Name <span class="text-danger">*</span></label>
+                          <input id="emergency_contact_name" type="text" name="emergency_contact_name" class="form-control"
+                            value="{{ if .contact.EmergencyContactName }}{{ .contact.EmergencyContactName }}{{ end }}">
+                          <div class="invalid-feedback" id="err-emergency_contact_name">{{ err .errors "emergency_contact_name" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>No Handphone Emergency Contact <span class="text-danger">*</span></label>
+                          <input id="no_emergency_contact" type="text" name="no_emergency_contact" class="form-control"
+                            value="{{ if .contact.NoEmergencyContact }}{{ .contact.NoEmergencyContact }}{{ end }}">
+                          <div class="invalid-feedback" id="err-no_emergency_contact">{{ err .errors "no_emergency_contact" }}</div>
+                        </div>
+                    
+                        <div class="form-group">
+                          <label>Emergency Relation <span class="text-danger">*</span></label>
+                          <input id="emergency_relation" type="text" name="emergency_relation" class="form-control"
+                            value="{{ if .contact.EmergencyRelation }}{{ .contact.EmergencyRelation }}{{ end }}">
+                          <div class="invalid-feedback" id="err-emergency_relation">{{ err .errors "emergency_relation" }}</div>
+                        </div>
+                    
+                      </div>
+                    </div>
+  
+                  </div>
+  
+                </div>
+              </div>
+  
+              <div class="card-body text-right">
+                <a href="/employee" class="btn btn-secondary">Back</a>
+                <button type="submit" class="btn btn-warning">Edit</button>
+              </div>
+  
+            </form>
+          </section>
         </div>
-        
+
         <!-- Footer -->
         {{ template "footer" . }}
-
+      </div>
     </div>
-  </div>
 
-  <!-- General JS Scripts -->
-  <script src="/static/assets/modules/jquery.min.js"></script>
-  <script src="/static/assets/modules/popper.js"></script>
-  <script src="/static/assets/modules/tooltip.js"></script>
-  <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
-  <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
-  <script src="/static/assets/modules/moment.min.js"></script>
-  <script src="/static/assets/js/stisla.js"></script>
+    <!-- General JS Scripts -->
+    <script src="/static/assets/modules/jquery.min.js"></script>
+    <script src="/static/assets/modules/popper.js"></script>
+    <script src="/static/assets/modules/tooltip.js"></script>
+    <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
+    <script src="/static/assets/modules/moment.min.js"></script>
+    <script src="/static/assets/js/stisla.js"></script>
+
+    <!-- JS Libraies -->
+    <script src="/static/assets/modules/simple-weather/jquery.simpleWeather.min.js"></script>
+    <script src="/static/assets/modules/chart.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/jquery.vmap.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+    <script src="/static/assets/modules/summernote/summernote-bs4.js"></script>
+    <script src="/static/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+
+    <!-- Page Specific JS File -->
+    <script src="/static/assets/js/page/index-0.js"></script>
+
+    <script src="/static/assets/modules/datatables/datatables.min.js"></script>
+    <script src="/static/assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/static/assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
+    <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
+
+    <!-- Page Specific JS File -->
+    <!-- <script src="/static/assets/js/page/modules-datatables.js"></script> -->
+    <script>
+      // Show SweetAlert if error exists
+    if (window.__SWAL_ERROR__) {
+      Swal.fire({ icon: 'error', title: 'Error', text: window.__SWAL_ERROR__ });
+    }
+
+    var dateOfBirthInput = document.getElementById('date_of_birth');
+    if (dateOfBirthInput) {
+      var today = new Date();
+      var maxDate = today.toISOString().split('T')[0]; // Format YYYY-MM-DD
+      dateOfBirthInput.setAttribute('max', maxDate);
+    }
+
+    // Validation helper
+    function setErr(id, msg) {
+      var el = document.getElementById(id);
+      var err = document.getElementById('err-' + id);
+      if (!el || !err) return;
   
-  <!-- JS Libraies -->
-  <script src="/static/assets/modules/simple-weather/jquery.simpleWeather.min.js"></script>
-  <script src="/static/assets/modules/chart.min.js"></script>
-  <script src="/static/assets/modules/jqvmap/dist/jquery.vmap.min.js"></script>
-  <script src="/static/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js"></script>
-  <script src="/static/assets/modules/summernote/summernote-bs4.js"></script>
-  <script src="/static/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
-
-  <!-- Page Specific JS File -->
-  <script src="/static/assets/js/page/index-0.js"></script>
+      if (msg) {
+        el.classList.add('is-invalid');
+        err.textContent = msg;
+      } else {
+        el.classList.remove('is-invalid');
+        err.textContent = '';
+      }
+    }
   
-  <script src="/static/assets/modules/datatables/datatables.min.js"></script>
-  <script src="/static/assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
-  <script src="/static/assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
-  <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
-
-  <!-- Page Specific JS File -->
-  <script src="/static/assets/js/page/modules-datatables.js"></script>
-
-  <!-- Template JS File -->
-  <script src="/static/assets/js/scripts.js"></script>
-  <script src="/static/assets/js/custom.js"></script>
-  <script>
-  document.getElementById('deptForm').addEventListener('submit', function (e) {
-    const dept = this.department.value.trim();
-    if (!dept) {
-      e.preventDefault();
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Name Department required',
+    // Photo preview
+    var photo = document.getElementById('photo');
+    var preview = document.getElementById('photoPreview');
+    var errors = [];
+  
+    if (photo) {
+      photo.addEventListener('change', function(){
+        var f = photo.files && photo.files[0];
+        if (!f) return;
+  
+        if (!f.type || f.type.indexOf('image/') !== 0) {
+          photo.value = '';
+          errors.push('Photo must be an image file');
+          setErr('photo', 'Photo must be an image file');
+          Swal.fire({ icon:'error', title:'Invalid file', text:'Photo must be an image file.' });
+          return;
+        }
+  
+        if (f.size > 2 * 1024 * 1024) {
+          photo.value = '';
+          errors.push('Maximum file size is 2MB');
+          setErr('photo', 'Maximum file size is 2MB');
+          Swal.fire({ icon:'error', title:'File too large', text:'Maximum file size is 2MB.' });
+          return;
+        }
+  
+        preview.src = URL.createObjectURL(f);
       });
     }
-  });
-  </script>
-</body>
+
+    // Restrict numeric input only for specific fields
+    function restrictToNumbers(inputId) {
+      var input = document.getElementById(inputId);
+      if (input) {
+        input.addEventListener('keypress', function(e) {
+          if (e.which < 48 || e.which > 57) {
+            e.preventDefault();
+          }
+        });
+  
+        input.addEventListener('paste', function(e) {
+          e.preventDefault();
+          var pasteData = e.clipboardData.getData('text');
+          if (/^\d+$/.test(pasteData)) {
+            document.execCommand('insertText', false, pasteData);
+          }
+        });
+      }
+    }
+  
+    // Apply numeric restriction
+    restrictToNumbers('no_kpj_bpjs');
+    restrictToNumbers('no_bpjs_kes');
+    restrictToNumbers('no_bpjs_jk');
+    restrictToNumbers('no_npwp_limabelas');
+    restrictToNumbers('no_npwp_enambelas');
+    restrictToNumbers('no_account');
+    restrictToNumbers('no');
+    restrictToNumbers('no_hp');
+    restrictToNumbers('no_emergency_contact');
+  
+    
+    // Email validation
+    function isValidEmail(email) {
+      var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+  
+    // NPWP validation
+    function isValidNPWP(npwp, length) {
+      if (!npwp) return true;
+      return npwp.length === length && /^\d+$/.test(npwp);
+    }
+  
+    // Phone validation
+    function isValidPhone(phone) {
+      if (!phone) return true;
+      return phone.length >= 10 && /^\d+$/.test(phone);
+    }
+  
+
+    // Main validation
+    function validate() {
+      var errors = [];
+  
+      // ID Employee
+      var idEmployee = document.getElementById('id_employee');
+      var idEmployeeVal = idEmployee ? idEmployee.value.trim() : '';
+      if (!idEmployeeVal) {
+        errors.push('ID Employee is required');
+        setErr('id_employee', 'ID Employee is required');
+      } else {
+        setErr('id_employee', '');
+      }
+
+      // Name
+      var name = document.getElementById('name');
+      var nameVal = name ? name.value.trim() : '';
+      if (!nameVal) {
+        errors.push('Full Name is required');
+        setErr('name', 'Full Name is required');
+      } else {
+        setErr('name', '');
+      }
+  
+      // Email
+      var email = document.getElementById('email');
+      var emailVal = email ? email.value.trim() : '';
+      if (!emailVal) {
+        errors.push('Email is required');
+        setErr('email', 'Email is required');
+      } else if (!isValidEmail(emailVal)) {
+        errors.push('Email format is invalid');
+        setErr('email', 'Email format is invalid');
+      } else {
+        setErr('email', '');
+      }
+  
+      // Gender
+      var gender = document.getElementById('gender');
+      var genderVal = gender ? gender.value : '';
+      if (!genderVal) {
+        errors.push('Please select gender');
+        setErr('gender', 'Please select gender');
+      } else {
+        setErr('gender', '');
+      }
+
+      // Citizenship
+      var citizenship = document.getElementById('citizenship');
+      var citizenshipVal = citizenship ? citizenship.value : '';
+      if (!citizenshipVal) {
+        errors.push('Please select citizenship');
+        setErr('citizenship', 'Please select citizenship');
+      } else {
+        setErr('citizenship', '');
+      }
+
+      // Marital Status
+      var maritalStatus = document.getElementById('marital_status');
+      var maritalStatusVal = maritalStatus ? maritalStatus.value : '';
+      if (!maritalStatusVal) {
+        errors.push('Please select marital status');
+        setErr('marital_status', 'Please select marital status');
+      } else {
+        setErr('marital_status', '');
+      }
+
+      // Blood Type
+      var bloodType = document.getElementById('blood_type');
+      var bloodTypeVal = bloodType ? bloodType.value : '';
+      if (!bloodTypeVal) {
+        errors.push('Please select blood type');
+        setErr('blood_type', 'Please select blood type');
+      } else {
+        setErr('blood_type', '');
+      }
+
+      // Religion
+      var religion = document.getElementById('religion');
+      var religionVal = religion ? religion.value : '';
+      if (!religionVal) {
+        errors.push('Please select religion');
+        setErr('religion', 'Please select religion');
+      } else {
+        setErr('religion', '');
+      }
+
+      // Work Email
+      var workEmail = document.getElementById('work_email');
+      var workEmailVal = workEmail ? workEmail.value.trim() : '';
+      if(!workEmailVal) {
+        errors.push('Work Email is required');
+        setErr('work_email', 'Work Email is required');
+      } else if (workEmailVal && !isValidEmail(workEmailVal)) {
+        errors.push('Work Email format is invalid');
+        setErr('work_email', 'Work Email format is invalid');
+      } else {
+        setErr('work_email', '');
+      }
+
+      // Place of Birth
+      var placeOfBirth = document.getElementById('place_of_birth');
+      var placeOfBirthVal = placeOfBirth ? placeOfBirth.value.trim() : '';
+      if (!placeOfBirthVal) {
+        errors.push('Place of Birth is required');
+        setErr('place_of_birth', 'Place of Birth is required');
+      } else {
+        setErr('place_of_birth', '');
+      }
+  
+      // Date of Birth
+      var dateOfBirth = document.getElementById('date_of_birth');
+      var dobVal = dateOfBirth ? dateOfBirth.value : '';
+      if (!dobVal) {
+        errors.push('Date of Birth is required');
+        setErr('date_of_birth', 'Date of Birth is required');
+      } else {
+        var dob = new Date(dobVal);
+        var today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time untuk comparison yang akurat
+        
+        if (dob >= today) {
+          errors.push('Date of Birth must be before today');
+          setErr('date_of_birth', 'Date of Birth must be before today');
+        } else {
+          var age = today.getFullYear() - dob.getFullYear();
+          var monthDiff = today.getMonth() - dob.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+          }
+          
+          if (age < 17) {
+            errors.push('Employee must be at least 17 years old');
+            setErr('date_of_birth', 'Employee must be at least 17 years old');
+          } else if (age > 100) {
+            errors.push('Invalid date of birth');
+            setErr('date_of_birth', 'Invalid date of birth');
+          } else {
+            setErr('date_of_birth', '');
+          }
+        }
+      }
+
+      // Join Date
+      var joinDate = document.getElementById('join_date');
+      var joinDateVal = joinDate ? joinDate.value : '';
+      if (!joinDateVal) {
+        errors.push('Join Date is required');
+        setErr('join_date', 'Join Date is required');
+      } else {
+        var joinDate = new Date(joinDateVal);
+        var today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time untuk comparison yang akurat
+        
+        if (joinDate >= today) {
+          errors.push('Join Date must be before today');
+          setErr('join_date', 'Join Date must be before today');
+        } else {
+          setErr('join_date', '');
+        }
+      }
+
+      // Type Bank
+      var id_type_bank = document.getElementById('id_type_bank');
+      var id_type_bankVal = id_type_bank ? id_type_bank.value : '';
+      if (!id_type_bankVal) {
+        errors.push('Type Bank is required');
+        setErr('id_type_bank', 'Type Bank is required');
+      } else {
+        setErr('id_type_bank', '');
+      }
+
+      // No Account
+      var no_account = document.getElementById('no_account');
+      var no_accountVal = no_account ? no_account.value.trim() : '';
+      if (!no_accountVal) {
+        errors.push('No Account is required');
+        setErr('no_account', 'No Account is required');
+      } else {
+        setErr('no_account', '');
+      }
+
+      // No Kpj BPJS
+      var no_kpj_bpjs = document.getElementById('no_kpj_bpjs');
+      var no_kpj_bpjsVal = no_kpj_bpjs ? no_kpj_bpjs.value.trim() : '';
+      if (!no_kpj_bpjsVal) {
+        errors.push('No Kpj BPJS is required');
+        setErr('no_kpj_bpjs', 'No Kpj BPJS is required');
+      } else {
+        setErr('no_kpj_bpjs', '');
+      }
+
+      // No BPJS Kesehatan
+      var no_bpjs_kes = document.getElementById('no_bpjs_kes');
+      var no_bpjs_kesVal = no_bpjs_kes ? no_bpjs_kes.value.trim() : '';
+      if (!no_bpjs_kesVal) {
+        errors.push('No BPJS Kesehatan is required');
+        setErr('no_bpjs_kes', 'No BPJS Kesehatan is required');
+      } else {
+        setErr('no_bpjs_kes', '');
+      }
+
+      // No BPJS Ketenagakerjaan
+      var no_bpjs_jk = document.getElementById('no_bpjs_jk');
+      var no_bpjs_jkVal = no_bpjs_jk ? no_bpjs_jk.value.trim() : '';
+      if (!no_bpjs_jkVal) {
+        errors.push('No BPJS Ketenagakerjaan is required');
+        setErr('no_bpjs_jk', 'No BPJS Ketenagakerjaan is required');
+      } else {
+        setErr('no_bpjs_jk', '');
+      }
+  
+      // NPWP 15
+      var npwp15 = document.getElementById('no_npwp_limabelas');
+      var npwp15Val = npwp15 ? npwp15.value.trim() : '';
+      if (!npwp15Val) {
+        errors.push('NPWP (15 digit) is required');
+        setErr('no_npwp_limabelas', 'NPWP (15 digit) is required');
+      } else if(npwp15Val && !isValidNPWP(npwp15Val, 15)) {
+        errors.push('NPWP (15 digit) must be exactly 15 digits');
+        setErr('no_npwp_limabelas', 'NPWP must be exactly 15 digits');
+      } else {
+        setErr('no_npwp_limabelas', '');
+      }
+  
+      // NPWP 16
+      var npwp16 = document.getElementById('no_npwp_enambelas');
+      var npwp16Val = npwp16 ? npwp16.value.trim() : '';
+      if (!npwp16Val) {
+        errors.push('NPWP (16 digit) is required');
+        setErr('no_npwp_enambelas', 'NPWP (16 digit) is required');
+      } else if (npwp16Val && !isValidNPWP(npwp16Val, 16)) {
+        errors.push('NPWP (16 digit) must be exactly 16 digits');
+        setErr('no_npwp_enambelas', 'NPWP must be exactly 16 digits');
+      } else {
+        setErr('no_npwp_enambelas', '');
+      }
+  
+      // PTKP
+      var ptkp = document.getElementById('ptkp');
+      var ptkpVal = ptkp ? ptkp.value.trim() : '';
+      if (!ptkpVal) {
+        errors.push('PTKP is required');
+        setErr('ptkp', 'PTKP is required');
+      } else {
+        setErr('ptkp', '');
+      }
+
+      // Type Identity
+      var id_type_identity = document.getElementById('id_type_identity');
+      var id_type_identityVal = id_type_identity ? id_type_identity.value : '';
+      if (!id_type_identityVal) {
+        errors.push('Please select identity type');
+        setErr('id_type_identity', 'Please select identity type');
+      } else {
+        setErr('id_type_identity', '');
+      }
+
+      // No Identity
+      var noIdentity = document.getElementById('no');
+      var noIdentityVal = noIdentity ? noIdentity.value.trim() : '';
+      if (!noIdentityVal) {
+        errors.push('No Identity is required');
+        setErr('no', 'No Identity is required');
+      } else {
+        setErr('no', '');
+      }
+
+      // Address Identity
+      var addressIdentity = document.getElementById('address_identity');
+      var addressIdentityVal = addressIdentity ? addressIdentity.value.trim() : '';
+      if (!addressIdentityVal) {
+        errors.push('Address Identity is required');
+        setErr('address_identity', 'Address Identity is required');
+      } else {
+        setErr('address_identity', '');
+      }
+
+      // Address Domicile
+      var addressDomicile = document.getElementById('address_domicile');
+      var addressDomicileVal = addressDomicile ? addressDomicile.value.trim() : '';
+      if (!addressDomicileVal) {
+        errors.push('Address Domicile is required');
+        setErr('address_domicile', 'Address Domicile is required');
+      } else {
+        setErr('address_domicile', '');
+      }
+
+      // Phone
+      var phone = document.getElementById('no_hp');
+      var phoneVal = phone ? phone.value.trim() : '';
+      if (!phoneVal) {
+        errors.push('Phone number is required');
+        setErr('no_hp', 'Phone number is required');
+      } else if (phoneVal && !isValidPhone(phoneVal)) {
+        errors.push('Phone number must be at least 10 digits');
+        setErr('no_hp', 'Phone number must be at least 10 digits');
+      } else {
+        setErr('no_hp', '');
+      }
+  
+      // Emergency name (required if phone filled)
+      var emergencyName = document.getElementById('emergency_contact_name');
+      var emergencyNameVal = emergencyName ? emergencyName.value.trim() : '';
+      if (!emergencyNameVal) {
+        errors.push('Emergency contact name is required');
+        setErr('emergency_contact_name', 'Emergency contact name is required');
+      } else if (emergencyPhoneVal && !emergencyNameVal) {
+        errors.push('Emergency contact name is required when phone number is provided');
+        setErr('emergency_contact_name', 'Emergency contact name is required');
+      } else {
+        setErr('emergency_contact_name', '');
+      }
+
+      // Emergency phone
+      var emergencyPhone = document.getElementById('no_emergency_contact');
+      var emergencyPhoneVal = emergencyPhone ? emergencyPhone.value.trim() : '';
+      if (!emergencyPhoneVal) {
+        errors.push('Emergency phone number is required');
+        setErr('no_emergency_contact', 'Emergency phone number is required');
+      } else if (emergencyPhoneVal && !isValidPhone(emergencyPhoneVal)) {
+        errors.push('Emergency phone number must be at least 10 digits');
+        setErr('no_emergency_contact', 'Emergency phone number must be at least 10 digits');
+      } else {
+        setErr('no_emergency_contact', '');
+      }
+
+      // Emergency relation (required if phone filled)
+      var emergency_relation = document.getElementById('emergency_relation');
+      var emergency_relationVal = emergency_relation ? emergency_relation.value.trim() : '';
+      if (!emergency_relationVal) {
+        errors.push('Emergency relation is required');
+        setErr('emergency_relation', 'Emergency relation is required');
+      } else {
+        setErr('emergency_relation', '');
+      }
+      return errors;
+    }
+  
+    // Attach validation
+    var form = document.getElementById('empForm');
+    if (form) {
+      var fieldsToValidate = [
+        'id_employee', 'photo', 'name', 'email', 'gender', 'citizenship', 'marital_status', 'blood_type', 'religion', 'work_email', 'place_of_birth', 'date_of_birth', 'join_date', 'id_type_bank', 'no_account',
+        'no_kpj_bpjs', 'no_bpjs_kes', 'no_bpjs_jk',
+        'no_npwp_limabelas', 'no_npwp_enambelas', 'ptkp', 'id_type_identity', 'no', 'address_identity', 'address_domicile', 'no_hp',
+        'no_emergency_contact', 'emergency_contact_name', 'emergency_relation'
+      ];
+  
+      fieldsToValidate.forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', validate);
+          el.addEventListener('change', validate);
+        }
+      });
+  
+      form.addEventListener('submit', function(e){
+        var errs = validate();
+        if (errs.length) {
+          e.preventDefault();
+          Swal.fire({
+            icon:'error',
+            title:'Error',
+            html:'There is an error' 
+          });
+        }
+      });
+    }
+    </script>
+    <!-- Template JS File -->
+    <script src="/static/assets/js/scripts.js"></script>
+    <script src="/static/assets/js/custom.js"></script>
+  </body>
 </html>
 {{ end }}

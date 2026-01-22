@@ -223,13 +223,6 @@
                         </div>
                         
                         <div class="form-group">
-                          <label>Evidence Link <span class="text-danger">*</span></label>
-                          <input id="evidence_link" type="text" name="evidence_link" class="form-control"
-                            value="{{ old .form "evidence_link" }}">
-                          <div class="invalid-feedback" id="err-evidence_link">{{ err .errors "evidence_link" }}</div>
-                        </div>
-                        
-                        <div class="form-group">
                           <label>Place of Birth <span class="text-danger">*</span></label>
                           <input id="place_of_birth" type="text" name="place_of_birth" class="form-control"
                             value="{{ old .form "place_of_birth" }}">
@@ -673,17 +666,17 @@
       }
 
       // Evidence Link
-      var evidenceLink = document.getElementById('evidence_link');
-      var evidenceLinkVal = evidenceLink ? evidenceLink.value.trim() : '';
-      if (!evidenceLinkVal) {
-        errors.push('Evidence Link is required');
-        setErr('evidence_link', 'Evidence Link is required');
-      } else if (evidenceLinkVal && !isValidURL(evidenceLinkVal)) {
-        errors.push('Evidence Link must be a valid URL');
-        setErr('evidence_link', 'Evidence Link must be a valid URL');
-      } else {
-        setErr('evidence_link', '');
-      }
+      // var evidenceLink = document.getElementById('evidence_link');
+      // var evidenceLinkVal = evidenceLink ? evidenceLink.value.trim() : '';
+      // if (!evidenceLinkVal) {
+      //   errors.push('Evidence Link is required');
+      //   setErr('evidence_link', 'Evidence Link is required');
+      // } else if (evidenceLinkVal && !isValidURL(evidenceLinkVal)) {
+      //   errors.push('Evidence Link must be a valid URL');
+      //   setErr('evidence_link', 'Evidence Link must be a valid URL');
+      // } else {
+      //   setErr('evidence_link', '');
+      // }
 
       // Place of Birth
       var placeOfBirth = document.getElementById('place_of_birth');
@@ -928,7 +921,7 @@
     var form = document.getElementById('empForm');
     if (form) {
       var fieldsToValidate = [
-        'id_employee', 'photo', 'name', 'email', 'gender', 'citizenship', 'marital_status', 'blood_type', 'religion', 'work_email', 'evidence_link', 'place_of_birth', 'date_of_birth', 'join_date', 'id_type_bank', 'no_account',
+        'id_employee', 'photo', 'name', 'email', 'gender', 'citizenship', 'marital_status', 'blood_type', 'religion', 'work_email', 'place_of_birth', 'date_of_birth', 'join_date', 'id_type_bank', 'no_account',
         'no_kpj_bpjs', 'no_bpjs_kes', 'no_bpjs_jk',
         'no_npwp_limabelas', 'no_npwp_enambelas', 'ptkp', 'id_type_identity', 'no', 'address_identity', 'address_domicile', 'no_hp',
         'no_emergency_contact', 'emergency_contact_name', 'emergency_relation'
