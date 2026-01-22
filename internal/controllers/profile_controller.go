@@ -21,26 +21,128 @@ func NewProfileController() *ProfileController {
 	return &ProfileController{}
 }
 
-// Index - Tampilkan halaman profile
-func (dc *ProfileController) Index(c *gin.Context) {
-	// Ambil user dari session (helper, tanpa middleware)
-	currentUser := auth.GetCurrentUser(c) // *models.Employee atau nil
+func (pc *ProfileController) Index(c *gin.Context) {
+	// 1. Ambil user yang sedang login
+	currentUser := auth.GetCurrentUser(c)
+	if currentUser == nil {
+		c.Redirect(http.StatusFound, "/login")
+		return
+	}
 
-	// 1) Ambil row employee lengkap dari DB
+	// 2. Ambil row employee lengkap
 	var employee models.Employee
-	if err := config.DB.
-		Where("id = ?", currentUser.ID).
-		First(&employee).Error; err != nil {
-		// handle error (404, dll)
+	if err := config.DB.Where("id = ?", currentUser.ID).First(&employee).Error; err != nil {
 		c.String(http.StatusInternalServerError, "employee not found")
 		return
 	}
 
-	// Render profile menggunakan layout main.html
+	// 3. Ambil master yang direferensikan employee (company, blood, religion, bank, identity, contact, staffing)
+	var company models.Company
+	var blood models.Blood
+	var religion models.Religion
+	var bankAccount models.BankAccount
+	var typeBank models.TypeBank
+	var identity models.Identity
+	var typeIdentity models.TypeIdentity
+	var contact models.Contact
+	var address models.Address
+	var staffing models.Staffing
+
+	// company
+	if employee.IDCompany != nil {
+		_ = config.DB.First(&company, "id = ?", employee.IDCompany).Error
+	}
+	// blood
+	if employee.IDBlood != nil {
+		_ = config.DB.First(&blood, "id = ?", employee.IDBlood).Error
+	}
+	// religion
+	if employee.IDReligion != nil {
+		_ = config.DB.First(&religion, "id = ?", employee.IDReligion).Error
+	}
+	// bank account + type_bank
+	if employee.IDBankAccount != nil {
+		if err := config.DB.First(&bankAccount, "id = ?", employee.IDBankAccount).Error; err == nil {
+			if bankAccount.IDTypeBank != nil {
+				_ = config.DB.First(&typeBank, "id = ?", bankAccount.IDTypeBank).Error
+			}
+		}
+	}
+	// identity + type_identity
+	if employee.IDIdentity != nil {
+		if err := config.DB.First(&identity, "id = ?", employee.IDIdentity).Error; err == nil {
+			if identity.IDTypeIdentity != nil {
+				_ = config.DB.First(&typeIdentity, "id = ?", identity.IDTypeIdentity).Error
+			}
+		}
+	}
+	// contact + address
+	if employee.IDContact != nil {
+		if err := config.DB.First(&contact, "id = ?", employee.IDContact).Error; err == nil {
+			if contact.IDAddress != nil {
+				_ = config.DB.First(&address, "id = ?", contact.IDAddress).Error
+			}
+		}
+	}
+	// staffing
+	if employee.IDStaffing != nil {
+		_ = config.DB.First(&staffing, "id = ?", employee.IDStaffing).Error
+	}
+
+	// 4. Ambil data turunan by id_employee: education, career, achievement, family
+	var educations []models.Education
+	var careers []models.Career
+	var achievements []models.Achievement
+	var families []models.Family
+
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&educations).Error
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&careers).Error
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&achievements).Error
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&families).Error
+
+	// 5. (Opsional) pre-load master untuk career (status, grading, department) & family (religion)
+	// kalau butuh label di view
+	var statuses []models.Status
+	var gradings []models.Grading
+	var departments []models.Department
+	var familyReligions []models.Religion
+
+	if len(careers) > 0 {
+		_ = config.DB.Find(&statuses).Error
+		_ = config.DB.Find(&gradings).Error
+		_ = config.DB.Find(&departments).Error
+	}
+	if len(families) > 0 {
+		_ = config.DB.Find(&familyReligions).Error
+	}
+
+	// 6. Kirim semua ke template profile
 	c.HTML(http.StatusOK, "profile", gin.H{
 		"title":      "Profile",
-		"user":       employee, // seluruh row employee yang login (boleh nil)
 		"activePage": "profile",
+
+		"user":         employee,
+		"company":      company,
+		"blood":        blood,
+		"religion":     religion,
+		"bankAccount":  bankAccount,
+		"typeBank":     typeBank,
+		"identity":     identity,
+		"typeIdentity": typeIdentity,
+		"contact":      contact,
+		"address":      address,
+		"staffing":     staffing,
+
+		"educations":   educations,
+		"careers":      careers,
+		"achievements": achievements,
+		"families":     families,
+
+		// master untuk mapping ID -> nama (dipakai di range di template)
+		"statuses":        statuses,
+		"gradings":        gradings,
+		"departments":     departments,
+		"familyReligions": familyReligions,
 	})
 }
 

@@ -1,138 +1,566 @@
-{{ define "department_add" }}
+{{ define "employee_info" }}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
-  <title>{{ .title }} | HRIS System</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no"
+      name="viewport"
+    />
+    <title>{{ .title }} | HRIS System</title>
 
-  <!-- General CSS Files -->
-  <link rel="stylesheet" href="/static/assets/modules/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/fontawesome/css/all.min.css">
+    <!-- General CSS Files -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/bootstrap/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/fontawesome/css/all.min.css"
+    />
 
-  <!-- CSS Libraries -->
-  <link rel="stylesheet" href="/static/assets/modules/jqvmap/dist/jqvmap.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/weather-icon/css/weather-icons.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/weather-icon/css/weather-icons-wind.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/summernote/summernote-bs4.css">
+    <!-- CSS Libraries -->
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/jqvmap/dist/jqvmap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/weather-icon/css/weather-icons-wind.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/summernote/summernote-bs4.css"
+    />
 
-  <link rel="stylesheet" href="/static/assets/modules/datatables/datatables.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
-  <link rel="stylesheet" href="/static/assets/modules/datatables/Select-1.2.4/css/select.bootstrap4.min.css">
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="/static/assets/css/style.css" />
+    <link rel="stylesheet" href="/static/assets/css/components.css" />
+    <link
+      rel="stylesheet"
+      href="/static/assets/modules/izitoast/css/iziToast.min.css"
+    />
+    <script src="/static/assets/modules/izitoast/js/iziToast.min.js"></script>
+    <!-- Start GA -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-  <!-- Template CSS -->
-  <link rel="stylesheet" href="/static/assets/css/style.css">
-  <link rel="stylesheet" href="/static/assets/css/components.css">
-<!-- Start GA -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+      gtag("config", "UA-94034622-3");
+    </script>
+    <!-- /END GA -->
+    <style>
+      .profile-photo-wrapper {
+        position: relative;
+        z-index: 1;
+        display: inline-block !important;
+        z-index: 10; /* naikkan z-index */
+      }
 
-  gtag('config', 'UA-94034622-3');
-</script>
-<!-- /END GA --></head>
+      .profile-widget-picture {
+        width: 110px !important;
+        height: 110px !important;
+        object-fit: cover !important;
+      }
 
-<body>
-  <div id="app">
-    <div class="main-wrapper main-wrapper-1">
-      <div class="navbar-bg"></div>
-      
+      .edit-camera-btn {
+        position: absolute !important;
+        top: -15px !important;
+        right: -5px !important;
+        transform: translate(30%, -30%);
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        z-index: 5 !important;
+        background: #6777ef !important;
+        border: none !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+        font-size: 12px !important;
+        cursor: pointer !important; /* pastikan pointer */
+        transition: all 0.2s ease !important;
+      }
+
+      .edit-camera-btn:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
+      }
+
+      .edit-camera-btn:focus {
+        box-shadow: 0 0 0 0.3rem rgba(103, 119, 239, 0.4) !important;
+        outline: none !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="main-wrapper main-wrapper-1">
+        <div class="navbar-bg"></div>
+
         <!-- Header -->
         {{ template "header" . }}
 
         <!-- Sidebar -->
         {{ template "sidebar" . }}
-        
+
         <!-- Main Content -->
         <div class="main-content">
-            <section class="section">
-          <div class="section-header">
-            <h1>Department</h1>
-            <div class="section-header-breadcrumb">
-              <div class="breadcrumb-item active"><a href="/department">Department</a></div>
-              <div class="breadcrumb-item">Data Department</div>
-              <div class="breadcrumb-item">Add Department</div>
+          <section class="section">
+            <div class="section-header">
+              <h1>Profile</h1>
+              <div class="section-header-breadcrumb">
+                <div class="breadcrumb-item">Profile</div>
+              </div>
             </div>
-          </div>
-          <div class="section-body">
-            <div class="row">
-              <div class="col-12">
-                <div class="card">
-                  <div class="card-header">
-                    <h4>Add Department</h4>
-                  </div>
-                  <form id="deptForm" action="{{ .action }}" method="POST">
-                    <div class="card-body">
-                      <div class="form-group">
-                        <label>Name Department</label>
-                        <input type="text" name="department" class="form-control"
-                              value="{{ if .data }}{{ .data.Department }}{{ end }}">
+            <div class="section-body">
+              <h2 class="section-title">Hi, {{ .user.Name }}</h2>
+              <p class="section-lead">{{ .user.Name }}</p>
+
+              <div class="row mt-sm-4">
+                <div class="col-12 col-md-12 col-lg-6">
+                  <div class="card profile-widget">
+                    <div class="profile-widget-header">
+                      <div class="profile-photo-wrapper">
+                        <img
+                          alt="image"
+                          src="{{ if .user.Photo }}{{ .user.Photo }}{{ else }}/static/assets/img/avatar/avatar-1.png{{ end }}"
+                          class="rounded-circle profile-widget-picture"
+                          id="profileImage"
+                        />
+
+                        <!-- BUTTON SELALU ADA -->
+                        <button
+                          type="button"
+                          class="btn btn-primary btn-sm edit-camera-btn"
+                          data-toggle="modal"
+                          data-target="#editPhotoModal"
+                          title="Ubah Foto"
+                        >
+                          <i class="fas fa-camera"></i>
+                        </button>
                       </div>
                     </div>
-                    <div class="card-footer text-right">
-                      <a href="/department" class="btn btn-secondary">Back</a>
-                      <button type="submit" class="btn btn-success">Add</button>
+
+                    <div class="profile-widget-description">
+                      <div class="profile-widget-name">
+                        {{ .user.Name }}
+                        <div class="text-muted d-inline font-weight-normal">
+                          <div class="slash"></div>
+                          Web Developer
+                        </div>
+                      </div>
                     </div>
-                  </form>
+
+                    <div class="card-footer text-center">
+                      <div class="font-weight-bold mb-2">Follow Ujang On</div>
+                      <a href="#" class="btn btn-social-icon btn-facebook mr-1">
+                        <i class="fab fa-facebook-f"></i>
+                      </a>
+                      <a href="#" class="btn btn-social-icon btn-twitter mr-1">
+                        <i class="fab fa-twitter"></i>
+                      </a>
+                      <a href="#" class="btn btn-social-icon btn-github mr-1">
+                        <i class="fab fa-github"></i>
+                      </a>
+                      <a href="#" class="btn btn-social-icon btn-instagram">
+                        <i class="fab fa-instagram"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <form method="post" class="needs-validation" novalidate="">
+                      <div class="card-header">
+                        <h4>Edit Profile</h4>
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="form-group col-md-6 col-12">
+                            <label>First Name</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              value="Ujang"
+                              required=""
+                            />
+                            <div class="invalid-feedback">
+                              Please fill in the first name
+                            </div>
+                          </div>
+                          <div class="form-group col-md-6 col-12">
+                            <label>Last Name</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              value="Maman"
+                              required=""
+                            />
+                            <div class="invalid-feedback">
+                              Please fill in the last name
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="form-group col-md-7 col-12">
+                            <label>Email</label>
+                            <input
+                              type="email"
+                              class="form-control"
+                              value="ujang@maman.com"
+                              required=""
+                            />
+                            <div class="invalid-feedback">
+                              Please fill in the email
+                            </div>
+                          </div>
+                          <div class="form-group col-md-5 col-12">
+                            <label>Phone</label>
+                            <input type="tel" class="form-control" value="" />
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="form-group col-12">
+                            <label>Bio</label>
+                            <textarea class="form-control summernote-simple">
+Ujang maman is a superhero name in <b>Indonesia</b>, especially in my family. He is not a fictional character but an original hero in my family, a hero for his children and for his wife. So, I use the name as a user in this template. Not a tribute, I'm just bored with <b>'John Doe'</b>.</textarea
+                            >
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="form-group mb-0 col-12">
+                            <div class="custom-control custom-checkbox">
+                              <input
+                                type="checkbox"
+                                name="remember"
+                                class="custom-control-input"
+                                id="newsletter"
+                              />
+                              <label
+                                class="custom-control-label"
+                                for="newsletter"
+                                >Subscribe to newsletter</label
+                              >
+                              <div class="text-muted form-text">
+                                You will get new information about products,
+                                offers and promotions
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card-footer text-right">
+                        <button class="btn btn-primary">Save Changes</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <div class="col-12 col-md-12 col-lg-6">
+                  <div class="card">
+                    <form method="post" class="needs-validation" novalidate="">
+                      <div class="card-header">
+                        <h4>Edit Profile</h4>
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="form-group col-md-6 col-12">
+                            <label>First Name</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              value="Ujang"
+                              required=""
+                            />
+                            <div class="invalid-feedback">
+                              Please fill in the first name
+                            </div>
+                          </div>
+                          <div class="form-group col-md-6 col-12">
+                            <label>Last Name</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              value="Maman"
+                              required=""
+                            />
+                            <div class="invalid-feedback">
+                              Please fill in the last name
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="form-group col-md-7 col-12">
+                            <label>Email</label>
+                            <input
+                              type="email"
+                              class="form-control"
+                              value="ujang@maman.com"
+                              required=""
+                            />
+                            <div class="invalid-feedback">
+                              Please fill in the email
+                            </div>
+                          </div>
+                          <div class="form-group col-md-5 col-12">
+                            <label>Phone</label>
+                            <input type="tel" class="form-control" value="" />
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="form-group col-12">
+                            <label>Bio</label>
+                            <textarea class="form-control summernote-simple">
+Ujang maman is a superhero name in <b>Indonesia</b>, especially in my family. He is not a fictional character but an original hero in my family, a hero for his children and for his wife. So, I use the name as a user in this template. Not a tribute, I'm just bored with <b>'John Doe'</b>.</textarea
+                            >
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="form-group mb-0 col-12">
+                            <div class="custom-control custom-checkbox">
+                              <input
+                                type="checkbox"
+                                name="remember"
+                                class="custom-control-input"
+                                id="newsletter"
+                              />
+                              <label
+                                class="custom-control-label"
+                                for="newsletter"
+                                >Subscribe to newsletter</label
+                              >
+                              <div class="text-muted form-text">
+                                You will get new information about products,
+                                offers and promotions
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card-footer text-right">
+                        <button class="btn btn-primary">Save Changes</button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
         </div>
-        
+
         <!-- Footer -->
         {{ template "footer" . }}
-
+      </div>
     </div>
-  </div>
+    <!-- Modal Edit Photo -->
+    <div
+      class="modal fade"
+      id="editPhotoModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="editPhotoModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editPhotoModalLabel">
+              Ubah Foto Profile
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form id="uploadPhotoForm" enctype="multipart/form-data">
+              <div class="form-group">
+                <label>Pilih Foto Baru</label>
+                <div class="custom-file">
+                  <input
+                    type="file"
+                    class="custom-file-input"
+                    id="photoInput"
+                    name="photo"
+                    accept="image/jpeg,image/png,image/jpg,image/gif"
+                  />
+                  <label class="custom-file-label" for="photoInput"
+                    >Pilih file</label
+                  >
+                </div>
+                <small class="form-text text-muted">
+                  Format: JPG, PNG, GIF. Maksimal 2MB.
+                </small>
+              </div>
 
-  <!-- General JS Scripts -->
-  <script src="/static/assets/modules/jquery.min.js"></script>
-  <script src="/static/assets/modules/popper.js"></script>
-  <script src="/static/assets/modules/tooltip.js"></script>
-  <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
-  <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
-  <script src="/static/assets/modules/moment.min.js"></script>
-  <script src="/static/assets/js/stisla.js"></script>
-  
-  <!-- JS Libraies -->
-  <script src="/static/assets/modules/simple-weather/jquery.simpleWeather.min.js"></script>
-  <script src="/static/assets/modules/chart.min.js"></script>
-  <script src="/static/assets/modules/jqvmap/dist/jquery.vmap.min.js"></script>
-  <script src="/static/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js"></script>
-  <script src="/static/assets/modules/summernote/summernote-bs4.js"></script>
-  <script src="/static/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
+              <!-- Preview Image -->
+              <div class="form-group text-center">
+                <img
+                  id="photoPreview"
+                  src=""
+                  alt="Preview"
+                  class="img-thumbnail"
+                  style="max-width: 200px; display: none"
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" id="btnDeletePhoto">
+              <i class="fas fa-trash"></i> Hapus Foto
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Batal
+            </button>
+            <button type="button" class="btn btn-primary" id="btnUploadPhoto">
+              <i class="fas fa-upload"></i> Upload
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <!-- Page Specific JS File -->
-  <script src="/static/assets/js/page/index-0.js"></script>
-  
-  <script src="/static/assets/modules/datatables/datatables.min.js"></script>
-  <script src="/static/assets/modules/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
-  <script src="/static/assets/modules/datatables/Select-1.2.4/js/dataTables.select.min.js"></script>
-  <script src="/static/assets/modules/jquery-ui/jquery-ui.min.js"></script>
+    <!-- General JS Scripts -->
+    <script src="/static/assets/modules/jquery.min.js"></script>
+    <script src="/static/assets/modules/popper.js"></script>
+    <script src="/static/assets/modules/tooltip.js"></script>
+    <script src="/static/assets/modules/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
+    <script src="/static/assets/modules/moment.min.js"></script>
+    <script src="/static/assets/js/stisla.js"></script>
 
-  <!-- Page Specific JS File -->
-  <script src="/static/assets/js/page/modules-datatables.js"></script>
+    <!-- JS Libraies -->
+    <script src="/static/assets/modules/simple-weather/jquery.simpleWeather.min.js"></script>
+    <script src="/static/assets/modules/chart.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/jquery.vmap.min.js"></script>
+    <script src="/static/assets/modules/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+    <script src="/static/assets/modules/summernote/summernote-bs4.js"></script>
+    <script src="/static/assets/modules/chocolat/dist/js/jquery.chocolat.min.js"></script>
 
-  <!-- Template JS File -->
-  <script src="/static/assets/js/scripts.js"></script>
-  <script src="/static/assets/js/custom.js"></script>
-  <script>
-  document.getElementById('deptForm').addEventListener('submit', function (e) {
-    const dept = this.department.value.trim();
-    if (!dept) {
-      e.preventDefault();
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Name Department required',
+    <!-- Page Specific JS File -->
+    <script src="/static/assets/js/page/index-0.js"></script>
+
+    <!-- Template JS File -->
+    <script src="/static/assets/js/scripts.js"></script>
+    <script src="/static/assets/js/custom.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Tunggu DOM dan Bootstrap modal ready
+        $("#editPhotoModal").on("shown.bs.modal", function () {
+          console.log("Modal ready"); // debug
+        });
+
+        // Preview image
+        $("#photoInput").on("change", function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            $(".custom-file-label").text(file.name);
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              $("#photoPreview").attr("src", e.target.result).show();
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+
+        // Event button camera - pakai jQuery onclick sebagai fallback
+        $(".edit-camera-btn").on("click", function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          $("#editPhotoModal").modal("show");
+        });
+
+        // Upload photo
+        $("#btnUploadPhoto").on("click", function () {
+          const formData = new FormData($("#uploadPhotoForm")[0]);
+          if (!$("#photoInput")[0].files.length) {
+            iziToast.warning({
+              title: "Peringatan",
+              message: "Pilih foto terlebih dahulu",
+            });
+            return;
+          }
+
+          $.ajax({
+            url: "/profile/upload-photo",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+              iziToast.success({
+                title: "Berhasil",
+                message: response.message,
+              });
+              $("#profileImage").attr(
+                "src",
+                response.photo + "?t=" + new Date().getTime()
+              );
+              $("#uploadPhotoForm")[0].reset();
+              $("#photoPreview").hide();
+              $(".custom-file-label").text("Pilih file");
+              $("#editPhotoModal").modal("hide");
+            },
+            error: function (xhr) {
+              iziToast.error({
+                title: "Error",
+                message: xhr.responseJSON?.error || "Gagal upload",
+              });
+            },
+          });
+        });
+
+        // Delete photo
+        $("#btnDeletePhoto").on("click", function () {
+          if (confirm("Yakin hapus foto profile?")) {
+            $.ajax({
+              url: "/profile/delete-photo",
+              type: "DELETE",
+              success: function (response) {
+                iziToast.success({
+                  title: "Success",
+                  message: response.message,
+                });
+                $("#profileImage").attr(
+                  "src",
+                  response.photo + "?t=" + new Date().getTime()
+                );
+                $("#editPhotoModal").modal("hide");
+              },
+              error: function (xhr) {
+                iziToast.error({
+                  title: "Error",
+                  message: xhr.responseJSON?.error || "Error delete photo",
+                });
+              },
+            });
+          }
+        });
+
+        // Reset modal
+        $("#editPhotoModal").on("hidden.bs.modal", function () {
+          $("#uploadPhotoForm")[0].reset();
+          $("#photoPreview").hide();
+          $(".custom-file-label").text("Pilih file");
+        });
       });
-    }
-  });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
 {{ end }}

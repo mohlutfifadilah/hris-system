@@ -74,6 +74,7 @@ func main() {
 	r.GET("/employee", EmployeeController.Index)
 	r.GET("/employee/create", EmployeeController.Create)
 	r.POST("/employee", EmployeeController.Store)
+	r.GET("/employee/:id/show", EmployeeController.Show)
 	r.GET("/employee/:id/edit", EmployeeController.Edit)
 	r.POST("/employee/:id", EmployeeController.Update)
 	r.POST("/employee/:id/delete", EmployeeController.Delete)

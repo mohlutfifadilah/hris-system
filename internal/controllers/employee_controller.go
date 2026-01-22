@@ -560,6 +560,86 @@ func (dc *EmployeeController) Store(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/employee")
 }
 
+// GET /employee/:id
+func (dc *EmployeeController) Show(c *gin.Context) {
+	id := c.Param("id")
+
+	currentUser := auth.GetCurrentUser(c)
+	if currentUser == nil {
+		c.String(http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	// 1. Ambil employee
+	var employee models.Employee
+	if err := config.DB.Where("id = ?", id).First(&employee).Error; err != nil {
+		c.String(http.StatusNotFound, "Employee not found")
+		return
+	}
+
+	// 2. Ambil relasi langsung (staffing, bank, identity, contact, address)
+	var staffing models.Staffing
+	var bankAccount models.BankAccount
+	var identity models.Identity
+	var contact models.Contact
+	var address models.Address
+
+	if employee.IDStaffing != nil {
+		_ = config.DB.First(&staffing, "id = ?", employee.IDStaffing).Error
+	}
+	if employee.IDBankAccount != nil {
+		_ = config.DB.First(&bankAccount, "id = ?", employee.IDBankAccount).Error
+	}
+	if employee.IDIdentity != nil {
+		_ = config.DB.First(&identity, "id = ?", employee.IDIdentity).Error
+	}
+	if employee.IDContact != nil {
+		_ = config.DB.First(&contact, "id = ?", employee.IDContact).Error
+	}
+	if contact.IDAddress != nil {
+		_ = config.DB.First(&address, "id = ?", contact.IDAddress).Error
+	}
+
+	// 3. Ambil data turunan: family, education, career, achievement
+	var families []models.Family
+	var educations []models.Education
+	var careers []models.Career
+	var achievements []models.Achievement
+
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&families).Error
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&educations).Error
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&careers).Error
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&achievements).Error
+
+	// 4. (Opsional) Ambil master untuk tampilan (blood, religion, dll) kalau perlu ditampilkan sebagai label
+	var blood models.Blood
+	var religion models.Religion
+	if employee.IDBlood != nil {
+		_ = config.DB.First(&blood, "id = ?", employee.IDBlood).Error
+	}
+	if employee.IDReligion != nil {
+		_ = config.DB.First(&religion, "id = ?", employee.IDReligion).Error
+	}
+
+	// 5. Render template show/detail
+	c.HTML(http.StatusOK, "employee_info", gin.H{
+		"title":       "Detail Employee",
+		"data":        employee,
+		"staffing":    staffing,
+		"bankAccount": bankAccount,
+		"identity":    identity,
+		"address":     address,
+		"contact":     contact,
+		"families":    families,
+		"educations":  educations,
+		"careers":     careers,
+		"achievements": achievements,
+		"blood":       blood,
+		"religion":    religion,
+	})
+}
+
+
 // GET /departments/:id/edit
 func (dc *EmployeeController) Edit(c *gin.Context) {
 	// Ambil user dari session (helper, tanpa middleware)
