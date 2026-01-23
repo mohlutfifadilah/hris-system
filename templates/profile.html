@@ -498,6 +498,11 @@
                 </div>
               </div>
             </div>
+            <!-- Button to Open the Modal -->
+            <button type="button" class="btn btn-primary float-right mr-4" data-toggle="modal" data-target="#changePasswordModal">
+              Change Password
+            </button>
+
           </section>
         </div>
 
@@ -518,7 +523,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="editPhotoModalLabel">
-              Ubah Foto Profile
+              Edit Foto Profile
             </h5>
             <button
               type="button"
@@ -532,7 +537,7 @@
           <div class="modal-body">
             <form id="uploadPhotoForm" enctype="multipart/form-data">
               <div class="form-group">
-                <label>Pilih Foto Baru</label>
+                <label>New Photo</label>
                 <div class="custom-file">
                   <input
                     type="file"
@@ -542,11 +547,11 @@
                     accept="image/jpeg,image/png,image/jpg,image/gif"
                   />
                   <label class="custom-file-label" for="photoInput"
-                    >Pilih file</label
+                    >Choose File</label
                   >
                 </div>
                 <small class="form-text text-muted">
-                  Format: JPG, PNG, GIF. Maksimal 2MB.
+                  Format: JPG, PNG, GIF. Max 2MB.
                 </small>
               </div>
 
@@ -564,19 +569,55 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-danger" id="btnDeletePhoto">
-              <i class="fas fa-trash"></i> Hapus Foto
+              <i class="fas fa-trash"></i> Delete Photo
             </button>
             <button
               type="button"
               class="btn btn-secondary"
               data-dismiss="modal"
             >
-              Batal
+              Cancel
             </button>
             <button type="button" class="btn btn-primary" id="btnUploadPhoto">
               <i class="fas fa-upload"></i> Upload
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- The Modal -->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <form action="/profile/change-password" method="POST">
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="old_password">Old Password</label>
+                <input type="password" class="form-control" id="old_password" name="old_password">
+              </div>
+
+              <div class="form-group">
+                <label for="new_password">New Password</label>
+                <input type="password" class="form-control" id="new_password" name="new_password">
+              </div>
+
+              <div class="form-group">
+                <label for="confirm_password">Confirm New Password</label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Change Password</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -636,8 +677,8 @@
           const formData = new FormData($("#uploadPhotoForm")[0]);
           if (!$("#photoInput")[0].files.length) {
             iziToast.warning({
-              title: "Peringatan",
-              message: "Pilih foto terlebih dahulu",
+              title: "Warning",
+              message: "Choose a photo to upload",
             });
             return;
           }

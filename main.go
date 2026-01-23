@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
+	"net/http"
 
 	"hris-system/config"
 	migrations "hris-system/database/migration"
@@ -48,6 +49,10 @@ func main() {
 	// Serve static files
 	r.Static("/static", "./static")
 
+	// Contoh di main.go
+	fs := http.FileServer(http.Dir("./static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
 	// Initialize controllers
 	authController := controllers.NewAuthController()
 	dashboardController := controllers.NewDashboardController()
@@ -83,6 +88,7 @@ func main() {
 	r.GET("/profile", profileController.Index)
 	r.POST("/profile/upload-photo", profileController.UploadProfilePhoto)
 	r.DELETE("/profile/delete-photo", profileController.DeleteProfilePhoto)
+	r.POST("/profile/change-password", profileController.ChangePassword)
 
 	// Career routes
 	r.GET("/career", careerController.Index)

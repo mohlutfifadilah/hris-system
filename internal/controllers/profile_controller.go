@@ -13,6 +13,7 @@ import (
 	"hris-system/config"
 	auth "hris-system/internal/auth"
 	"hris-system/models"
+	"hris-system/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -312,7 +313,7 @@ func (pc *ProfileController) Index(c *gin.Context) {
 		"gradingNames":    gradingNames,
 		"departmentNames": departmentNames,
 
-		"yearGroupss":      yearGroups2,
+		"yearGroupss":     yearGroups2,
 		"types":           types,
 		"allAchievements": allAchievements, // Backup untuk timeline dots
 
@@ -438,4 +439,59 @@ func (dc *ProfileController) DeleteProfilePhoto(c *gin.Context) {
 		"message": "Foto profile success deleted",
 		"photo":   user.Photo,
 	})
+}
+
+// POST /change_password
+func (pc *ProfileController) ChangePassword(c *gin.Context) {
+	// Ambil user yang sedang login
+	currentUser := auth.GetCurrentUser(c)
+	if currentUser == nil {
+		c.Redirect(http.StatusFound, "/login")
+		return
+	}
+
+	// Ambil data dari form
+	oldPassword := c.PostForm("old_password")
+	newPassword := c.PostForm("new_password")
+	confirmPassword := c.PostForm("confirm_password")
+
+	// Validasi: Pastikan password baru dan konfirmasi cocok
+	if newPassword != confirmPassword {
+		c.HTML(http.StatusBadRequest, "profile.html", gin.H{
+			"error": "New password and confirm password do not match.",
+		})
+		return
+	}
+
+	// Verifikasi password lama
+	// Pastikan bahwa password lama yang dimasukkan cocok dengan yang ada di database
+	if !utils.CheckPassword(currentUser.Password, oldPassword) {
+		c.HTML(http.StatusBadRequest, "profile.html", gin.H{
+			"error": "Old password is incorrect.",
+		})
+		return
+	}
+
+	// Hash password baru sebelum disimpan ke database
+	hashedPassword, err := utils.HashPassword(newPassword)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "profile.html", gin.H{
+			"error": "Error hashing new password.",
+		})
+		return
+	}
+
+	// Update password di database
+	currentUser.Password = hashedPassword
+
+	// Simpan perubahan password
+	if err := config.DB.Save(&currentUser).Error; err != nil {
+		c.HTML(http.StatusInternalServerError, "change_password.html", gin.H{
+			"error": "Failed to update password.",
+		})
+		return
+	}
+
+	// Redirect ke halaman profil setelah sukses
+	c.Redirect(http.StatusFound, "/profile")
 }
