@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -116,6 +118,172 @@ func (pc *ProfileController) Index(c *gin.Context) {
 		_ = config.DB.Find(&familyReligions).Error
 	}
 
+	// Ambil career dengan effective_date terbaru
+	var career models.Career
+	err := config.DB.Where("id_employee = ?", employee.ID).
+		Order("effective_date desc").
+		First(&career).Error // Menggunakan First untuk mendapatkan hanya satu record dengan effective_date terbaru
+	if err != nil {
+		log.Println("Error fetching career:", err)
+	}
+
+	// department untuk current career
+	var odepartment models.Department
+	if career.IDDepartment != nil {
+		_ = config.DB.First(&odepartment, "id = ?", career.IDDepartment).Error
+	}
+
+	// grading untuk current career
+	var ograding models.Grading
+	if career.IDGrading != nil {
+		_ = config.DB.First(&ograding, "id = ?", career.IDGrading).Error
+	}
+
+	// 1. Ambil SEMUA career employee (NO YEAR FILTER dulu)
+	var allCareer []models.Career
+	config.DB.Where("id_employee = ?", currentUser.ID).
+		Order("effective_date ASC").
+		Find(&allCareer)
+
+	// 2. Cache untuk relasi names
+	statusNames := make(map[string]string)
+	gradingNames := make(map[string]string)
+	departmentNames := make(map[string]string)
+
+	for _, career := range allCareer {
+		// Get status name
+		if career.IDStatus != nil {
+			statusKey := career.IDStatus.String()
+			if _, exists := statusNames[statusKey]; !exists {
+				var status models.Status
+				if err := config.DB.Where("id = ?", career.IDStatus).First(&status).Error; err == nil {
+					statusNames[statusKey] = status.Status
+				}
+			}
+		}
+
+		// Get grading name
+		if career.IDGrading != nil {
+			gradingKey := career.IDGrading.String()
+			if _, exists := gradingNames[gradingKey]; !exists {
+				var grading models.Grading
+				if err := config.DB.Where("id = ?", career.IDGrading).First(&grading).Error; err == nil {
+					gradingNames[gradingKey] = grading.Grading
+				}
+			}
+		}
+
+		// Get department name
+		if career.IDDepartment != nil {
+			deptKey := career.IDDepartment.String()
+			if _, exists := departmentNames[deptKey]; !exists {
+				var dept models.Department
+				if err := config.DB.Where("id = ?", career.IDDepartment).First(&dept).Error; err == nil {
+					departmentNames[deptKey] = dept.Department
+				}
+			}
+		}
+	}
+
+	// 3. Group by YEAR only
+	yearMap := make(map[int][]models.Career)
+	for _, career := range allCareer {
+		year := career.EffectiveDate.Year()
+		yearMap[year] = append(yearMap[year], career)
+	}
+
+	// 4. Convert to sorted yearGroups
+	var yearGroups []CareerYearGroup
+	for year, careers := range yearMap {
+		// Sort careers by date DESC within year
+		sort.Slice(careers, func(i, j int) bool {
+			return careers[i].EffectiveDate.Before(careers[j].EffectiveDate)
+		})
+
+		yearGroups = append(yearGroups, CareerYearGroup{
+			Year:    year,
+			Careers: careers,
+		})
+	}
+
+	// Sort by year descending
+	sort.Slice(yearGroups, func(i, j int) bool {
+		return yearGroups[i].Year < yearGroups[j].Year
+	})
+
+	var status []models.Status
+	if err := config.DB.Order("created_at desc").Find(&status).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Error: %v", err)
+		return
+	}
+
+	var grading []models.Grading
+	if err := config.DB.Order("created_at desc").Find(&grading).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Error: %v", err)
+		return
+	}
+
+	var department []models.Department
+	if err := config.DB.Order("created_at desc").Find(&department).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Error: %v", err)
+		return
+	}
+
+	// 2. Ambil SEMUA achievements employee (NO YEAR FILTER dulu)
+	var allAchievements []models.Achievement
+	config.DB.Where("id_employee = ?", currentUser.ID).
+		Order("date ASC").
+		Find(&allAchievements)
+
+	// 2. Group by YEAR dari data yang ada
+	yearMap2 := make(map[int][]AchievementByType)
+
+	for _, ach := range allAchievements {
+		year := ach.Date.Year()
+
+		// Get or create type group for this year
+		typeMap := yearMap2[year]
+
+		// Cari apakah type sudah ada di year ini
+		found := false
+		for i := range typeMap {
+			if typeMap[i].TypeID == *ach.IDTypeAchievement {
+				typeMap[i].Achievements = append(typeMap[i].Achievements, ach)
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			// Type baru, fetch type name
+			var typeAch models.TypeAchievement
+			config.DB.First(&typeAch, *ach.IDTypeAchievement)
+
+			yearMap2[year] = append(typeMap, AchievementByType{
+				TypeName:     typeAch.Type,
+				TypeID:       *ach.IDTypeAchievement,
+				Achievements: []models.Achievement{ach},
+			})
+		}
+	}
+
+	// 3. Convert to sorted yearGroups
+	var yearGroups2 []YearGroup
+	for year := range yearMap2 {
+		yearGroups2 = append(yearGroups2, YearGroup{
+			Year:       year,
+			TypeGroups: yearMap2[year],
+		})
+	}
+
+	// Sort by year
+	sort.Slice(yearGroups2, func(i, j int) bool {
+		return yearGroups2[i].Year < yearGroups2[j].Year
+	})
+
+	var types []models.TypeAchievement
+	config.DB.Order("type ASC").Find(&types)
+
 	// 6. Kirim semua ke template profile
 	c.HTML(http.StatusOK, "profile", gin.H{
 		"title":      "Profile",
@@ -132,6 +300,21 @@ func (pc *ProfileController) Index(c *gin.Context) {
 		"contact":      contact,
 		"address":      address,
 		"staffing":     staffing,
+		"career":       career,
+		"odepartment":  odepartment,
+		"ograding":     ograding,
+		"department":   department,
+		"grading":      grading,
+
+		"yearGroups":      yearGroups,
+		"allCareer":       allCareer, // Backup untuk timeline dots
+		"statusNames":     statusNames,
+		"gradingNames":    gradingNames,
+		"departmentNames": departmentNames,
+
+		"yearGroupss":      yearGroups2,
+		"types":           types,
+		"allAchievements": allAchievements, // Backup untuk timeline dots
 
 		"educations":   educations,
 		"careers":      careers,

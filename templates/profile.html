@@ -124,12 +124,12 @@
               </div>
             </div>
             <div class="section-body">
-              <h2 class="section-title">Hi, {{ .user.Name }}</h2>
-              <p class="section-lead">{{ .user.Name }}</p>
+              <h2 class="section-title">Employee</h2>
+              <p class="section-lead">PLUS Advisor</p>
 
               <div class="row mt-sm-4">
                 <div class="col-12 col-md-12 col-lg-6">
-                  <div class="card profile-widget">
+                  <div class="card profile-widget mb-0 pb-0">
                     <div class="profile-widget-header">
                       <div class="profile-photo-wrapper">
                         <img
@@ -152,203 +152,348 @@
                       </div>
                     </div>
 
-                    <div class="profile-widget-description">
-                      <div class="profile-widget-name">
+                    <div class="profile-widget-description mb-2 pb-2">
+                      <div class="profile-widget-name mb-0">
                         {{ .user.Name }}
                         <div class="text-muted d-inline font-weight-normal">
                           <div class="slash"></div>
-                          Web Developer
+                          {{ .career.Position }}
+                          <div class="slash"></div>
+                          {{ .ograding.Grading }}
                         </div>
                       </div>
+                      <p>{{ .odepartment.Department }} Department</p>
+                      <hr>
                     </div>
 
-                    <div class="card-footer text-center">
-                      <div class="font-weight-bold mb-2">Follow Ujang On</div>
-                      <a href="#" class="btn btn-social-icon btn-facebook mr-1">
-                        <i class="fab fa-facebook-f"></i>
-                      </a>
-                      <a href="#" class="btn btn-social-icon btn-twitter mr-1">
-                        <i class="fab fa-twitter"></i>
-                      </a>
-                      <a href="#" class="btn btn-social-icon btn-github mr-1">
-                        <i class="fab fa-github"></i>
-                      </a>
-                      <a href="#" class="btn btn-social-icon btn-instagram">
-                        <i class="fab fa-instagram"></i>
-                      </a>
-                    </div>
+                    <dl class="row ml-2 pr-lg-2">
+                      <dt class="col-sm-4">ID Employee</dt>
+                      <dd class="col-sm-8">{{ .user.IDEmployee }}</dd>
+
+                      <dt class="col-sm-4">Name</dt>
+                      <dd class="col-sm-8">{{ .user.Name }}</dd>
+
+                      <dt class="col-sm-4">Place and Date of Birth</dt>
+                      <dd class="col-sm-8">{{ .user.PlaceOfBirth }}, {{ .user.DateOfBirth.Format "02 January 2006" }}</dd>
+                    
+                      <dt class="col-sm-4 mt-1">Email</dt>
+                      <dd class="col-sm-8">
+                        <p class="mb-0 pb-0">{{ .user.Email }}</p>
+                        <p class="mb-0 pb-0">{{ .user.WorkEmail }}</p>
+                      </dd>
+                    
+                      <dt class="col-sm-4">Gender</dt>
+                      <dd class="col-sm-8">
+                        {{ if eq .user.Gender "0" }}
+                          <i class="fas fa-mars text-primary"></i> Male {{
+                        else if eq .user.Gender "1" }}
+                          <i class="fas fa-venus text-danger"></i> Female
+                        {{ end }}
+                      </dd>
+                    
+                      <dt class="col-sm-4">Blood Type</dt>
+                      <dd class="col-sm-8">{{ .blood.BloodType }}</dd>
+
+                      <dt class="col-sm-4">Religion</dt>
+                      <dd class="col-sm-8">{{ .religion.Religion }}</dd>
+
+                      <dt class="col-sm-4">Citizenship</dt>
+                      <dd class="col-sm-8">{{ .user.Citizenship }}</dd>
+
+                      <dt class="col-sm-4">Marital Status</dt>
+                      <dd class="col-sm-8">
+                        {{ if .user.MaritalStatus }}
+                          Married 
+                        {{ else }}
+                          Not Married
+                        {{ end }}
+                      </dd>
+
+                      <dt class="col-sm-4">Join Date</dt>
+                      <dd class="col-sm-8">{{ .user.JoinDate.Format "02 January 2026" }}</dd>
+
+                    </dl>
                   </div>
-                  <div class="card">
-                    <form method="post" class="needs-validation" novalidate="">
-                      <div class="card-header">
-                        <h4>Edit Profile</h4>
-                      </div>
-                      <div class="card-body">
-                        <div class="row">
-                          <div class="form-group col-md-6 col-12">
-                            <label>First Name</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              value="Ujang"
-                              required=""
-                            />
-                            <div class="invalid-feedback">
-                              Please fill in the first name
-                            </div>
-                          </div>
-                          <div class="form-group col-md-6 col-12">
-                            <label>Last Name</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              value="Maman"
-                              required=""
-                            />
-                            <div class="invalid-feedback">
-                              Please fill in the last name
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="form-group col-md-7 col-12">
-                            <label>Email</label>
-                            <input
-                              type="email"
-                              class="form-control"
-                              value="ujang@maman.com"
-                              required=""
-                            />
-                            <div class="invalid-feedback">
-                              Please fill in the email
-                            </div>
-                          </div>
-                          <div class="form-group col-md-5 col-12">
-                            <label>Phone</label>
-                            <input type="tel" class="form-control" value="" />
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="form-group col-12">
-                            <label>Bio</label>
-                            <textarea class="form-control summernote-simple">
-                              Ujang maman is a superhero name in <b>Indonesia</b>, especially in my family. He is not a fictional character but an original hero in my family, a hero for his children and for his wife. So, I use the name as a user in this template. Not a tribute, I'm just bored with <b>'John Doe'</b>.
-                              </textarea>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="form-group mb-0 col-12">
-                            <div class="custom-control custom-checkbox">
-                              <input
-                                type="checkbox"
-                                name="remember"
-                                class="custom-control-input"
-                                id="newsletter"
-                              />
-                              <label
-                                class="custom-control-label"
-                                for="newsletter"
-                                >Subscribe to newsletter</label
-                              >
-                              <div class="text-muted form-text">
-                                You will get new information about products,
-                                offers and promotions
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card-footer text-right">
-                        <button class="btn btn-primary">Save Changes</button>
-                      </div>
-                    </form>
+                  <div class="card mt-3">
+                    <div class="card-header mb-0 pb-0">
+                      <h4>Staffing</h4>
+                    </div>
+                    <div class="card-body mt-0 pt-0">
+                      <hr class="mt-0">
+                      <dl class="row">
+                        <dt class="col-sm-4">Bank</dt>
+                        <dd class="col-sm-8">{{ .typeBank.Type }}</dd>
+  
+                        <dt class="col-sm-4">No Account</dt>
+                        <dd class="col-sm-8">{{ .bankAccount.NoAccount }}</dd>
+
+                        <dt class="col-sm-4">No BPJS Kesehatan</dt>
+                        <dd class="col-sm-8">{{ .staffing.NoBpjsKes }}</dd>
+  
+                        <dt class="col-sm-4">No KPJ</dt>
+                        <dd class="col-sm-8">{{ .staffing.NoKpjBpjs }}</dd>
+
+                        <dt class="col-sm-4">No BPJS Ketenagakerjaan</dt>
+                        <dd class="col-sm-8">{{ .staffing.NoBpjsJk }}</dd>
+                        
+                        <dt class="col-sm-4 mt-1">NPWP</dt>
+                        <dd class="col-sm-8">
+                          <p class="mb-0 pb-0">{{ .staffing.NoNpwpLimabelas }} (15 Digit)</p>
+                          <p class="mb-0 pb-0">{{ .staffing.NoNpwpEnambelas }} (16 Digit)</p>
+                        </dd>
+                      
+                        <dt class="col-sm-4">PTKP</dt>
+                        <dd class="col-sm-8">{{ .staffing.Ptkp }}</dd>
+  
+                      </dl>
+                    </div>
                   </div>
                 </div>
                 <div class="col-12 col-md-12 col-lg-6">
                   <div class="card">
-                    <form method="post" class="needs-validation" novalidate="">
-                      <div class="card-header">
-                        <h4>Edit Profile</h4>
-                      </div>
-                      <div class="card-body">
-                        <div class="row">
-                          <div class="form-group col-md-6 col-12">
-                            <label>First Name</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              value="Ujang"
-                              required=""
-                            />
-                            <div class="invalid-feedback">
-                              Please fill in the first name
+                    <div class="card-header mb-0 pb-0">
+                      <h4>Contact</h4>
+                    </div>
+                    <div class="card-body mt-0 pt-0">
+                      <hr class="mt-0">
+                      <dl class="row">
+                        <dt class="col-sm-5">Identity</dt>
+                        <dd class="col-sm-7">{{ .typeIdentity.Type }}</dd>
+
+                        <dt class="col-sm-5">No Identity</dt>
+                        <dd class="col-sm-7">{{ .identity.No }}</dd>
+
+                        <dt class="col-sm-5">Address (Identity)</dt>
+                        <dd class="col-sm-7">{{ .address.AddressIdentity }}</dd>
+                        
+                        <dt class="col-sm-5">Address (Domicile)</dt>
+                        <dd class="col-sm-7">{{ .address.AddressDomicile }}</dd>
+
+                        <dt class="col-sm-5">No Handphone</dt>
+                        <dd class="col-sm-7">{{ .contact.NoHp }}</dd>
+
+                        <dt class="col-sm-5">Emergency Contact Name</dt>
+                        <dd class="col-sm-7">{{ .contact.EmergencyContactName }}</dd>
+
+                        <dt class="col-sm-5">Emergency Contact Relation</dt>
+                        <dd class="col-sm-7">{{ .contact.EmergencyRelation }}</dd>
+
+                        <dt class="col-sm-5">Emergency Contact No</dt>
+                        <dd class="col-sm-7">{{ .contact.NoEmergencyContact }}</dd>
+                      
+                      </dl>
+                    </div>
+                  </div>
+                  <!-- <div class="card mt-3">
+                    <div class="card-header mb-0 pb-0">
+                      <h4>Career</h4>
+                    </div>
+                    <div class="card-body mt-0 pt-0">
+                      <hr class="mt-0">
+                      <dl class="row">
+                        <dt class="col-sm-5">Identity</dt>
+                        <dd class="col-sm-7">{{ .typeIdentity.Type }}</dd>
+
+                        <dt class="col-sm-5">No Identity</dt>
+                        <dd class="col-sm-7">{{ .identity.No }}</dd>
+
+                        <dt class="col-sm-5">Address (Identity)</dt>
+                        <dd class="col-sm-7">{{ .address.AddressIdentity }}</dd>
+                        
+                        <dt class="col-sm-5">Address (Domicile)</dt>
+                        <dd class="col-sm-7">{{ .address.AddressDomicile }}</dd>
+
+                        <dt class="col-sm-5">No Handphone</dt>
+                        <dd class="col-sm-7">{{ .contact.NoHp }}</dd>
+
+                        <dt class="col-sm-5">Emergency Contact Name</dt>
+                        <dd class="col-sm-7">{{ .contact.EmergencyContactName }}</dd>
+
+                        <dt class="col-sm-5">Emergency Contact Relation</dt>
+                        <dd class="col-sm-7">{{ .contact.EmergencyRelation }}</dd>
+
+                        <dt class="col-sm-5">Emergency Contact No</dt>
+                        <dd class="col-sm-7">{{ .contact.NoEmergencyContact }}</dd>
+                      
+                      </dl>
+                    </div>
+                  </div> -->
+                </div>
+              </div>
+              <div class="row mt-sm-4">
+                <div class="col-12 col-md-12 col-lg-12">
+                  <div class="card mt-3">
+                    <div class="card-header mb-0 pb-0">
+                      <h4>Career</h4>
+                    </div>
+                    <div class="card-body mt-0 pt-0">
+                      <hr class="mt-0">
+                      {{range .yearGroups}}
+                      <div class="section-body">
+                        <h2 class="section-title">Year: {{.Year}}</h2>
+                        <div class="activities" style="width: 100%; display: block;">
+                          {{range $index, $career := .Careers}}
+                          <div class="activity" style="width: 100%;">
+                            <div class="activity-icon bg-primary text-white shadow-primary">
+                              <i class="fas fa-briefcase"></i>
                             </div>
-                          </div>
-                          <div class="form-group col-md-6 col-12">
-                            <label>Last Name</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              value="Maman"
-                              required=""
-                            />
-                            <div class="invalid-feedback">
-                              Please fill in the last name
-                            </div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="form-group col-md-7 col-12">
-                            <label>Email</label>
-                            <input
-                              type="email"
-                              class="form-control"
-                              value="ujang@maman.com"
-                              required=""
-                            />
-                            <div class="invalid-feedback">
-                              Please fill in the email
-                            </div>
-                          </div>
-                          <div class="form-group col-md-5 col-12">
-                            <label>Phone</label>
-                            <input type="tel" class="form-control" value="" />
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="form-group col-12">
-                            <label>Bio</label>
-                            <textarea class="form-control summernote-simple">
-                              Ujang maman is a superhero name in <b>Indonesia</b>, especially in my family. He is not a fictional character but an original hero in my family, a hero for his children and for his wife. So, I use the name as a user in this template. Not a tribute, I'm just bored with <b>'John Doe'</b>.
-                            </textarea>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="form-group mb-0 col-12">
-                            <div class="custom-control custom-checkbox">
-                              <input
-                                type="checkbox"
-                                name="remember"
-                                class="custom-control-input"
-                                id="newsletter"
-                              />
-                              <label
-                                class="custom-control-label"
-                                for="newsletter"
-                                >Subscribe to newsletter</label
-                              >
-                              <div class="text-muted form-text">
-                                You will get new information about products,
-                                offers and promotions
+                            <div class="activity-detail mt-0 pt-0" style="flex: 1;">
+                              <div class="mb-2">
+                                <span class="text-job text-primary">{{$career.EffectiveDate.Format "02 January 2006"}}</span>
+                                <span class="bullet"></span>
+                                {{if $career.IDStatus}}
+                                <span class="badge badge-info">{{index $.statusNames $career.IDStatus.String}}</span>
+                                {{end}}
+                                {{if $career.EvidenceLink}}
+                                <!-- Dropdown Three Dots -->
+                                <div class="float-right dropdown">
+                                  <a href="#" data-toggle="dropdown" class="text-muted">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                  </a>
+                                  <div class="dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-title">Options</div>
+                                    <a href="{{$career.EvidenceLink}}" target="_blank" class="dropdown-item has-icon">
+                                      <i class="fas fa-external-link-alt"></i> View Evidence
+                                    </a>
+                                  </div>
+                                </div>
+                                {{end}}
+
+                              </div>
+
+                              <p class="mb-2"><strong>{{$career.Position}}</strong></p>
+
+                              <div class="row mt-2">
+                                {{if $career.IDGrading}}
+                                <div class="col-md-4">
+                                  <small class="text-muted">
+                                    <i class="fas fa-layer-group"></i> Grading:
+                                    <strong>{{index $.gradingNames $career.IDGrading.String}}</strong>
+                                  </small>
+                                </div>
+                                {{end}}
+                                {{if $career.IDDepartment}}
+                                <div class="col-md-4">
+                                  <small class="text-muted">
+                                    <i class="fas fa-building"></i> Department:
+                                    <strong>{{index $.departmentNames $career.IDDepartment.String}}</strong>
+                                  </small>
+                                </div>
+                                {{end}}
                               </div>
                             </div>
                           </div>
+                          {{end}}
                         </div>
                       </div>
-                      <div class="card-footer text-right">
-                        <button class="btn btn-primary">Save Changes</button>
+                      {{end}}
+
+                      {{if eq (len .yearGroups) 0}}
+                      <div class="empty-state" data-height="400">
+                        <div class="empty-state-icon">
+                          <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h2>No Career History</h2>
+                        <p class="lead">This employee doesn't have any career history yet.</p>
                       </div>
-                    </form>
+                      {{end}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-sm-4">
+                <div class="col-12 col-md-12 col-lg-12">
+                  <div class="card mt-3">
+                    <div class="card-header mb-0 pb-0">
+                      <h4>Achievement</h4>
+                    </div>
+                    <div class="card-body mt-0 pt-0">
+                      <hr class="mt-0">
+                      <div class="row">
+                        <div class="col-12 col-sm-12 col-md-2">
+                          <!-- Tab Nav -->
+                          <ul class="nav nav-pills mb-4 flex-wrap" id="achievementTabs" role="tablist">
+                            {{range $i, $yearGroup := .yearGroups}}
+                            <li class="nav-item">
+                              <a class="nav-link {{if eq $i 0}}active{{end}}" 
+                                id="year{{printf "%04d" $yearGroup.Year}}-tab"
+                                data-toggle="pill" 
+                                href="#year{{printf "%04d" $yearGroup.Year}}" 
+                                role="tab">
+                                <i class="fas fa-calendar-alt mr-1"></i>
+                                {{$yearGroup.Year}}
+                              </a>
+                            </li>
+                            {{end}}
+                          </ul>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-10">
+                          <!-- Tab Content -->
+                          <div class="tab-content" id="achievementTabContent">
+                            {{range $i, $yearGroup := .yearGroupss}}
+                            <div class="tab-pane fade {{if eq $i 0}}show active{{end}} mt-0 pt-0" 
+                                id="year{{printf "%04d" $yearGroup.Year}}" 
+                                role="tabpanel">
+                              
+                              <!-- YEAR HEADER -->
+                              <div class="alert alert-primary border-0 mb-2">
+                                <h5 class="alert-heading mb-0">
+                                  <i class="fas fa-chart-line mr-2 text-white mr-2"></i> Achievements {{$yearGroup.Year}}
+                                </h5>
+                              </div>
+        
+                              <!-- JENIS PELATIHAN CARDS -->
+                              <div class="row">
+                                {{range $typeGroup := $yearGroup.TypeGroups}}
+                                  {{range $ach := $typeGroup.Achievements}}
+                                  <div class="col-12 col-md-6 mb-3">
+                                    <div class="card shadow-sm border-left-primary bg-light h-100" style="border-left-width: 4px !important;">
+                                      <div class="card-body">
+                                        <!-- Type Badge -->
+                                        <p class="d-block mb-2">
+                                          <strong>{{$typeGroup.TypeName}}</strong>
+                                        </p>
+                                        
+                                        <!-- Title & Date -->
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                          <h6 class="mb-0 font-weight-bold text-primary">{{$ach.Title}}</h6>
+                                          <span class="badge badge-info ml-2">
+                                            {{$ach.Date.Format "02 Jan"}}
+                                          </span>
+                                        </div>
+                                        
+                                        <!-- Description -->
+                                        {{if $ach.Description}}
+                                        <p class="text-muted mb-3 small">
+                                          {{$ach.Description}}
+                                        </p>
+                                        {{end}}
+                                        
+                                        <!-- Actions -->
+                                        <div class="d-flex justify-content-between align-items-center pt-2 border-top mb-0 pb-0">
+                                          <div>
+                                            {{if $ach.EvidenceLink}}
+                                            <a href="{{$ach.EvidenceLink}}" target="_blank" class="btn btn-sm btn-primary">
+                                              <i class="fas fa-external-link-alt"></i> Evidence
+                                            </a>
+                                            {{else}}
+                                            <span class="text-muted small">No Evidence</span>
+                                            {{end}}
+                                          </div>
+                                          
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {{end}}
+                                {{end}}
+                              </div>
+                            </div>
+                            {{end}}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
