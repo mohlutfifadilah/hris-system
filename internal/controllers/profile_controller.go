@@ -457,27 +457,21 @@ func (pc *ProfileController) ChangePassword(c *gin.Context) {
 
 	// Validasi: Pastikan password baru dan konfirmasi cocok
 	if newPassword != confirmPassword {
-		c.HTML(http.StatusBadRequest, "profile.html", gin.H{
-			"error": "New password and confirm password do not match.",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "New password and confirm password do not match."})
 		return
 	}
 
 	// Verifikasi password lama
 	// Pastikan bahwa password lama yang dimasukkan cocok dengan yang ada di database
 	if !utils.CheckPassword(currentUser.Password, oldPassword) {
-		c.HTML(http.StatusBadRequest, "profile.html", gin.H{
-			"error": "Old password is incorrect.",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Old password is incorrect."})
 		return
 	}
 
 	// Hash password baru sebelum disimpan ke database
 	hashedPassword, err := utils.HashPassword(newPassword)
 	if err != nil {
-		c.HTML(http.StatusInternalServerError, "profile.html", gin.H{
-			"error": "Error hashing new password.",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing new password."})
 		return
 	}
 
@@ -486,11 +480,14 @@ func (pc *ProfileController) ChangePassword(c *gin.Context) {
 
 	// Simpan perubahan password
 	if err := config.DB.Save(&currentUser).Error; err != nil {
-		c.HTML(http.StatusInternalServerError, "change_password.html", gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to update password.",
 		})
 		return
 	}
+
+	// Kirim response sukses jika password berhasil diubah
+	c.JSON(http.StatusOK, gin.H{"message": "Password successfully updated!"})
 
 	// Redirect ke halaman profil setelah sukses
 	c.Redirect(http.StatusFound, "/profile")

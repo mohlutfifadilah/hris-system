@@ -498,6 +498,7 @@
                 </div>
               </div>
             </div>
+            <hr>
             <!-- Button to Open the Modal -->
             <button type="button" class="btn btn-primary float-right mr-4" data-toggle="modal" data-target="#changePasswordModal">
               Change Password
@@ -746,6 +747,46 @@
           $(".custom-file-label").text("Pilih file");
         });
       });
+
+      // Menggunakan jQuery untuk submit form menggunakan AJAX
+    $('form').submit(function(e) {
+      e.preventDefault(); // Mencegah form untuk disubmit secara normal
+      // Mengambil data dari form
+      var oldPassword = $('#old_password').val();
+      var newPassword = $('#new_password').val();
+      var confirmPassword = $('#confirm_password').val();
+
+
+      // Mengirim request ke server menggunakan AJAX
+      $.ajax({
+        type: 'POST',
+        url: '/profile/change-password', // Endpoint untuk ganti password
+        data: {
+          old_password: oldPassword,
+          new_password: newPassword,
+          confirm_password: confirmPassword
+        },
+        success: function(response) {
+          // Jika sukses, tampilkan SweetAlert dengan pesan sukses
+          Swal.fire({
+              icon: 'success',
+              title: 'Password Updated!',
+              text: response.message // Pesan dari server
+            }).then(() => {
+              window.location.href = '/profile'; // Redirect setelah sukses
+          });
+        },
+        error: function(xhr, status, error) {
+          // Jika ada error, tampilkan SweetAlert dengan pesan error
+          var errorMessage = xhr.responseJSON.error || 'Something went wrong!';
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: errorMessage // Pesan error dari server
+          });
+        }
+      });
+    });
     </script>
   </body>
 </html>
