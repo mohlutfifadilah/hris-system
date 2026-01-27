@@ -139,15 +139,17 @@
                           id="profileImage"
                         />
 
-                        <!-- BUTTON SELALU ADA -->
-                        <button
-                          type="button"
-                          class="btn btn-primary btn-sm edit-camera-btn"
-                          data-toggle="modal"
-                          data-target="#editPhotoModal"
-                          title="Ubah Foto"
-                        >
-                          <i class="fas fa-camera"></i>
+                        {{ if .user.IsAdmin }}
+                          <!-- BUTTON SELALU ADA -->
+                          <button
+                            type="button"
+                            class="btn btn-primary btn-sm edit-camera-btn"
+                            data-toggle="modal"
+                            data-target="#editPhotoModal"
+                            title="Ubah Foto"
+                          >
+                            <i class="fas fa-camera"></i>
+                        {{ end }}
                         </button>
                       </div>
                     </div>

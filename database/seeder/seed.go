@@ -135,6 +135,7 @@ func seedAdminEmployee(tx *gorm.DB) error {
 		PlaceOfBirth: "Ciamis",
 		DateOfBirth:  time.Date(2003, 6, 17, 0, 0, 0, 0, time.UTC),
 		MaritalStatus: false,
+		IsAdmin: true,
 		CreatedAt:    time.Now(),
 		UpdatedAt:    time.Now(),
 	}

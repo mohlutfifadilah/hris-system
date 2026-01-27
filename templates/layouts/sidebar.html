@@ -19,6 +19,7 @@
             <a href="/company" class="nav-link"><i class="fas fa-building"></i><span>Company</span></a>
         </li>
     </ul> -->
+    {{ if .user.IsAdmin }}
     <ul class="sidebar-menu">
         <li class="menu-header">Employee</li>
         <li class="{{ if eq .activePage "employee" }}active{{ end }}">
@@ -34,29 +35,42 @@
             <a href="/contact" class="nav-link"><i class="fas fa-address-book"></i><span>Contact</span></a>
         </li> -->
     </ul>
+    {{ end }}
     <ul class="sidebar-menu">
         <li class="menu-header">Career</li>
         <li class="{{ if eq .activePage "career" }}active{{ end }}">
-            <a href="/career" class="nav-link"><i class="fas fa-briefcase"></i><span>Career</span></a>
+            {{ if .user.IsAdmin }}
+                <a href="/career" class="nav-link"><i class="fas fa-briefcase"></i><span>Career</span></a>
+                {{ else }}
+                <a href="/career/{{ .user.ID }}/show" class="nav-link"><i class="fas fa-briefcase"></i><span>Career</span></a>
+            {{ end }}
         </li>
-        <li class="{{ if eq .activePage "department" }}active{{ end }}">
-            <a href="/department" class="nav-link"><i class="fas fa-fire"></i><span>Department</span></a>
-        </li>
-        <li class="{{ if eq .activePage "grading" }}active{{ end }}">
-            <a href="/grading" class="nav-link"><i class="fas fa-users"></i><span>Grading</span></a>
-        </li>
-        <li class="{{ if eq .activePage "status" }}active{{ end }}">
-            <a href="/status" class="nav-link"><i class="fas fa-id-card"></i><span>Status</span></a>
-        </li>
+        {{ if .user.IsAdmin }}
+            <li class="{{ if eq .activePage "department" }}active{{ end }}">
+                <a href="/department" class="nav-link"><i class="fas fa-fire"></i><span>Department</span></a>
+            </li>
+            <li class="{{ if eq .activePage "grading" }}active{{ end }}">
+                <a href="/grading" class="nav-link"><i class="fas fa-users"></i><span>Grading</span></a>
+            </li>
+            <li class="{{ if eq .activePage "status" }}active{{ end }}">
+                <a href="/status" class="nav-link"><i class="fas fa-id-card"></i><span>Status</span></a>
+            </li>
+        {{ end }}
     </ul>
     <ul class="sidebar-menu">
         <li class="menu-header">Achievement</li>
         <li class="{{ if eq .activePage "achievement" }}active{{ end }}">
-            <a href="/achievement" class="nav-link"><i class="fas fa-trophy"></i><span>Achievement</span></a>
+            {{ if .user.IsAdmin }}
+                <a href="/achievement" class="nav-link"><i class="fas fa-trophy"></i><span>Achievement</span></a>
+            {{ else }}
+                <a href="/achievement/{{ .user.ID }}/show" class="nav-link"><i class="fas fa-trophy"></i><span>Achievement</span></a>
+            {{ end }}
         </li>
-        <li class="{{ if eq .activePage "typeAchievement" }}active{{ end }}">
-            <a href="/typeAchievement" class="nav-link"><i class="fas fa-sitemap"></i><span>Type Achievement</span></a>
-        </li>
+        {{ if .user.IsAdmin }}
+            <li class="{{ if eq .activePage "typeAchievement" }}active{{ end }}">
+                <a href="/typeAchievement" class="nav-link"><i class="fas fa-sitemap"></i><span>Type Achievement</span></a>
+            </li>
+        {{ end }}
     </ul>
     <!-- <div class="mt-4 mb-4 p-3 hide-sidebar-mini">
         <a href="https://getstisla.com/docs" class="btn btn-primary btn-lg btn-block btn-icon-split">

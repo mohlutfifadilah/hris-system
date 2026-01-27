@@ -31,7 +31,7 @@ func AuthRequired() gin.HandlerFunc {
 		tokenString, err := c.Cookie("token")
 		if err != nil {
 			// Set session untuk flash message
-			c.SetCookie("flash_message", "Silakan login terlebih dahulu", 5, "/", "", false, false)
+			c.SetCookie("flash_message", "Login First", 5, "/", "", false, false)
 			c.Redirect(http.StatusSeeOther, "/")
 			c.Abort()
 			return
@@ -43,9 +43,9 @@ func AuthRequired() gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			c.SetCookie("flash_message", "Sesi Anda telah berakhir. Silakan login kembali", 5, "/", "", false, false)
+			c.SetCookie("flash_message", "Session is over. Please Login Again", 5, "/", "", false, false)
 			c.SetCookie("token", "", -1, "/", "", false, true)
-			c.Redirect(http.StatusSeeOther, "/login")
+			c.Redirect(http.StatusSeeOther, "/")
 			c.Abort()
 			return
 		}
@@ -71,6 +71,7 @@ func RedirectIfAuthenticated() gin.HandlerFunc {
 
 			if err == nil && token.Valid {
 				// Sudah login, redirect ke employees
+				c.Set("flash_message", "You are already logged in")
 				c.Redirect(http.StatusSeeOther, "/dashboard")
 				c.Abort()
 				return

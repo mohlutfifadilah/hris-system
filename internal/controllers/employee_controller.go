@@ -514,6 +514,7 @@ func (dc *EmployeeController) Store(c *gin.Context) {
 		PlaceOfBirth:  form["place_of_birth"],
 		DateOfBirth:   dateOfBirth,
 		MaritalStatus: maritalStatus,
+		IsAdmin:       false,
 		JoinDate:      joinDate,
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
@@ -623,22 +624,21 @@ func (dc *EmployeeController) Show(c *gin.Context) {
 
 	// 5. Render template show/detail
 	c.HTML(http.StatusOK, "employee_info", gin.H{
-		"title":       "Detail Employee",
-		"data":        employee,
-		"staffing":    staffing,
-		"bankAccount": bankAccount,
-		"identity":    identity,
-		"address":     address,
-		"contact":     contact,
-		"families":    families,
-		"educations":  educations,
-		"careers":     careers,
+		"title":        "Detail Employee",
+		"data":         employee,
+		"staffing":     staffing,
+		"bankAccount":  bankAccount,
+		"identity":     identity,
+		"address":      address,
+		"contact":      contact,
+		"families":     families,
+		"educations":   educations,
+		"careers":      careers,
 		"achievements": achievements,
-		"blood":       blood,
-		"religion":    religion,
+		"blood":        blood,
+		"religion":     religion,
 	})
 }
-
 
 // GET /departments/:id/edit
 func (dc *EmployeeController) Edit(c *gin.Context) {
@@ -727,11 +727,10 @@ func (dc *EmployeeController) Edit(c *gin.Context) {
 		"method":      "POST",
 		"isEdit":      true,
 		"dateOfBirth": employee.DateOfBirth.Format("2006-01-02"), // jika menggunakan tipe time.Time
-    	"joinDate":    employee.JoinDate.Format("2006-01-02"),    // jika menggunakan tipe time.Time
+		"joinDate":    employee.JoinDate.Format("2006-01-02"),    // jika menggunakan tipe time.Time
 	})
 
 }
-
 
 // POST /departments/:id
 func (dc *EmployeeController) Update(c *gin.Context) {

@@ -119,8 +119,8 @@
         const flashMessage = "{{ .flashMessage }}";
         if (flashMessage) {
             Swal.fire({
-                icon: 'info',
-                title: 'Informasi',
+                icon: 'warning',
+                title: 'Warning',
                 text: flashMessage,
                 confirmButtonColor: '#6777ef',
                 timer: 3000
@@ -157,7 +157,7 @@
             email = email.trim();
             
             if (email === '') {
-                emailError.textContent = 'Email tidak boleh kosong';
+                emailError.textContent = 'Email required';
                 emailInput.classList.add('is-invalid');
                 emailInput.classList.remove('is-valid');
                 return false;
@@ -165,7 +165,7 @@
             
             const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             if (!emailRegex.test(email)) {
-                emailError.textContent = 'Format email tidak valid';
+                emailError.textContent = 'Format email not valid';
                 emailInput.classList.add('is-invalid');
                 emailInput.classList.remove('is-valid');
                 return false;
@@ -179,14 +179,7 @@
 
         function validatePassword(password) {
             if (password === '') {
-                passwordError.textContent = 'Password tidak boleh kosong';
-                passwordInput.classList.add('is-invalid');
-                passwordInput.classList.remove('is-valid');
-                return false;
-            }
-            
-            if (password.length < 3) {
-                passwordError.textContent = 'Password minimal 3 karakter';
+                passwordError.textContent = 'Password required';
                 passwordInput.classList.add('is-invalid');
                 passwordInput.classList.remove('is-valid');
                 return false;
@@ -274,7 +267,7 @@
                         // General error
                         Swal.fire({
                             icon: 'error',
-                            title: 'Login Gagal!',
+                            title: 'Login Failed!',
                             text: data.message,
                             confirmButtonColor: '#6777ef'
                         });
@@ -289,7 +282,7 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
-                    text: 'Terjadi kesalahan pada server!',
+                    text: 'Something went wrong! Please try again later.',
                     confirmButtonColor: '#6777ef'
                 });
                 

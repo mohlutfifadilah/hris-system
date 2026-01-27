@@ -624,6 +624,21 @@
   <!-- Template JS File -->
   <script src="/static/assets/js/scripts.js"></script>
   <script src="/static/assets/js/custom.js"></script>
+  <script>
+    // ============================================
+        // FLASH MESSAGE DARI SERVER
+        // ============================================
+        const flashMessage = "{{ .flashMessage }}";
+        if (flashMessage) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Warning',
+                text: flashMessage,
+                confirmButtonColor: '#6777ef',
+                timer: 3000
+            });
+        }
+  </script>
 </body>
 </html>
 {{ end }}

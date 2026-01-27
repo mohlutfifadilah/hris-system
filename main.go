@@ -10,6 +10,7 @@ import (
 	migrations "hris-system/database/migration"
 	seeders "hris-system/database/seeder"
 	"hris-system/internal/controllers"
+	middleware "hris-system/internal/middleware"
 	"hris-system/utils"
 
 	"github.com/gin-contrib/sessions"
@@ -72,75 +73,83 @@ func main() {
 	r.POST("/login", authController.Login)
 	r.GET("/logout", authController.Logout)
 
-	// Dashboard routes
-	r.GET("/dashboard", dashboardController.Index)
-
 	// Employee routes
-	r.GET("/employee", EmployeeController.Index)
-	r.GET("/employee/create", EmployeeController.Create)
-	r.POST("/employee", EmployeeController.Store)
-	r.GET("/employee/:id/show", EmployeeController.Show)
-	r.GET("/employee/:id/edit", EmployeeController.Edit)
-	r.POST("/employee/:id", EmployeeController.Update)
-	r.POST("/employee/:id/delete", EmployeeController.Delete)
+	r.GET("/employee", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), EmployeeController.Index)
+	r.GET("/employee/create", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), EmployeeController.Create)
+	r.POST("/employee", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), EmployeeController.Store)
+	r.GET("/employee/:id/edit", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), EmployeeController.Edit)
+	r.POST("/employee/:id", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), EmployeeController.Update)
+	r.POST("/employee/:id/delete", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), EmployeeController.Delete)
 
 	// Profile routes
-	r.GET("/profile", profileController.Index)
-	r.POST("/profile/upload-photo", profileController.UploadProfilePhoto)
-	r.DELETE("/profile/delete-photo", profileController.DeleteProfilePhoto)
-	r.POST("/profile/change-password", profileController.ChangePassword)
+	r.POST("/profile/upload-photo", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), profileController.UploadProfilePhoto)
+	r.DELETE("/profile/delete-photo", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), profileController.DeleteProfilePhoto)
 
 	// Career routes
-	r.GET("/career", careerController.Index)
-	r.GET("/career/create", careerController.Create)
-	r.POST("/career", careerController.Store)
-	r.GET("/career/:id/show", careerController.Show)
-	r.GET("/career/generateExcel/:employee_id", careerController.Excel)
-	r.GET("/career/generatePdf/:employee_id", careerController.Pdf)
-	r.POST("/career/:id", careerController.Update)
-	r.POST("/career/:id/delete", careerController.Delete)
+	r.GET("/career", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), careerController.Index)
+	r.GET("/career/create", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), careerController.Create)
+	r.POST("/career", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), careerController.Store)
+	r.POST("/career/:id", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), careerController.Update)
+	r.POST("/career/:id/delete", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), careerController.Delete)
 
 	// Department routes
-	r.GET("/department", departmentController.Index)
-	r.GET("/departments/create", departmentController.Create)
-	r.POST("/departments", departmentController.Store)
-	r.GET("/departments/:id/edit", departmentController.Edit)
-	r.POST("/departments/:id", departmentController.Update)
-	r.POST("/departments/:id/delete", departmentController.Delete)
+	r.GET("/department", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), departmentController.Index)
+	r.GET("/departments/create", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), departmentController.Create)
+	r.POST("/departments", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), departmentController.Store)
+	r.GET("/departments/:id/edit", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), departmentController.Edit)
+	r.POST("/departments/:id", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), departmentController.Update)
+	r.POST("/departments/:id/delete", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), departmentController.Delete)
 
 	// Grading routes
-	r.GET("/grading", gradingController.Index)
-	r.GET("/grading/create", gradingController.Create)
-	r.POST("/grading", gradingController.Store)
-	r.GET("/grading/:id/edit", gradingController.Edit)
-	r.POST("/grading/:id", gradingController.Update)
-	r.POST("/grading/:id/delete", gradingController.Delete)
+	r.GET("/grading", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), gradingController.Index)
+	r.GET("/grading/create", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), gradingController.Create)
+	r.POST("/grading", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), gradingController.Store)
+	r.GET("/grading/:id/edit", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), gradingController.Edit)
+	r.POST("/grading/:id", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), gradingController.Update)
+	r.POST("/grading/:id/delete", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), gradingController.Delete)
 
 	// Status routes
-	r.GET("/status", statusController.Index)
-	r.GET("/status/create", statusController.Create)
-	r.POST("/status", statusController.Store)
-	r.GET("/status/:id/edit", statusController.Edit)
-	r.POST("/status/:id", statusController.Update)
-	r.POST("/status/:id/delete", statusController.Delete)
+	r.GET("/status", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), statusController.Index)
+	r.GET("/status/create", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), statusController.Create)
+	r.POST("/status", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), statusController.Store)
+	r.GET("/status/:id/edit", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), statusController.Edit)
+	r.POST("/status/:id", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), statusController.Update)
+	r.POST("/status/:id/delete", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), statusController.Delete)
 
 	// Achievement routes
-	r.GET("/achievement", achievementController.Index)
-	r.GET("/achievement/create", achievementController.Create)
-	r.POST("/achievement", achievementController.Store)
-	r.GET("/achievement/:id/show", achievementController.Show)
-	r.GET("/achievement/generateExcel/:employee_id", achievementController.Excel)
-	r.GET("/achievement/generatePdf/:employee_id", achievementController.Pdf)
-	r.POST("/achievement/:id", achievementController.Update)
-	r.POST("/achievement/:id/delete", achievementController.Delete)
+	r.GET("/achievement", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), achievementController.Index)
+	r.GET("/achievement/create", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), achievementController.Create)
+	r.POST("/achievement", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), achievementController.Store)
+	r.POST("/achievement/:id", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), achievementController.Update)
+	r.POST("/achievement/:id/delete", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), achievementController.Delete)
 
 	// Type Achievement routes
-	r.GET("/typeAchievement", typeAchievementController.Index)
-	r.GET("/typeAchievement/create", typeAchievementController.Create)
-	r.POST("/typeAchievement", typeAchievementController.Store)
-	r.GET("/typeAchievement/:id/edit", typeAchievementController.Edit)
-	r.POST("/typeAchievement/:id", typeAchievementController.Update)
-	r.POST("/typeAchievement/:id/delete", typeAchievementController.Delete)
+	r.GET("/typeAchievement", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), typeAchievementController.Index)
+	r.GET("/typeAchievement/create", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), typeAchievementController.Create)
+	r.POST("/typeAchievement", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), typeAchievementController.Store)
+	r.GET("/typeAchievement/:id/edit", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), typeAchievementController.Edit)
+	r.POST("/typeAchievement/:id", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), typeAchievementController.Update)
+	r.POST("/typeAchievement/:id/delete", middleware.AuthRequired(), middleware.AdminOnlyMiddleware(), typeAchievementController.Delete)
+
+	// Dashboard routes
+	r.GET("/dashboard", middleware.AuthRequired(), dashboardController.Index)
+
+	// Employee routes
+	r.GET("/employee/:id/show", middleware.AuthRequired(), EmployeeController.Show)
+
+	// Profile routes
+	r.GET("/profile", middleware.AuthRequired(), profileController.Index)
+	r.POST("/profile/change-password", middleware.AuthRequired(), profileController.ChangePassword)
+
+	// Career routes
+	r.GET("/career/:id/show", middleware.AuthRequired(), careerController.Show)
+	r.GET("/career/generateExcel/:employee_id", middleware.AuthRequired(), careerController.Excel)
+	r.GET("/career/generatePdf/:employee_id", middleware.AuthRequired(), careerController.Pdf)
+
+	// Achievement routes
+	r.GET("/achievement/:id/show", middleware.AuthRequired(), achievementController.Show)
+	r.GET("/achievement/generateExcel/:employee_id", middleware.AuthRequired(), achievementController.Excel)
+	r.GET("/achievement/generatePdf/:employee_id", middleware.AuthRequired(), achievementController.Pdf)
 
 	println("🚀 Server running on http://localhost:8080")
 	r.Run(":8080")
