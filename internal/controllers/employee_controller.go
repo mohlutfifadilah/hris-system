@@ -92,7 +92,7 @@ func (dc *EmployeeController) Index(c *gin.Context) {
 	}
 
 	var employees []models.Employee
-	if err := config.DB.Order("created_at desc").Find(&employees).Error; err != nil {
+	if err := config.DB.Where("id != ?", currentUser.ID).Order("created_at desc").Find(&employees).Error; err != nil {
 		c.String(http.StatusInternalServerError, "Error: %v", err)
 		return
 	}
@@ -682,7 +682,7 @@ func (dc *EmployeeController) Show(c *gin.Context) {
 
 	// 1. Ambil SEMUA career employee (NO YEAR FILTER dulu)
 	var allCareer []models.Career
-	config.DB.Where("id_employee = ?", currentUser.ID).
+	config.DB.Where("id_employee = ?", id).
 		Order("effective_date ASC").
 		Find(&allCareer)
 
@@ -772,7 +772,7 @@ func (dc *EmployeeController) Show(c *gin.Context) {
 
 	// 2. Ambil SEMUA achievements employee (NO YEAR FILTER dulu)
 	var allAchievements []models.Achievement
-	config.DB.Where("id_employee = ?", currentUser.ID).
+	config.DB.Where("id_employee = ?", id).
 		Order("date ASC").
 		Find(&allAchievements)
 
@@ -830,7 +830,7 @@ func (dc *EmployeeController) Show(c *gin.Context) {
 		"title":      "Employee",
 		"activePage": "employee",
 
-		"user":         employee,
+		"users":        employee,
 		"company":      company,
 		"blood":        blood,
 		"religion":     religion,
@@ -867,6 +867,7 @@ func (dc *EmployeeController) Show(c *gin.Context) {
 		"gradings":        gradings,
 		"departments":     departments,
 		"familyReligions": familyReligions,
+		"user":            currentUser,
 	})
 }
 

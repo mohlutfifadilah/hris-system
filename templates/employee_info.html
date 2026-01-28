@@ -118,7 +118,7 @@
         <div class="main-content">
           <section class="section">
             <div class="section-header">
-              <h1>Profile</h1>
+              <h1>Employee</h1>
               <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item">Profile</div>
               </div>
@@ -134,7 +134,7 @@
                       <div class="profile-photo-wrapper">
                         <img
                           alt="image"
-                          src="{{ if .user.Photo }}{{ .user.Photo }}{{ else }}/static/assets/img/avatar/avatar-1.png{{ end }}"
+                          src="{{ if .users.Photo }}{{ .users.Photo }}{{ else }}/static/assets/img/avatar/avatar-1.png{{ end }}"
                           class="rounded-circle profile-widget-picture"
                           id="profileImage"
                         />
@@ -156,7 +156,7 @@
 
                     <div class="profile-widget-description mb-2 pb-2">
                       <div class="profile-widget-name mb-0">
-                        {{ .user.Name }}
+                        {{ .users.Name }}
                         <div class="text-muted d-inline font-weight-normal">
                           <div class="slash"></div>
                           {{ .career.Position }}
@@ -170,25 +170,25 @@
 
                     <dl class="row ml-2 pr-lg-2">
                       <dt class="col-sm-4">ID Employee</dt>
-                      <dd class="col-sm-8">{{ .user.IDEmployee }}</dd>
+                      <dd class="col-sm-8">{{ .users.IDEmployee }}</dd>
 
                       <dt class="col-sm-4">Name</dt>
-                      <dd class="col-sm-8">{{ .user.Name }}</dd>
+                      <dd class="col-sm-8">{{ .users.Name }}</dd>
 
                       <dt class="col-sm-4">Place and Date of Birth</dt>
-                      <dd class="col-sm-8">{{ .user.PlaceOfBirth }}, {{ .user.DateOfBirth.Format "02 January 2006" }}</dd>
+                      <dd class="col-sm-8">{{ .users.PlaceOfBirth }}, {{ .users.DateOfBirth.Format "02 January 2006" }}</dd>
                     
                       <dt class="col-sm-4 mt-1">Email</dt>
                       <dd class="col-sm-8">
-                        <p class="mb-0 pb-0">{{ .user.Email }}</p>
-                        <p class="mb-0 pb-0">{{ .user.WorkEmail }}</p>
+                        <p class="mb-0 pb-0">{{ .users.Email }}</p>
+                        <p class="mb-0 pb-0">{{ .users.WorkEmail }}</p>
                       </dd>
                     
                       <dt class="col-sm-4">Gender</dt>
                       <dd class="col-sm-8">
-                        {{ if eq .user.Gender "0" }}
+                        {{ if eq .users.Gender "0" }}
                           <i class="fas fa-mars text-primary"></i> Male {{
-                        else if eq .user.Gender "1" }}
+                        else if eq .users.Gender "1" }}
                           <i class="fas fa-venus text-danger"></i> Female
                         {{ end }}
                       </dd>
@@ -200,11 +200,11 @@
                       <dd class="col-sm-8">{{ .religion.Religion }}</dd>
 
                       <dt class="col-sm-4">Citizenship</dt>
-                      <dd class="col-sm-8">{{ .user.Citizenship }}</dd>
+                      <dd class="col-sm-8">{{ .users.Citizenship }}</dd>
 
                       <dt class="col-sm-4">Marital Status</dt>
                       <dd class="col-sm-8">
-                        {{ if .user.MaritalStatus }}
+                        {{ if .users.MaritalStatus }}
                           Married 
                         {{ else }}
                           Not Married
@@ -212,7 +212,7 @@
                       </dd>
 
                       <dt class="col-sm-4">Join Date</dt>
-                      <dd class="col-sm-8">{{ .user.JoinDate.Format "02 January 2026" }}</dd>
+                      <dd class="col-sm-8">{{ .users.JoinDate.Format "02 January 2026" }}</dd>
 
                     </dl>
                   </div>
@@ -501,11 +501,9 @@
               </div>
             </div>
             <hr>
-            <!-- Button to Open the Modal -->
-            <button type="button" class="btn btn-primary float-right mr-4" data-toggle="modal" data-target="#changePasswordModal">
-              Change Password
-            </button>
-
+            <div class="card-body text-right">
+              <a href="/employee" class="btn btn-secondary">Back</a>
+            </div>
           </section>
         </div>
 
@@ -585,42 +583,6 @@
               <i class="fas fa-upload"></i> Upload
             </button>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- The Modal -->
-    <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="changePasswordModalLabel">Change Password</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <form action="/profile/change-password" method="POST">
-            <div class="modal-body">
-              <div class="form-group">
-                <label for="old_password">Old Password</label>
-                <input type="password" class="form-control" id="old_password" name="old_password">
-              </div>
-
-              <div class="form-group">
-                <label for="new_password">New Password</label>
-                <input type="password" class="form-control" id="new_password" name="new_password">
-              </div>
-
-              <div class="form-group">
-                <label for="confirm_password">Confirm New Password</label>
-                <input type="password" class="form-control" id="confirm_password" name="confirm_password">
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Change Password</button>
-            </div>
-          </form>
         </div>
       </div>
     </div>
