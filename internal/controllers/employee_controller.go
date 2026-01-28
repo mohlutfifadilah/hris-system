@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -578,65 +579,294 @@ func (dc *EmployeeController) Show(c *gin.Context) {
 		return
 	}
 
-	// 2. Ambil relasi langsung (staffing, bank, identity, contact, address)
-	var staffing models.Staffing
-	var bankAccount models.BankAccount
-	var identity models.Identity
-	var contact models.Contact
-	var address models.Address
-
-	if employee.IDStaffing != nil {
-		_ = config.DB.First(&staffing, "id = ?", employee.IDStaffing).Error
-	}
-	if employee.IDBankAccount != nil {
-		_ = config.DB.First(&bankAccount, "id = ?", employee.IDBankAccount).Error
-	}
-	if employee.IDIdentity != nil {
-		_ = config.DB.First(&identity, "id = ?", employee.IDIdentity).Error
-	}
-	if employee.IDContact != nil {
-		_ = config.DB.First(&contact, "id = ?", employee.IDContact).Error
-	}
-	if contact.IDAddress != nil {
-		_ = config.DB.First(&address, "id = ?", contact.IDAddress).Error
-	}
-
-	// 3. Ambil data turunan: family, education, career, achievement
-	var families []models.Family
-	var educations []models.Education
-	var careers []models.Career
-	var achievements []models.Achievement
-
-	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&families).Error
-	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&educations).Error
-	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&careers).Error
-	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&achievements).Error
-
-	// 4. (Opsional) Ambil master untuk tampilan (blood, religion, dll) kalau perlu ditampilkan sebagai label
+	// 3. Ambil master yang direferensikan employee (company, blood, religion, bank, identity, contact, staffing)
+	var company models.Company
 	var blood models.Blood
 	var religion models.Religion
+	var bankAccount models.BankAccount
+	var typeBank models.TypeBank
+	var identity models.Identity
+	var typeIdentity models.TypeIdentity
+	var contact models.Contact
+	var address models.Address
+	var staffing models.Staffing
+
+	// company
+	if employee.IDCompany != nil {
+		_ = config.DB.First(&company, "id = ?", employee.IDCompany).Error
+	}
+	// blood
 	if employee.IDBlood != nil {
 		_ = config.DB.First(&blood, "id = ?", employee.IDBlood).Error
 	}
+	// religion
 	if employee.IDReligion != nil {
 		_ = config.DB.First(&religion, "id = ?", employee.IDReligion).Error
 	}
+	// bank account + type_bank
+	if employee.IDBankAccount != nil {
+		if err := config.DB.First(&bankAccount, "id = ?", employee.IDBankAccount).Error; err == nil {
+			if bankAccount.IDTypeBank != nil {
+				_ = config.DB.First(&typeBank, "id = ?", bankAccount.IDTypeBank).Error
+			}
+		}
+	}
+	// identity + type_identity
+	if employee.IDIdentity != nil {
+		if err := config.DB.First(&identity, "id = ?", employee.IDIdentity).Error; err == nil {
+			if identity.IDTypeIdentity != nil {
+				_ = config.DB.First(&typeIdentity, "id = ?", identity.IDTypeIdentity).Error
+			}
+		}
+	}
+	// contact + address
+	if employee.IDContact != nil {
+		if err := config.DB.First(&contact, "id = ?", employee.IDContact).Error; err == nil {
+			if contact.IDAddress != nil {
+				_ = config.DB.First(&address, "id = ?", contact.IDAddress).Error
+			}
+		}
+	}
+	// staffing
+	if employee.IDStaffing != nil {
+		_ = config.DB.First(&staffing, "id = ?", employee.IDStaffing).Error
+	}
+
+	// 4. Ambil data turunan by id_employee: education, career, achievement, family
+	var educations []models.Education
+	var careers []models.Career
+	var achievements []models.Achievement
+	var families []models.Family
+
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&educations).Error
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&careers).Error
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&achievements).Error
+	_ = config.DB.Where("id_employee = ?", employee.ID).Find(&families).Error
+
+	// 5. (Opsional) pre-load master untuk career (status, grading, department) & family (religion)
+	// kalau butuh label di view
+	var statuses []models.Status
+	var gradings []models.Grading
+	var departments []models.Department
+	var familyReligions []models.Religion
+
+	if len(careers) > 0 {
+		_ = config.DB.Find(&statuses).Error
+		_ = config.DB.Find(&gradings).Error
+		_ = config.DB.Find(&departments).Error
+	}
+	if len(families) > 0 {
+		_ = config.DB.Find(&familyReligions).Error
+	}
+
+	// Ambil career dengan effective_date terbaru
+	var career models.Career
+	err := config.DB.Where("id_employee = ?", employee.ID).
+		Order("effective_date desc").
+		First(&career).Error // Menggunakan First untuk mendapatkan hanya satu record dengan effective_date terbaru
+	if err != nil {
+		log.Println("Error fetching career:", err)
+	}
+
+	// department untuk current career
+	var odepartment models.Department
+	if career.IDDepartment != nil {
+		_ = config.DB.First(&odepartment, "id = ?", career.IDDepartment).Error
+	}
+
+	// grading untuk current career
+	var ograding models.Grading
+	if career.IDGrading != nil {
+		_ = config.DB.First(&ograding, "id = ?", career.IDGrading).Error
+	}
+
+	// 1. Ambil SEMUA career employee (NO YEAR FILTER dulu)
+	var allCareer []models.Career
+	config.DB.Where("id_employee = ?", currentUser.ID).
+		Order("effective_date ASC").
+		Find(&allCareer)
+
+	// 2. Cache untuk relasi names
+	statusNames := make(map[string]string)
+	gradingNames := make(map[string]string)
+	departmentNames := make(map[string]string)
+
+	for _, career := range allCareer {
+		// Get status name
+		if career.IDStatus != nil {
+			statusKey := career.IDStatus.String()
+			if _, exists := statusNames[statusKey]; !exists {
+				var status models.Status
+				if err := config.DB.Where("id = ?", career.IDStatus).First(&status).Error; err == nil {
+					statusNames[statusKey] = status.Status
+				}
+			}
+		}
+
+		// Get grading name
+		if career.IDGrading != nil {
+			gradingKey := career.IDGrading.String()
+			if _, exists := gradingNames[gradingKey]; !exists {
+				var grading models.Grading
+				if err := config.DB.Where("id = ?", career.IDGrading).First(&grading).Error; err == nil {
+					gradingNames[gradingKey] = grading.Grading
+				}
+			}
+		}
+
+		// Get department name
+		if career.IDDepartment != nil {
+			deptKey := career.IDDepartment.String()
+			if _, exists := departmentNames[deptKey]; !exists {
+				var dept models.Department
+				if err := config.DB.Where("id = ?", career.IDDepartment).First(&dept).Error; err == nil {
+					departmentNames[deptKey] = dept.Department
+				}
+			}
+		}
+	}
+
+	// 3. Group by YEAR only
+	yearMap := make(map[int][]models.Career)
+	for _, career := range allCareer {
+		year := career.EffectiveDate.Year()
+		yearMap[year] = append(yearMap[year], career)
+	}
+
+	// 4. Convert to sorted yearGroups
+	var yearGroups []CareerYearGroup
+	for year, careers := range yearMap {
+		// Sort careers by date DESC within year
+		sort.Slice(careers, func(i, j int) bool {
+			return careers[i].EffectiveDate.Before(careers[j].EffectiveDate)
+		})
+
+		yearGroups = append(yearGroups, CareerYearGroup{
+			Year:    year,
+			Careers: careers,
+		})
+	}
+
+	// Sort by year descending
+	sort.Slice(yearGroups, func(i, j int) bool {
+		return yearGroups[i].Year < yearGroups[j].Year
+	})
+
+	var status []models.Status
+	if err := config.DB.Order("created_at desc").Find(&status).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Error: %v", err)
+		return
+	}
+
+	var grading []models.Grading
+	if err := config.DB.Order("created_at desc").Find(&grading).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Error: %v", err)
+		return
+	}
+
+	var department []models.Department
+	if err := config.DB.Order("created_at desc").Find(&department).Error; err != nil {
+		c.String(http.StatusInternalServerError, "Error: %v", err)
+		return
+	}
+
+	// 2. Ambil SEMUA achievements employee (NO YEAR FILTER dulu)
+	var allAchievements []models.Achievement
+	config.DB.Where("id_employee = ?", currentUser.ID).
+		Order("date ASC").
+		Find(&allAchievements)
+
+	// 2. Group by YEAR dari data yang ada
+	yearMap2 := make(map[int][]AchievementByType)
+
+	for _, ach := range allAchievements {
+		year := ach.Date.Year()
+
+		// Get or create type group for this year
+		typeMap := yearMap2[year]
+
+		// Cari apakah type sudah ada di year ini
+		found := false
+		for i := range typeMap {
+			if typeMap[i].TypeID == *ach.IDTypeAchievement {
+				typeMap[i].Achievements = append(typeMap[i].Achievements, ach)
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			// Type baru, fetch type name
+			var typeAch models.TypeAchievement
+			config.DB.First(&typeAch, *ach.IDTypeAchievement)
+
+			yearMap2[year] = append(typeMap, AchievementByType{
+				TypeName:     typeAch.Type,
+				TypeID:       *ach.IDTypeAchievement,
+				Achievements: []models.Achievement{ach},
+			})
+		}
+	}
+
+	// 3. Convert to sorted yearGroups
+	var yearGroups2 []YearGroup
+	for year := range yearMap2 {
+		yearGroups2 = append(yearGroups2, YearGroup{
+			Year:       year,
+			TypeGroups: yearMap2[year],
+		})
+	}
+
+	// Sort by year
+	sort.Slice(yearGroups2, func(i, j int) bool {
+		return yearGroups2[i].Year < yearGroups2[j].Year
+	})
+
+	var types []models.TypeAchievement
+	config.DB.Order("type ASC").Find(&types)
 
 	// 5. Render template show/detail
 	c.HTML(http.StatusOK, "employee_info", gin.H{
-		"title":        "Detail Employee",
-		"data":         employee,
-		"staffing":     staffing,
+		"title":      "Employee",
+		"activePage": "employee",
+
+		"user":         employee,
+		"company":      company,
+		"blood":        blood,
+		"religion":     religion,
 		"bankAccount":  bankAccount,
+		"typeBank":     typeBank,
 		"identity":     identity,
-		"address":      address,
+		"typeIdentity": typeIdentity,
 		"contact":      contact,
-		"families":     families,
+		"address":      address,
+		"staffing":     staffing,
+		"career":       career,
+		"odepartment":  odepartment,
+		"ograding":     ograding,
+		"department":   department,
+		"grading":      grading,
+
+		"yearGroups":      yearGroups,
+		"allCareer":       allCareer, // Backup untuk timeline dots
+		"statusNames":     statusNames,
+		"gradingNames":    gradingNames,
+		"departmentNames": departmentNames,
+
+		"yearGroupss":     yearGroups2,
+		"types":           types,
+		"allAchievements": allAchievements, // Backup untuk timeline dots
+
 		"educations":   educations,
 		"careers":      careers,
 		"achievements": achievements,
-		"blood":        blood,
-		"religion":     religion,
+		"families":     families,
+
+		// master untuk mapping ID -> nama (dipakai di range di template)
+		"statuses":        statuses,
+		"gradings":        gradings,
+		"departments":     departments,
+		"familyReligions": familyReligions,
 	})
 }
 

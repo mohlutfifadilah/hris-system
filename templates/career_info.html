@@ -175,20 +175,22 @@
                                       <i class="fas fa-external-link-alt"></i> View Evidence
                                     </a>
                                     {{end}}
-                                    <a href="#" class="dropdown-item has-icon text-warning edit-car-btn" 
-                                      data-id="{{$career.ID}}"
-                                      data-status="{{printf "%s" $career.IDStatus}}"
-                                      data-grading="{{printf "%s" $career.IDGrading}}"
-                                      data-department="{{printf "%s" $career.IDDepartment}}"
-                                      data-effectivedate="{{$career.EffectiveDate.Format "2006-01-02"}}"
-                                      data-position="{{$career.Position}}"
-                                      data-evidence="{{$career.EvidenceLink}}">
-                                      <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <a href="#" class="dropdown-item has-icon text-danger delete-car-btn" 
-                                      data-id="{{$career.ID}}">
-                                      <i class="fas fa-trash"></i> Delete
-                                    </a>
+                                    {{ if $.current.IsAdmin }}
+                                      <a href="#" class="dropdown-item has-icon text-warning edit-car-btn" 
+                                        data-id="{{$career.ID}}"
+                                        data-status="{{printf "%s" $career.IDStatus}}"
+                                        data-grading="{{printf "%s" $career.IDGrading}}"
+                                        data-department="{{printf "%s" $career.IDDepartment}}"
+                                        data-effectivedate="{{$career.EffectiveDate.Format "2006-01-02"}}"
+                                        data-position="{{$career.Position}}"
+                                        data-evidence="{{$career.EvidenceLink}}">
+                                        <i class="fas fa-edit"></i> Edit
+                                      </a>
+                                      <a href="#" class="dropdown-item has-icon text-danger delete-car-btn" 
+                                        data-id="{{$career.ID}}">
+                                        <i class="fas fa-trash"></i> Delete
+                                      </a>
+                                    {{ end }}
                                   </div>
                                 </div>
 
@@ -236,9 +238,11 @@
                 </div>
               </div>
             </div>
-            <div class="card-body text-right">
-              <a href="/career" class="btn btn-secondary">Back</a>
-            </div>
+            {{ if .current.IsAdmin }}
+              <div class="card-body text-right">
+                <a href="/career" class="btn btn-secondary">Back</a>
+              </div>
+            {{ end }}
           </section>
         </div>
 

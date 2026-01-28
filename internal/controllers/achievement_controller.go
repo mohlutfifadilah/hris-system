@@ -383,6 +383,7 @@ func (dc *AchievementController) Show(c *gin.Context) {
 		"types":           types,
 		"allAchievements": allAchievements, // Backup untuk timeline dots
 		"user":            employe,         // seluruh row employee yang login (boleh nil)
+		"current":         currentUser,
 	})
 }
 

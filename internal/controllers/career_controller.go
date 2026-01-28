@@ -435,6 +435,7 @@ func (dc *CareerController) Show(c *gin.Context) {
 		"status":          status,
 		"grading":         grading,
 		"department":      department,
+		"current":         currentUser,
 	})
 }
 
@@ -1042,4 +1043,3 @@ func (ac *CareerController) Pdf(ctx *gin.Context) {
 		return
 	}
 }
-

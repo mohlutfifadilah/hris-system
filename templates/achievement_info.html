@@ -210,24 +210,25 @@
                                               <span class="text-muted small">No Evidence</span>
                                               {{end}}
                                             </div>
-                                            
-                                            <div class="btn-group btn-group-sm">
-                                              <button type="button" class="btn btn-warning edit-ach-btn" 
-                                                      data-id="{{$ach.ID}}"
-                                                      data-type="{{printf "%s" $ach.IDTypeAchievement}}"
-                                                      data-date="{{$ach.Date.Format "2006-01-02"}}"
-                                                      data-title="{{$ach.Title}}"
-                                                      data-desc="{{$ach.Description}}"
-                                                      data-evidence="{{$ach.EvidenceLink}}">
-                                                <i class="fas fa-edit"></i>
-                                              </button>
-                                              
-                                              <button type="button" class="btn btn-danger delete-ach-btn" 
-                                                      data-id="{{$ach.ID}}" 
-                                                      data-title="{{$ach.Title}}">
-                                                <i class="fas fa-trash"></i>
-                                              </button>
-                                            </div>
+                                            {{ if $.current.IsAdmin }}
+                                              <div class="btn-group btn-group-sm">
+                                                <button type="button" class="btn btn-warning edit-ach-btn" 
+                                                        data-id="{{$ach.ID}}"
+                                                        data-type="{{printf "%s" $ach.IDTypeAchievement}}"
+                                                        data-date="{{$ach.Date.Format "2006-01-02"}}"
+                                                        data-title="{{$ach.Title}}"
+                                                        data-desc="{{$ach.Description}}"
+                                                        data-evidence="{{$ach.EvidenceLink}}">
+                                                  <i class="fas fa-edit"></i>
+                                                </button>
+                                                
+                                                <button type="button" class="btn btn-danger delete-ach-btn" 
+                                                        data-id="{{$ach.ID}}" 
+                                                        data-title="{{$ach.Title}}">
+                                                  <i class="fas fa-trash"></i>
+                                                </button>
+                                              </div>
+                                            {{ end }}
                                           </div>
                                         </div>
                                       </div>
@@ -245,9 +246,11 @@
                   </div>
                 </div>
               </div>
-              <div class="card-body text-right">
-                <a href="/achievement" class="btn btn-secondary">Back</a>
-              </div>
+              {{ if .current.IsAdmin }}
+                <div class="card-body text-right">
+                  <a href="/achievement" class="btn btn-secondary">Back</a>
+                </div>
+              {{ end }}
           </section>
         </div>
 
