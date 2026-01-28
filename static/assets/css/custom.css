@@ -6,3 +6,20 @@
  */
 
 /*# sourceMappingURL=custom.css.map */
+/* In your custom.css file */
+
+:root {
+  --bs-primary: pink; /* For newer Bootstrap versions that use CSS variables */
+}
+
+.btn-primary {
+  background-color: pink !important;
+  border-color: pink !important;
+  /* Add hover, focus, and active states manually as needed */
+}
+
+.text-primary {
+  color: pink !important;
+}
+
+/* Repeat for all other components */
