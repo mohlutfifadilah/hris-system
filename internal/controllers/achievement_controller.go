@@ -886,11 +886,12 @@ func (ac *AchievementController) Pdf(ctx *gin.Context) {
 		pdf.SetFillColor(79, 129, 189)
 		pdf.SetTextColor(255, 255, 255)
 
+		// Table Header - UBAH ln=1 menjadi ln=0 di Description
 		pdf.CellFormat(8, 7, "No", "1", 0, "C", true, 0, "")
+		pdf.CellFormat(40, 7, "Date", "1", 0, "C", true, 0, "")
 		pdf.CellFormat(30, 7, "Type", "1", 0, "C", true, 0, "")
 		pdf.CellFormat(40, 7, "Title", "1", 0, "C", true, 0, "")
-		pdf.CellFormat(60, 7, "Description", "1", 0, "C", true, 0, "")
-		pdf.CellFormat(52, 7, "Date", "1", 1, "C", true, 0, "")
+		pdf.CellFormat(72, 7, "Description", "1", 1, "C", true, 0, "") // Tetap ln=1 untuk pindah baris
 
 		// Table Content
 		pdf.SetFont("Arial", "", 8)
@@ -898,20 +899,57 @@ func (ac *AchievementController) Pdf(ctx *gin.Context) {
 		pdf.SetFillColor(242, 242, 242)
 
 		yearAchievements := achievementsByYear[year]
+		// Table Content - TANPA BACKGROUND + BORDER RAPIH
 		for idx, achievement := range yearAchievements {
-			fill := idx%2 == 1
-
-			// Format date dengan hari
+			// HAPUS fill alternating row
 			dateStr := achievement.Date.Format("Monday, 02 January 2006")
-
-			// Get type name from map
 			typeName := typeNames[achievement.IDTypeAchievement.String()]
 
-			pdf.CellFormat(8, 7, fmt.Sprintf("%d", idx+1), "1", 0, "C", fill, 0, "")
-			pdf.CellFormat(52, 7, dateStr, "1", 1, "C", fill, 0, "")
-			pdf.CellFormat(30, 7, typeName, "1", 0, "L", fill, 0, "")
-			pdf.CellFormat(40, 7, achievement.Title, "1", 0, "L", fill, 0, "")
-			pdf.CellFormat(60, 7, achievement.Description, "1", 0, "L", fill, 0, "")
+			// 1. DATA & WIDTH
+			widths := []float64{8, 40, 30, 40, 72}
+			texts := []string{
+				fmt.Sprintf("%d", idx+1),
+				dateStr,
+				typeName,
+				achievement.Title,
+				achievement.Description,
+			}
+
+			// 2. HITUNG tinggi MAXIMAL
+			maxHeight := 7.0
+			for i := range texts {
+				lines := pdf.SplitLines([]byte(texts[i]), widths[i])
+				thisHeight := float64(len(lines)) * 4.0
+				if thisHeight > maxHeight {
+					maxHeight = thisHeight
+				}
+			}
+
+			// 3. GAMBAR BORDER dulu (tanpa background)
+			startX, startY := pdf.GetXY()
+			for i := range widths {
+				xPos := startX
+				for j := 0; j < i; j++ {
+					xPos += widths[j]
+				}
+				// Border FULL tanpa background
+				pdf.Rect(xPos, startY, widths[i], maxHeight, "D")
+			}
+
+			// 4. ISI TEXT (tanpa background fill)
+			pdf.SetXY(startX, startY)
+			for i := range texts {
+				xPos := startX
+				for j := 0; j < i; j++ {
+					xPos += widths[j]
+				}
+				pdf.SetXY(xPos, startY)
+				// Border KOSONG saat isi text (hanya text)
+				pdf.MultiCell(widths[i], 4, texts[i], "", "L", false)
+			}
+
+			// 5. Pindah baris
+			pdf.SetY(startY + maxHeight)
 		}
 
 		pdf.Ln(2)

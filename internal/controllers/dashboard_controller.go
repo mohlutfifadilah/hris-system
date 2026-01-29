@@ -1,10 +1,9 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
+	"sort"
 
 	"hris-system/config"
 	auth "hris-system/internal/auth"
@@ -48,38 +47,62 @@ func (dc *DashboardController) Index(c *gin.Context) {
 		return
 	}
 
-	// Mengambil data achievement per bulan
-	var counts []int64
-	currentYear := time.Now().Year()
+	// TypeAchievementMap
+	typeAchievementMap := make(map[string]string)
 
-	// Loop untuk bulan 1 hingga bulan sekarang - 1
-	for month := 1; month <= int(time.Now().Month())-1; month++ {
-		var count int64
-		err := config.DB.
-			Model(&models.Achievement{}).
-			Where("EXTRACT(MONTH FROM created_at) = ? AND EXTRACT(YEAR FROM created_at) = ?", month, currentYear).
-			Count(&count).Error
-		if err != nil {
-			c.String(http.StatusInternalServerError, "Error fetching monthly achievement counts")
-			return
+	for _, typ := range achievements {
+		if typ.IDTypeAchievement != nil {
+			var typeAchievement models.TypeAchievement
+			if err := config.DB.First(&typeAchievement, "id = ?", typ.IDTypeAchievement).Error; err == nil {
+				typeAchievementMap[typ.IDTypeAchievement.String()] = typeAchievement.Type
+			}
 		}
-		counts = append(counts, count)
 	}
 
-	// Labels untuk bulan (January, February, ... sampai bulan terakhir)
-	labels := []string{"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
-
-	// Konversi data counts dan labels ke JSON
-	countsJSON, err := json.Marshal(counts)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Error converting counts to JSON")
-		return
+	type TopAchievement struct {
+		TypeName string `json:"typeName"`
+		Count    int    `json:"count"`
+		Title    string `json:"title"`
 	}
 
-	labelsJSON, err := json.Marshal(labels)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Error converting labels to JSON")
-		return
+	// 1. Hitung frekuensi tiap TypeAchievement
+	typeFreq := make(map[string]int)
+	for _, ach := range achievements {
+		if ach.IDTypeAchievement != nil && typeAchievementMap[ach.IDTypeAchievement.String()] != "" {
+			typeFreq[typeAchievementMap[ach.IDTypeAchievement.String()]]++
+		}
+	}
+
+	// 2. Buat slice untuk sorting
+	var typeAchievements []TopAchievement
+	for typeName, count := range typeFreq {
+		// Cari 1 achievement dengan type ini untuk contoh title
+		var exampleTitle string
+		for _, ach := range achievements {
+			if typeAchievementMap[ach.IDTypeAchievement.String()] == typeName {
+				exampleTitle = ach.Title
+				break
+			}
+		}
+
+		if exampleTitle != "" {
+			typeAchievements = append(typeAchievements, TopAchievement{
+				TypeName: typeName,
+				Count:    count,
+				Title:    exampleTitle,
+			})
+		}
+	}
+
+	// 3. Sort DESC by count
+	sort.Slice(typeAchievements, func(i, j int) bool {
+		return typeAchievements[i].Count > typeAchievements[j].Count
+	})
+
+	// 4. Ambil top 5
+	topAchievements := typeAchievements
+	if len(topAchievements) > 5 {
+		topAchievements = topAchievements[:5]
 	}
 
 	// EmployeeMap
@@ -97,18 +120,6 @@ func (dc *DashboardController) Index(c *gin.Context) {
 					Name:  emp.Name,
 					Photo: emp.Photo,
 				}
-			}
-		}
-	}
-
-	// TypeAchievementMap
-	typeAchievementMap := make(map[string]string)
-
-	for _, typ := range achievements {
-		if typ.IDTypeAchievement != nil {
-			var typeAchievement models.TypeAchievement
-			if err := config.DB.First(&typeAchievement, "id = ?", typ.IDTypeAchievement).Error; err == nil {
-				typeAchievementMap[typ.IDTypeAchievement.String()] = typeAchievement.Type
 			}
 		}
 	}
@@ -157,8 +168,7 @@ func (dc *DashboardController) Index(c *gin.Context) {
 		"achievements":       achievements,
 		"employeeMap":        employeeMap,
 		"typeAchievementMap": typeAchievementMap,
-		"careerMap":          careerMap,          // PASTIKAN INI ADA
-		"monthlyCounts":      string(countsJSON), // Kirim data JSON ke template
-		"labels":             string(labelsJSON), // Kirim data JSON ke template
+		"careerMap":          careerMap, // PASTIKAN INI ADA
+		"topAchievements":    topAchievements,
 	})
 }

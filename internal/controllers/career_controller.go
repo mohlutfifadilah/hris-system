@@ -1000,25 +1000,62 @@ func (ac *CareerController) Pdf(ctx *gin.Context) {
 		// Table Content
 		pdf.SetFont("Arial", "", 8)
 		pdf.SetTextColor(0, 0, 0)
+		pdf.SetFillColor(242, 242, 242)
 
 		yearCareers := careersByYear[year]
 		for idx, career := range yearCareers {
-			fill := idx%2 == 0
-			if fill {
-				pdf.SetFillColor(242, 242, 242)
-			}
 
 			dateStr := career.EffectiveDate.Format("02 Jan 2006")
 			status := typeStatuss[career.IDStatus.String()]
 			grading := typeGradings[career.IDGrading.String()]
 			dept := typeDepartments[career.IDDepartment.String()]
 
-			pdf.CellFormat(10, 7, fmt.Sprintf("%d", idx+1), "1", 0, "C", fill, 0, "")
-			pdf.CellFormat(40, 7, dateStr, "1", 0, "L", fill, 0, "")
-			pdf.CellFormat(30, 7, status, "1", 0, "L", fill, 0, "")
-			pdf.CellFormat(30, 7, grading, "1", 0, "L", fill, 0, "")
-			pdf.CellFormat(42, 7, career.Position, "1", 0, "L", fill, 0, "")
-			pdf.CellFormat(38, 7, dept, "1", 1, "L", fill, 0, "")
+			// 1. DATA & WIDTH
+			widths := []float64{10, 40, 30, 30, 42, 38}
+			texts := []string{
+				fmt.Sprintf("%d", idx+1),
+				dateStr,
+				status,
+				grading,
+				career.Position,
+				dept,
+			}
+
+			// 2. HITUNG tinggi MAXIMAL
+			maxHeight := 7.0
+			for i := range texts {
+				lines := pdf.SplitLines([]byte(texts[i]), widths[i])
+				thisHeight := float64(len(lines)) * 4.0
+				if thisHeight > maxHeight {
+					maxHeight = thisHeight
+				}
+			}
+
+			// 3. GAMBAR BORDER dulu (tanpa background)
+			startX, startY := pdf.GetXY()
+			for i := range widths {
+				xPos := startX
+				for j := 0; j < i; j++ {
+					xPos += widths[j]
+				}
+				// Border FULL tanpa background
+				pdf.Rect(xPos, startY, widths[i], maxHeight, "D")
+			}
+
+			// 4. ISI TEXT (tanpa background fill)
+			pdf.SetXY(startX, startY)
+			for i := range texts {
+				xPos := startX
+				for j := 0; j < i; j++ {
+					xPos += widths[j]
+				}
+				pdf.SetXY(xPos, startY)
+				// Border KOSONG saat isi text (hanya text)
+				pdf.MultiCell(widths[i], 4, texts[i], "", "L", false)
+			}
+
+			// 5. Pindah baris
+			pdf.SetY(startY + maxHeight)
 		}
 
 		pdf.Ln(2)

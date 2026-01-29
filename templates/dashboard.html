@@ -110,17 +110,7 @@
             </div>                
           </div>
           <div class="row">
-            <!-- <div class="col-lg-8 col-md-12 col-12 col-sm-12">
-              <div class="card">
-                <div class="card-header">
-                  <h4>Statistics</h4>
-                </div>
-                <div class="card-body">
-                  <canvas id="myChart" height="182"></canvas>
-                </div>
-              </div>
-            </div> -->
-            <div class="col-lg-4 col-md-12 col-12 col-sm-12">
+            <div class="col-lg-6 col-md-12 col-12 col-sm-12">
               <div class="card">
                 <div class="card-header">
                   <h4>Recent Achievement</h4>
@@ -131,7 +121,9 @@
                     <li class="media">
                       <img class="mr-3 rounded-circle" width="50" height="50" src="{{ with $employee := index $.employeeMap ($achievement.IDEmployee.String) }} {{ $employee.Photo }} {{ end }}" alt="avatar">
                       <div class="media-body">
-                        <div class="float-right text-primary" id="created-at-{{ $achievement.ID }}">{{ $achievement.CreatedAt }}</div>
+                        <div class="float-right text-primary" id="created-at-{{ $achievement.ID }}">
+                          {{ $achievement.CreatedAt.Format "2006-01-02 15:04:05" }}
+                        </div>                     
                         <div class="media-title">{{ with $type := index $.typeAchievementMap ($achievement.IDTypeAchievement.String) }} {{ $type }} {{ end }}</div>
                         <span class="text-small text-muted">{{ $achievement.Title }}</span>
                       </div>
@@ -147,30 +139,26 @@
                   {{ end }}
                 </div>
               </div>
-              
-              <!-- <div class="card">
+            </div>
+            <div class="col-lg-6 col-md-12 col-12 col-sm-12">
+              <div class="card">
                 <div class="card-header">
                     <h4>Top 5 Achievements</h4>
                 </div>
                 <div class="card-body">
-                    {{ range $index, $achievement := .topAchievements }}
-                    <div class="mb-4">
-                        <div class="text-small float-right font-weight-bold text-muted">
-                            {{ .Type }}
-                        </div>
-                        <div class="font-weight-bold mb-1">{{ .Title }}</div>
-                        <div class="progress" data-height="3">
-                            <div class="progress-bar" role="progressbar" 
-                                data-width="" 
-                                aria-valuenow="" 
-                                aria-valuemin="0" 
-                                aria-valuemax="100">
-                            </div>
-                        </div>
-                    </div>
-                    {{ end }}
+                  {{ range $index, $top := .topAchievements }}
+                  <div class="mb-4 top-achievement" data-count="{{ $top.Count }}" data-max="20">
+                      <div class="text-small float-right font-weight-bold">
+                        {{ $top.Count }}
+                      </div>
+                      <div class="font-weight-bold mb-1">{{ $top.TypeName }}</div>
+                      <div class="progress" data-height="3" style="height: 3px;">
+                          <div class="progress-bar bg-primary" role="progressbar"></div>
+                      </div>
+                  </div>
+                  {{ end }}                  
                 </div>
-              </div> -->
+              </div>
             </div>
           </div>
         </section>
@@ -221,58 +209,46 @@
         timer: 3000
       });
     }
-    // Loop melalui semua elemen dengan ID `created-at-*` dan ubah timestamp ke format waktu relatif
-    {{ range $achievement := .achievements }}
-      // Mendapatkan elemen berdasarkan ID unik untuk setiap achievement
-      const timestamp = document.getElementById("created-at-{{ $achievement.ID }}").innerText;
-      const timeAgo = moment(timestamp).fromNow(); // Menggunakan Moment.js untuk mengonversi timestamp menjadi "XX minutes ago"
-      // Menampilkan waktu relatif di dalam elemen
-      document.getElementById("created-at-{{ $achievement.ID }}").innerText = timeAgo;
-    {{ end }}
 
-    // Mengonversi string JSON kembali ke array
-    var labels = JSON.parse("{{ .labels }}"); // Labels bulan (dari Januari sampai bulan terakhir)
-    var counts = JSON.parse("{{ .monthlyCounts }}"); // Data jumlah pencapaian per bulan
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('[id^="created-at-"]').forEach(function(el) {
+        const timestamp = new Date(el.innerText.trim()).getTime();
+        if (!isNaN(timestamp)) {
+            el.innerText = timeAgo(timestamp);
+        }
+      });
 
-    var ctx = document.getElementById("myChart").getContext('2d');
-    var myChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels, // Labels bulan (dari Januari sampai bulan terakhir)
-        datasets: [{
-          label: 'Achievement Count per Month',
-          data: counts, // Data jumlah pencapaian per bulan
-          borderWidth: 5,
-          borderColor: '#6777ef',
-          backgroundColor: 'transparent',
-          pointBackgroundColor: '#fff',
-          pointBorderColor: '#6777ef',
-          pointRadius: 4
-        }]
-      },
-      options: {
-        legend: {
-          display: false
-        },
-        scales: {
-          yAxes: [{
-            gridLines: {
-              display: false,
-              drawBorder: false,
-            },
-            ticks: {
-              stepSize: 1
-            }
-          }],
-          xAxes: [{
-            gridLines: {
-              color: '#fbfbfb',
-              lineWidth: 2
-            }
-          }]
-        },
-      }
+      // Animate top achievements progress bars
+      document.querySelectorAll('.top-achievement').forEach(function(el) {
+        const count = parseInt(el.dataset.count);
+        const max = parseInt(el.dataset.max) || 20;
+        const progressBar = el.querySelector('.progress-bar');
+        const width = Math.min((count / max) * 100, 100);
+        
+        progressBar.style.width = width + '%';
+        progressBar.setAttribute('aria-valuenow', count);
+      });
     });
+
+    // Function timeAgo TANPA LIBRARY
+    function timeAgo(timestamp) {
+        const now = Date.now();
+        const diffMs = now - timestamp;
+        const diffSeconds = Math.floor(diffMs / 1000);
+        const diffMinutes = Math.floor(diffSeconds / 60);
+        const diffHours = Math.floor(diffMinutes / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        const diffMonths = Math.floor(diffDays / 30.44); // Rata-rata bulan
+        const diffYears = Math.floor(diffDays / 365.25);
+
+        if (diffSeconds < 60) return 'now';
+        if (diffMinutes < 60) return `${diffMinutes} minutes ago`;
+        if (diffHours < 24) return `${diffHours} hours ago`;
+        if (diffDays < 30) return `${diffDays} days ago`;
+        if (diffMonths < 12) return `${diffMonths} months ago`;
+        return `${diffYears} years ago`;
+    }
+
   </script>
 </body>
 </html>
